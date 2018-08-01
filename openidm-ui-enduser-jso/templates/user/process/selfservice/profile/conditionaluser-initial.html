@@ -1,0 +1,52 @@
+{{!--
+  Copyright 2018 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<form class="form">
+    <p>{{requirements.uiConfig.purpose}}</p>
+
+    {{#each requirements.attributes}}
+        {{#equals this.schema.type "string"}}
+        <div class="form-group float-label has-feedback{{#if this.value}} float-label-with-focus{{/if}}">
+            <label class="{{#unless this.value}} sr-only{{/unless}}" for="input-{{this.name}}">
+                <span>{{this.schema.title}}</span>
+            </label>
+            <input class="form-control {{#unless this.value}} input-lg{{/unless}}"
+                type="text" placeholder="{{this.schema.title}}"
+                id="input-{{this.name}}"
+                name="attributes.{{this.name}}"
+                value="{{this.value}}"
+                data-validator="{{#if this.isRequired}}required{{/if}}{{#each schema.policies}} {{policyId}}{{/each}}" />
+            <div class="validation-message"></div>
+            <span class="error form-control-feedback"><i class="fa validation-icon"></i></span>
+        </div>
+        {{/equals}}
+        {{#equals this.schema.type "boolean"}}
+        <div class="form-group form-group-checkbox" {{#if ../requirements.isSingleBooleanForm}}style="display:none;"{{/if}}>
+            <div class="">
+                <label>
+                    <input name="attributes.{{this.name}}" value="true" type="checkbox" {{#if ../requirements.isSingleBooleanForm }}checked{{else}}{{#if this.value}}checked{{/if}}{{/if}}><span></span>
+                    {{#if this.schema.title}}{{this.schema.title}}{{else}}{{this.schema.description}}{{/if}}
+                </label>
+            </div>
+        </div>
+        {{/equals}}
+    {{/each}}
+    <div class="form-group">
+        <input type="submit" class="btn btn-lg btn-primary btn-block btn-uppercase" value="{{requirements.uiConfig.buttonText}}" />
+    </div>
+    {{#unless requirements.hasRequiredAttribute}}
+    <div class="form-group">
+        <a id="skipThis" href="#">{{#if requirements.isSingleBooleanForm}}{{t "templates.progressiveProfile.noThanks"}}{{else}}{{t "templates.progressiveProfile.skipThis"}}{{/if}}</a>
+    </div>
+    {{else}}
+        {{#if requirements.isSingleBooleanForm}}
+        <div class="form-group">
+            <a id="skipThis" href="#">{{t "templates.progressiveProfile.noThanks"}}</a>
+        </div>
+        {{/if}}
+    {{/unless}}
+</form>

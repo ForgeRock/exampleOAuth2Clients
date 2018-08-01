@@ -1,0 +1,45 @@
+{{!--
+  Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+{{#each requirements.registrationProperties.properties}}
+    <div class="form-group float-label {{#dynamicValueExist @root.requirements.properties.user.default @key}} float-label-with-focus {{/dynamicValueExist}}has-feedback">
+        <label class="{{#dynamicValueNotExist @root.requirements.properties.user.default @key}} sr-only {{/dynamicValueNotExist}}" for="input-{{@key}}">
+            <span>{{title}}</span>
+        </label>
+        <input class="form-control {{#dynamicValueNotExist @root.requirements.properties.user.default @key}} input-lg {{/dynamicValueNotExist}}" type="text" placeholder="{{title}}" id="input-{{@key}}" name="user.{{@key}}" value="{{#findDynamicValue @root.requirements.properties.user.default @key}}{{/findDynamicValue}}" required />
+        <div class="validation-message"></div>
+        <span class="error form-control-feedback"><i class="fa validation-icon"></i></span>
+    </div>
+{{else}}
+    <div class="form-group float-label {{#if user.default.userName}} float-label-with-focus {{/if}}">
+        <label class="{{#unless user.default.userName}} sr-only {{/unless}}" for="input-userName">
+            <span>{{t 'common.user.username'}}</span>
+        </label>
+        <input class="form-control {{#unless user.default.userName}} input-lg {{/unless}}" type="text" placeholder="{{t 'common.user.username'}}" id="input-userName" name="user.userName" value="{{user.default.userName}}" required />
+    </div>
+
+    <div class="form-group float-label {{#if user.default.givenName}} float-label-with-focus {{/if}}">
+        <label class="{{#unless user.default.givenName}} sr-only {{/unless}}" for="input-givenName">
+            <span>{{t 'common.user.givenName'}}</span>
+        </label>
+        <input class="form-control {{#unless user.default.givenName}} input-lg {{/unless}}" type="text" placeholder="{{t 'common.user.givenName'}}" id="input-givenName" name="user.givenName" value="{{user.default.givenName}}" />
+    </div>
+
+    <div class="form-group float-label {{#if user.default.sn}} float-label-with-focus {{/if}}">
+        <label class="{{#unless user.default.sn}} sr-only {{/unless}}" for="input-sn">
+            <span>{{t 'common.user.sn'}}</span>
+        </label>
+        <input class="form-control {{#unless user.default.sn}} input-lg {{/unless}}" type="text" placeholder="{{t 'common.user.sn'}}" id="input-sn" name="user.sn" value="{{user.default.sn}}" />
+    </div>
+
+    <div class="form-group float-label {{#if user.default.mail}} float-label-with-focus float-label-with-readonly {{/if}}">
+        <label class="{{#unless user.default.mail}} sr-only {{/unless}}" for="input-email">
+            <span>{{t 'common.user.email'}}</span>
+        </label>
+        <input class="form-control {{#unless user.default.mail}} input-lg {{/unless}}" type="text" placeholder="{{t 'common.user.email'}}" id="input-email" name="user.mail" value="{{user.default.mail}}" />
+    </div>
+{{/each}}

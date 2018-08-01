@@ -1,0 +1,101 @@
+{{!
+Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+<nav id="mainNavHolder" class="navbar navbar-default navbar-static-top navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            {{#if user.username}}
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mainNavBar" aria-expanded="false" aria-controls="navbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            {{/if}}
+            <ul class="nav list-unstyled {{#if admin}}navbar-admin{{/if}}">
+                <li id="navbarBrand">
+                    <a href="{{ routeTo 'default' }}" title="{{theme.settings.logo.title}}">
+                        <img style="{{#if theme.settings.logo.width}}width:{{theme.settings.logo.width}};{{/if}}{{#if theme.settings.logo.height}} height:{{theme.settings.logo.height}};{{/if}}"
+                             src="{{theme.settings.logo.src}}"
+                             alt="{{theme.settings.logo.alt}}" />
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        {{#if user.username}}
+        <div id="mainNavBar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav {{#if admin}}navbar-admin{{/if}}">
+                {{#each navbarLeft}}
+                <li class=" {{#if active}}active{{/if}} {{#if dropdown}} dropdown{{/if}} {{#if cssClass}} {{cssClass}}{{/if}}" >
+                    {{> navigation/_NavigationLink }}
+                    {{#if dropdown}}
+                        {{> navigation/_NavigationDropdownMenu }}
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ul>
+
+            {{#if showNavbarRight}}
+            <ul id="loginContent" class="nav navbar-nav navbar-right">
+                {{#each navbarRight}}
+                <li class=" {{#if active}}active{{/if}} {{#if dropdown}} dropdown{{/if}} {{#if cssClass}} {{cssClass}}{{/if}}" >
+                    {{> navigation/_NavigationLink }}
+                    {{#if dropdown}}
+                        {{> navigation/_NavigationDropdownMenu }}
+                    {{/if}}
+                </li>
+                {{/each}}
+
+                {{#if userBar.length}}
+                <li class="dropdown">
+                    <a href="#" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="user-avatar fa fa-user bg-primary"></i>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu" id="navDropdownMenu">
+
+                        <li {{#unless user.href}}class="dropdown-header"{{/unless}}> <!-- dropdown-no-link-->
+                            {{#if user.href}}
+                            <a href="{{user.href}}">
+                            {{/if}}
+                                {{#if user.label}}<div><small>{{t user.label}}</small></div>{{/if}}
+                                <strong id="user_name">{{user.username}}</strong>
+                                {{#if user.secondaryLabel}}<div><small>{{t user.secondaryLabel}}</small></div>{{/if}}
+                            {{#if user.href}}
+                            </a>
+                            {{/if}}
+                        </li>
+
+                        <li role="separator" class="divider"></li>
+
+                        {{#each userBar}}
+                            {{#if divider}}
+                                <li role="separator" class="divider"></li>
+                            {{else}}
+                                <li>
+                                    {{#if href}}
+                                    <a href="{{href}}" id="{{id}}">{{label}}</a>
+                                    {{else}}
+                                    {{#if event}}
+                                    <a href="#" id="{{id}}" class="event-link" data-event="{{event}}">{{label}}</a>
+                                    {{else}}
+                                    <span id="{{id}}">{{label}}</span>
+                                    {{/if}}
+                                    {{/if}}
+                                </li>
+                            {{/if}}
+                        {{/each}}
+                    </ul>
+                </li>
+                {{/if}}
+
+            </ul>
+            {{/if}}
+        </div>
+        {{/if}}
+    </div>
+</nav>

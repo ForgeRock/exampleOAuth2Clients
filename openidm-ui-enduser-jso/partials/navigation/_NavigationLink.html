@@ -1,0 +1,23 @@
+{{!
+Copyright 2016-2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+<a  title="{{title}}"
+    href="{{#if hashurl}}{{hashurl}}{{else}}#{{/if}}"
+    {{#if data}}{{#each data}}data-{{type}}="{{value}}"{{/each}}{{/if}}
+    class="{{#if event}}event-link{{/if}} {{#if urls}}dropdown-toggle{{/if}}"
+    {{#if event}}data-event="{{event}}"{{/if}}
+    {{#if urls}}data-toggle="dropdown" role="button" aria-expanded="false"{{/if}}
+    {{#if id}}id="{{id}}"{{/if}}
+>
+    {{#if icon}}<i class="{{icon}}"></i>{{/if}}
+    {{#if innerHtml}}{{{innerHtml}}}{{/if}}
+    {{#if urls}}
+        <span class="hidden-sm">{{title}}</span> <span class="caret"></span>
+    {{else}}
+        {{title}}
+    {{/if}}
+</a>

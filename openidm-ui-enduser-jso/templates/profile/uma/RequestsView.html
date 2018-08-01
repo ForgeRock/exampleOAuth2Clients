@@ -1,0 +1,64 @@
+{{!
+Copyright 2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+<div class="fr-top-bar">
+    <div class="container">
+        <h3 class="fr-backbar">
+            <a href="#profile/sharing" class="fr-back-crumb">{{t "templates.sharing.sharing"}}</a>
+        </h3>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+            <main id="PendingRequestsContainer">
+
+                <div class="page-header">
+                    <h1>{{t "templates.sharing.requests"}}</h1>
+                    <p class="panel-description">{{t "templates.sharing.requestsDesc"}}</p>
+                </div>
+
+                <div class="fr-panel-list fr-hover-panel-list">
+                    {{#equals requests.length 0}}
+                        <div class="well text-muted text-center">
+                            <h4>{{t "templates.sharing.noRequests"}}</h4>
+                        </div>
+                    {{else}}
+                        {{#each requests}}
+                            <div class="panel panel-default fr-hover-panel fr-first-list-panel fr-last-list-panel fr-resource-request-group" data-request-id="{{_id}}">
+                                <div class="panel-body resource-container">
+                                    <div class="row fr-three-column fr-three-column-large">
+                                        <div class="fr-column col-sm-7">
+                                            <h4>{{resource}}</h4>
+                                            <span class="text-muted">{{user}} {{t "templates.sharing.wouldLikeTo"}}</span>
+                                            {{#each permissions}}
+                                            <span class="label">{{this}}</span>
+                                            {{/each}}
+                                        </div>
+                                        <div class="fr-column col-sm-2 fr-time-elapsed">
+                                            <div class="text-muted">
+                                                {{when}}
+                                            </div>
+                                        </div>
+                                        <div class="fr-column col-sm-3">
+                                            <div class="pull-right">
+                                                <button type="button" data-allow=false class="btn btn-default fr-administrate-requests btn-deny">{{t "templates.sharing.deny"}}</button>
+                                                <button type="button" data-allow=true class="btn btn-primary fr-administrate-requests btn-allow">{{t "templates.sharing.allow"}}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {{/each}}
+                    {{/equals}}
+                </div>
+
+            </main>
+        </div>
+    </div>
+</div>

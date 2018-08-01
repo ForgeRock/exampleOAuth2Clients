@@ -1,0 +1,125 @@
+{{!--
+  Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<div class="editResourceViewContainer">
+    <div class="fr-top-bar">
+        <div class="container">
+            <h3 class="fr-breadcrumb">
+                <a href="#" id="backBtn">{{objectTitle}}</a>
+                <span class="seperator"></span>
+                {{#if newObject}}
+                    <span>{{t "templates.admin.ResourceEdit.new"}} {{objectTitle}}</span>
+                {{else}}
+                    <span>{{objectDisplayText}}<span>
+                {{/if}}
+            </h3>
+        </div>
+    </div>
+    <div class="container">
+        <div class="page-header profile-header">
+            <div class="media ">
+                {{#unless newObject}}
+                <div class="media-left media-top">
+
+                    <span class="resource-avatar"><i class="fa {{#if schema.icon}}{{schema.icon}}{{else}}fa-cube{{/if}}"></i></span>
+
+                </div>
+                {{/unless}}
+                <div class="media-body  media-top">
+                    {{#unless newObject}}<h4 class="page-type">{{objectTitle}}</h4>{{/unless}}
+	                <div class="page-header-button-group">
+	                    {{#unless newObject}}
+	                       {{#unless isSystemResource}}
+
+                         <div class="btn-group">
+                             <button type="button" class="btn btn-default btn-secondary dropdown-toggle btn-actions" data-toggle="dropdown" aria-expanded="false">
+                                 <i class="fa fa-ellipsis-v fa-lg"></i>
+                             </button>
+                             <ul class="dropdown-menu pull-right" role="menu">
+                                 <li id="deleteBtn"><a href="#"><i class="fa fa-times"></i>{{t "common.form.delete"}}</a></li>
+                             </ul>
+                         </div>
+
+	                       {{/unless}}
+	                    {{/unless}}
+	                </div>
+                    <h1 class="media-heading">
+                        {{#if newObject}}{{t "templates.admin.ResourceEdit.new"}} {{objectTitle}}{{else}}{{objectDisplayText}}{{/if}}
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class=" tab-menu">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="dropdown pull-right tabdrop hide">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-align-justify"></i> <i class="fa fa-ellipsis-v"></i></a>
+                    <ul class="dropdown-menu"></ul>
+                </li>
+                <li id="resourceDetailsTabHeader" class="active" {{#if newObject}}style="display:none;"{{/if}}><a href="#resource-details" role="tab" data-toggle="tab" aria-expanded="true">{{t "templates.admin.ResourceEdit.details"}}</a></li>
+                <li id="linkedSystemsTabHeader" style="display:none;" {{#if newObject}}style="display:none;"{{/if}}><a href="#resource-linkedSystems" role="tab" data-toggle="tab" aria-expanded="false">{{t "templates.admin.ResourceEdit.linkedSystems"}}</a></li>
+                <li id="tabHeaderTemplate" style="display:none;"><a href="" role="tab" data-toggle="tab" aria-expanded="false"></a></li>
+            </ul>
+        </div>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="resource-details">
+                <div class="tab-pane-body">
+                    <div class="panel-collapse-group">
+                        <div class="panel panel-default panel-collapse">
+                            <div class="panel-body">
+                                <form class="form">
+                                    <div id="resource" class="jsonEditor"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{#unless isSystemResource}}
+                <div class="panel-footer">
+                    <div class="alert alert-warning resourceChangesPending" style="display: none;">
+                        <i class="fa fa-exclamation-circle"></i><strong> {{t "templates.mapping.changesPending"}}</strong>
+                        <span class="changedFields"></span>
+                    </div>
+                    <div class="pull-right">
+                        {{#unless newObject}}
+                        <a href="#" class="btn btn-default resetBtn" disabled>{{t "common.form.reset"}}</a>
+                        {{/unless}}
+                        <a href="#" class="btn btn-primary saveBtn" >{{t "common.form.save"}}</a>
+                    </div>
+                </div>
+                {{/unless}}
+            </div>
+            <div role="tabpanel" class="tab-pane" id="tabContentTemplate">
+                <div class="tab-pane-body">
+                    <div class="panel-body">
+                        <div class="resourceCollectionArray"></div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="relationshipsTemplate">
+                <div class="tab-pane-body">
+                    <div class="panel-body">
+                        <div class="panel panel-default panel-collapse">
+                            <div class="panel-body">
+                                <div class="resourceCollectionRelationships"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="resource-linkedSystems">
+                <div class="tab-pane-body">
+                    <div class="panel-body">
+                        <div id="linkedView"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

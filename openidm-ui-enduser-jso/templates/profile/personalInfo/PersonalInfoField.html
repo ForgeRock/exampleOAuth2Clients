@@ -1,0 +1,60 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+
+<div class="panel-heading" role="tab" id="{{schemaName}}Heading">
+    <div class="panel-title">
+        <a role="button" data-toggle="collapse" href="#{{schemaName}}Collapse" aria-expanded="false" aria-controls="{{schemaName}}Collapse" data-parent="#attrAccordion" class="media collapsed">
+        <div class="media-body media-middle name">
+            <h4 class="media-heading no-margin">{{title}}</h4>
+        </div>
+        <div class="media-body media-middle value">
+            <span class="text-muted view-closed">{{#if value}}{{value}}{{else}}{{placeholder}}{{/if}}</span>
+            <div class="actions view-closed">
+                <div class="">
+                    {{#unless readonly}}<i class="fa fa-pencil"></i>{{/unless}}
+                </div>
+                <div class="hidden">
+                    <i class="fa fa-info-circle"></i>
+                </div>
+            </div>
+        </div>
+        </a>
+    </div>
+</div>
+<div id="{{schemaName}}Collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{schemaName}}Heading" aria-expanded="false" data-id="{{schemaName}}">
+    <div class="panel-body">
+        {{!--
+            uncomment when "justification" available for user infor attributes
+            <p class="panel-description margin-bottom-30">{{justification}}</p>
+        --}}
+        <form class="form-horizontal">
+            <div class="form-group hidden">
+                <div class="col-sm-offset-4 col-sm-6">
+                    {!--
+                        uncomment when "justification" available for user infor attributes
+                        <span class="help-block hidden">{{justification}}</span>
+                    --}}
+                </div>
+            </div>
+            <div class="form-group no-margin">
+                <label class="control-label col-sm-4" for="input-{{schemaName}}">{{title}}</label>
+                <div class="col-sm-6">
+                    <input id="input-{{schemaName}}" class="form-control" type="string" name="{{schemaName}}" value="{{value}}" data-validator{{#if readonly}} readonly{{/if}}>
+                    <div role="status" class="validation-message"></div>
+                    <span class="form-control-feedback"><i class="fa validation-icon"></i></span>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-footer">
+        <div class="pull-right">
+            <button class="btn btn-default btn-cancel">{{t "common.form.cancel"}}</button>
+            <button class="btn btn-primary btn-save" {{#if readonly}}disabled{{/if}}>{{t "common.form.save"}}</button>
+        </div>
+    </div>
+</div>

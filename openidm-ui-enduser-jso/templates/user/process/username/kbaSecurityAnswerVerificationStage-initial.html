@@ -1,0 +1,29 @@
+{{!
+Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+<form class="form" autocomplete="off">
+    <p role="heading">{{t 'common.user.forgotUsername.answerQuestions'}}</p>
+    {{#requirements}}
+    {{#each properties}}
+    <div class="form-group">
+        {{#if this.systemQuestion}}
+            <label class="separator" for="input-{{@key}}">
+                <span>{{mapTranslate this.systemQuestion}}</span>
+            </label>
+            <input type="text" placeholder="{{mapTranslate this.systemQuestion}}" id="input-{{@key}}" name="{{@key}}" class="form-control input-lg" />
+        {{else}}
+            <label class="separator" for="input-{{@key}}">
+                <span>{{this.userQuestion}}</span>
+            </label>
+            <input type="text" placeholder="{{this.userQuestion}}" id="input-{{@key}}" name="{{@key}}" class="form-control input-lg" />
+        {{/if}}
+    </div>
+    {{/each}}
+    {{/requirements}}
+
+    <input type="submit" class="btn btn-lg btn-primary btn-block btn-uppercase" value="{{t 'common.form.submit'}}" />
+</form>

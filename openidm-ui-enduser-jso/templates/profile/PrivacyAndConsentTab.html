@@ -1,0 +1,79 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+
+<div class="fr-profile-page">
+    <div class="page-header">
+        <h1>{{t "templates.consent.pageTitle"}}</h1>
+    </div>
+
+    <p class="section-help">{{t "templates.consent.pageHelp"}}</p>
+
+    <form id="privacyAndConsent">
+        <div class="fr-panel-list fr-hover-panel-list">
+            {{#each consentMappings}}
+                <div class="panel panel-default fr-collapse-panel fr-hover-panel {{#if @first}}fr-first-list-panel{{/if}} {{#if @last}}fr-last-list-panel{{/if}} collapsed" data-name="{{name}}" data-toggle="collapse" data-parent=".fr-panel-list" data-target="#collapse{{name}}">
+                    <div class="panel-body">
+                        <div class="row fr-three-column">
+                            <div class="col-sm-4 fr-column">
+                                {{#if icon}}<img class="fr-collapse-panel-logo" src="{{icon}}" alt="{{name}} Logo" />{{/if}}
+                                
+                                <span class="fr-collapse-panel-name">{{#if displayName}}{{displayName}}{{else}}{{name}}{{/if}}</span>
+                            </div>
+                            <div class="fr-panel-list-description col-sm-7 fr-column">
+                                <div class="fr-profile-additional-details text-muted">{{#if active}}{{t "templates.consent.onSince"}} {{activatedDate}} {{else}}{{t "templates.consent.off"}}{{/if}}</div>
+                            </div>
+                            <div class="fr-column col-sm-1 fr-panel-list-arrow fr-collapse-icon">
+                                <i></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="collapse{{name}}" class="panel panel-default panel-collapse collapse" data-name="{{name}}" role="tabpanel" aria-labelledby="heading{{name}}" aria-expanded="false">
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            <dt class="fr-toggle-label">{{t "templates.consent.allowAccess"}}</dt>
+                            <dd>
+                                <div class="checkbox checkbox-slider-md checkbox-slider--b-flat checkbox-slider-primary access-toggle pull-left">
+                                    <label>
+                                        <input type="checkbox" value="true" {{#if active}} checked {{/if}}>
+                                        <span></span>
+                                    </label>
+                                </div>
+                                <span class="fr-toggle-date text-muted pull-left">{{#if active}}{{t "templates.consent.since"}} {{activatedDate}}{{/if}}</span>
+                            </dd>
+                            <dt>{{t "templates.consent.accessLevel"}}</dt>
+                            <dd>{{accessLevel}}</dd>
+                            <dt>{{t "templates.consent.profileFields"}}</dt>
+                            <dd>
+                                {{#if fields}}
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                        {{#each fields}}
+                                            {{#if this}}
+                                                <tr>
+                                                    <td>{{title}}</td>
+                                                </tr>
+                                            {{/if}}
+                                        {{/each}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {{else}}
+                                    <span class="text-muted">{{t "templates.consent.noFields"}}</span>
+                                {{/if}}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            {{else}}
+            <div class="text-muted">{{t "templates.consent.noConsent"}}</div>
+            {{/each}}
+        </div>
+    </form>
+</div>

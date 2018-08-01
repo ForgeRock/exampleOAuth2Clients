@@ -1,0 +1,58 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<div class="fr-profile-page">
+    <div class="page-header">
+        <h1>{{t "templates.accountControls.title"}}</h1>
+    </div>
+
+    <form id="accountControls">
+        <div class="fr-panel-list fr-hover-panel-list">
+            <div class="panel fr-hover-panel panel-default">
+                <a class="fr-download-profile" href="#">
+                    <div class="panel-body">
+                        <div class="row fr-three-column fr-stacked-text-container">
+                            <div class="fr-panel-list-description col-sm-11">
+                                <div class="fr-profile-circle pull-left">
+                                    <i class="fa fa-download"></i>
+                                </div>
+                                <div class="fr-stacked-text">
+                                    <div class="fr-major-text">{{t "templates.accountControls.downloadTitle"}}</div>
+                                    <div class="fr-minor-text text-muted">{{t "templates.accountControls.downloadDetails"}}</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-1 fr-panel-list-arrow">
+                                <i class="fa fa-angle-right fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="panel fr-hover-panel panel-default">
+                <a href="#accountcontrols/delete/">
+                    <div class="panel-body">
+                        <div class="row fr-three-column fr-stacked-text-container">
+                            <div class="fr-panel-list-description col-sm-11">
+                                <div class="fr-profile-circle pull-left">
+                                    <i class="fa fa-trash"></i>
+                                </div>
+                                <div class="fr-stacked-text">
+                                    <div class="fr-major-text">{{t "templates.accountControls.deleteTitle"}}</div>
+                                    <div class="fr-minor-text text-muted">{{t "templates.accountControls.deleteDetails"}}</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-1 fr-panel-list-arrow">
+                                <i class="fa fa-angle-right fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </form>
+</div>

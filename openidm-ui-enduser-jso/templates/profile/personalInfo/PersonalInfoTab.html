@@ -1,0 +1,15 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<main>
+    <div class="page-header">
+        <div class="alert alert-danger hidden"><i class="fa fa-exclamation-circle fa-fw"></i>{{t "templates.personalInfo.dataBreachMessage"}}<a href="#" class="alert-link">{{t "templates.personalInfo.dataBreachInfoLink"}}</a></div>
+        <h1>{{t "templates.personalInfo.title"}}</h1>
+    <p class="panel-description">{{#if lastUpdated}}{{t "templates.personalInfo.lastUpdated"}} <span id="lastUpdatedContainer">{{lastUpdated}}</span> UTC{{else}}{{t "templates.personalInfo.lastUpdatedPlaceholder"}}{{/if}}</p>
+    </div>
+    <div id="personalInfo" class="panel-group panel-group-editable"></div>
+</main>

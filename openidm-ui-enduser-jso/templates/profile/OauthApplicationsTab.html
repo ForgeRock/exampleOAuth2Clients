@@ -1,0 +1,42 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<div class="fr-profile-page">
+    <div class="page-header">
+        <h1>{{t "templates.oauthApplications.header"}}</h1>
+    </div>
+
+    <form id="oauthApplications">
+        <div class="panel-group panel-group-editable">
+            {{#if oauthApplications}}
+            {{#each oauthApplications}}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="col-sm-4 padding-top-10">
+                        <h4 class="media-heading">{{_id}}</h4>
+                    </div>
+                    <div class="col-sm-4 padding-top-10">
+                        <span class="text-muted">{{t "templates.oauthApplications.expires"}} {{expiryDateTime}}</span>
+                    </div>
+                    <div class="col-sm-4 text-right">
+                        <a class="btn btn-danger remove-oauth-application" applicationId="{{_id}}">{{t "common.form.remove"}}</a>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+            {{else}}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="col-sm-12 text-center">
+                        {{t "templates.oauthApplications.noApplicationsAvialable"}}
+                    </div>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </form>
+</div>

@@ -1,0 +1,27 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+{{#if requirements.properties.password }}
+<p>{{t "common.user.socialUserClaim.continueWithPassword" mail=requirements.mail }}</p>
+<div class="form-group">
+    <input class="form-control input-lg" type="password" id="input-password" name="password" value="" placeholder="{{t 'common.user.password'}}" />
+</div>
+<div class="form-group">
+    <input type="submit" id="submitCredentials" class="btn btn-lg btn-primary btn-block btn-uppercase" value="{{t 'common.user.socialUserClaim.linkAccounts' }}"/>
+</div>
+{{else}}
+<p>{{t "common.user.socialUserClaim.continue"}}</p>
+<div class="owl-container">
+    <div class="fr-login-social-providers form-group{{#if requirements.hideProviderText}} owl-carousel{{/if}}">
+        {{#each requirements.definitions.providers.items.oneOf}}
+        <div class="continueSocialUserClaim" provider="{{provider}}">
+            {{> providers/_providerButton hideProviderText=../requirements.hideProviderText}}
+        </div>
+        {{/each}}
+    </div>
+</div>
+{{/if}}

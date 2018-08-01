@@ -1,0 +1,24 @@
+{{!
+  Copyright 2016-2017 ForgeRock AS. All Rights Reserved
+ 
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+}}
+{{#if urls}}
+<ul class="dropdown-menu" role="menu">
+    {{#each urls}}
+        {{#if divider}}
+            <li role="separator" class="divider"></li>
+        {{else}}
+            {{#if header}}
+                <li class="dropdown-header ">{{headerTitle}}</li>
+            {{else}}
+                <li class="{{#if cssClass}}{{cssClass}}{{/if}} {{#if active}}active{{/if}}">
+                    {{> navigation/_NavigationLink }}
+                </li>
+            {{/if}}
+        {{/if}}
+    {{/each}}
+</ul>
+{{/if}}

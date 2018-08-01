@@ -1,0 +1,22 @@
+{{!--
+  Copyright 2016-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<div class="checkbox">
+    <label>
+        <input name="{{prefix}}preferences.updates" value="true" type="checkbox"{{#if preferences.updates}} checked{{/if}}>
+
+        {{t "templates.preferences.updates"}}
+    </label>
+</div>
+
+<div class="checkbox">
+    <label>
+        <input name="{{prefix}}preferences.marketing" value="true" type="checkbox"{{#if preferences.marketing}} checked{{/if}}>
+
+        {{t "templates.preferences.marketing"}}
+    </label>
+</div>
