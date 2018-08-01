@@ -1,0 +1,61 @@
+{{!
+Copyright 2016-2018 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+<div class="panel panel-default">
+    <div class="panel-body kbaSet">
+        <div class="form-group">
+            <label class="sr-only" for="question_{{index}}">{{t 'common.user.kba.selectQuestion'}}</label>
+
+            <select name="question_{{index}}" id="question_{{index}}" class="form-control input-lg"
+                data-select-question data-validator="required">
+                <option value="">{{t 'common.user.kba.selectQuestion'}}...</option>
+                {{#each possibleQuestions}}
+                    <option value="{{id}}" {{#equals id ../questionId}}selected{{/equals}}>{{mapTranslate question}}</option>
+                {{/each}}
+                <option questionId="{{questionId}}" value="customQuestion" {{#equals 'customQuestion' questionId}}selected{{else}}{{#if customQuestion}}selected{{/if}}{{/equals}}>{{t 'common.user.kba.provideYourOwn'}}:</option>
+            </select>
+        </div>
+
+        {{#equals 'customQuestion' questionId}}
+            <div class="form-group custom-question">
+                <label class="sr-only separator" for="custom_question_{{index}}">
+                    <span>{{t 'common.user.kba.customQuestion'}}</span>
+                </label>
+                <input type="text" placeholder="{{t 'common.user.kba.customQuestion'}}" id="custom_question_{{index}}"
+                    name="custom_question_{{index}}" class="form-control input-lg" data-validator="required"
+                    data-validator-event="keyup" data-custom-question value="{{customQuestion}}" />
+            </div>
+        {{else}}
+            {{#if customQuestion}}
+                <div class="form-group custom-question">
+                    <label class="sr-only separator" for="custom_question_{{index}}">
+                        <span>{{t 'common.user.kba.customQuestion'}}</span>
+                    </label>
+                    <input type="text" placeholder="{{t 'common.user.kba.customQuestion'}}" id="custom_question_{{index}}"
+                        name="custom_question_{{index}}" class="form-control input-lg" data-validator="required"
+                        data-validator-event="keyup" data-custom-question value="{{customQuestion}}" />
+                </div>
+            {{/if}}
+        {{/equals}}
+
+        <div class="form-group">
+            <label class="sr-only separator" for="answer_{{index}}">
+                <span>{{t 'common.user.kba.answer'}}</span>
+            </label>
+
+            <input type="text" placeholder="{{#unless answer}}{{t 'common.user.kba.answer'}}{{else}}*******{{/unless}}" id="answer_{{index}}"
+                name="answer_{{index}}" class="form-control input-lg" data-validator="{{#unless answer}}required{{/unless}}" data-answer
+                data-validator-event="keyup" value="" />
+        </div>
+
+        {{#if numberOfQuestionsSufficient}}
+            <p class="text-left">
+                <a href="#" role="button" data-delete-question><i class="fa fa-times"></i> {{t "common.form.delete"}}</a>
+            </p>
+        {{/if}}
+    </div>
+</div>

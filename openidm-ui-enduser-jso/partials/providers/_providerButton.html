@@ -1,0 +1,27 @@
+{{!
+Copyright 2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+<div class="form-group social-button{{#if hideProviderText}} fr-small-btns{{/if}}">
+    <a title="{{uiConfig.buttonDisplayName}}" aria-label="{{uiConfig.buttonDisplayName}}" value="{{name}}" client_id="{{client_id}}" authorization_endpoint="{{authorization_endpoint}}" scope="{{scope}}" data-oauth="button">
+
+        <button class="btn btn-lg btn-default btn-block btn-social-provider"
+                style="{{uiConfig.buttonCustomStyle}}"
+                onmouseover='$(this).prop("style", "{{uiConfig.buttonCustomStyleHover}}")'
+                onmouseout='$(this).prop("style", "{{uiConfig.buttonCustomStyle}}")'>
+
+            {{#if uiConfig.buttonImage}}
+            <img src="{{uiConfig.buttonImage}}"/>
+            {{else}}
+            <i class="fa fa-lg {{uiConfig.buttonClass}}"></i>
+            {{/if}}
+
+            {{#unless hideProviderText}}
+            {{action}} {{uiConfig.buttonDisplayName}}
+            {{/unless}}
+        </button>
+    </a>
+</div>

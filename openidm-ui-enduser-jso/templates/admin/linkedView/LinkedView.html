@@ -1,0 +1,32 @@
+{{!--
+  Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+{{#if linkedResources}}
+<form role="form" class="form-horizontal">
+    <div class="form-group">
+        <label style="margin-left:15px;" class="pull-left control-label" for="linkedViewSelect">{{t "templates.admin.LinkedTemplate.linkedResource"}}</label>
+        <div class="col-sm-6">
+            <select class="form-control" id="linkedViewSelect" name="linkedViewSelect">
+                <option value="all">{{t "templates.admin.LinkedTemplate.allLinkedResources"}}</option>
+                {{#each_with_index linkedResources}}
+                <option value="{{index}}">{{value}}</option>
+                {{/each_with_index}}
+            </select>
+            <div class="validation-message"></div>
+        </div>
+        <div class="col-sm-1">
+            <a href="#" id="linkToResource" title="View Resource"><span class="fa fa-external-link"></span></a>
+        </div>
+    </div>
+</form>
+<div style="clear:both;"></div>
+<div id="linkedViewContent"></div>
+{{else}}
+<h4 class="no-details">
+    {{t "templates.admin.LinkedTemplate.noLinkedSystems"}}
+</h4>
+{{/if}}

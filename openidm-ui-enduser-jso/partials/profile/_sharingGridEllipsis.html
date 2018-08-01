@@ -1,0 +1,24 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+
+
+<div class="btn-group pull-right ellipsis-margin" data-resource-id="{{_id}}">
+    <button type="button" class="btn btn-link btn-action dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        <i class="fa fa-ellipsis-v fa-lg"></i>
+    </button>
+    <ul class="dropdown-menu">
+        <li class="shareDialog"><a href="#shareModal" data-toggle="modal" class="btn-action"><i class="fa fa-share fa-fw"></i>Share</a></li>
+        <li class="editResource"><a href="#uma/resourceDetails/{{_id}}"><i class="fa fa-pencil fa-fw"></i>Edit</a></li>
+        {{#if shared}}
+            <li role="separator" class="divider"></li>
+            <li class="unshareResource">
+                <a href="#unshareModal" data-toggle="modal" class="btn-action"><i class="fa fa-ban fa-fw"></i>Unshare</a>
+            </li>
+        {{/if}}
+    </ul>
+</div>

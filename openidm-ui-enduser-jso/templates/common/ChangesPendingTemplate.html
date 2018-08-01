@@ -1,0 +1,17 @@
+{{!
+Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+<div role="status" class="alert {{alertClass}} col-md-12">
+    <i class="fa {{icon}}"></i>
+    <strong role="heading">{{title}}</strong>
+    <span class="message">
+        {{message}}
+        {{#if undo}}
+            <a href="#" role="button" class="undo undo-changes">{{undoMsg}}</a>
+        {{/if}}
+    </span>
+</div>

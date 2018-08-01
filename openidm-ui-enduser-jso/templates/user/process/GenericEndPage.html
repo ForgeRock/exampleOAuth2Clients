@@ -1,0 +1,18 @@
+{{!
+Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+{{#if status.success}}
+<div class="alert alert-success" role="alert">
+    {{t i18n.completed}}
+</div>
+{{else}}
+<div class="alert alert-danger" role="alert">
+    <strong>{{t i18n.failed}}</strong>
+    <p>{{status.reason}}</p>
+</div>
+<a href="#" id="restart">{{t i18n.tryAgain}}</a>
+{{/if}}

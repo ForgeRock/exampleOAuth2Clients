@@ -1,0 +1,23 @@
+{{!
+  Copyright 2018 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+}}
+<form class="form">
+    <p>{{requirements.uiConfig.purpose}}</p>
+
+    <div class="panel panel-default fr-panel-scrollable">
+        <div class="panel-heading text-left">
+            <h2 class="panel-title">{{t "common.user.termsAndConditions.title"}}</h2>
+        </div>
+        <div class="panel-body text-left">
+            <p>{{{requirements.terms}}}</p>
+        </div>
+    </div>
+    <input type="hidden" name="accept" value="true" />
+    <div class="form-group">
+        <input type="submit" class="btn btn-lg btn-primary btn-block btn-uppercase" value="{{requirements.uiConfig.buttonText}}" />
+    </div>
+</form>

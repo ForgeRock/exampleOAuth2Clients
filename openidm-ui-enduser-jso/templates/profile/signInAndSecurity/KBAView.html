@@ -1,0 +1,53 @@
+{{!
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+}}
+<div class="fr-top-bar">
+    <div class="container">
+        <h3 class="fr-backbar">
+            <a href="#profile/signInAndSecurity" class="fr-back-crumb">{{t "common.user.signInAndSecurity"}}</a>
+        </h3>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+            <main id="editPassword">
+                <div class="page-header">
+                    <h1>{{t "common.user.kba.securityQuestions"}}</h1>
+                </div>
+                <div class="fr-panel-list">
+                    <div class="panel">
+                        <form class="form-horizontal">
+                            <div class="panel-body" >
+                                <div id="minimumAnswersToDefineWarning" class="alert alert-warning " style="">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    <strong role="heading"></strong>
+                                    <span class="message">
+                                        {{insufficientNumberOfQuestionsWarning}}
+                                    </span>
+                                </div>
+                                <div id="kbaQuestions"></div>
+                                <div class="form-group ">
+                                    <div class="col-sm-6 col-sm-offset-3">
+                                        <a href="#" role="button" id="provideAnother"><i class="fa fa-plus"></i> {{t "common.user.kba.provideAnother"}}</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-footer">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default btn-cancel">{{t "common.form.cancel"}}</button>
+                                    <button type="submit" class="btn btn-primary btn-save" disabled>{{t "common.form.save"}}</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
