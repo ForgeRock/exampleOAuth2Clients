@@ -1,0 +1,43 @@
+{{!--
+  Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+{{#unless simpleWidget}}
+{{> dashboard/_widgetHeader}}
+<div class="panel-body widget-body">
+    <div style="display:none;" class="dashboard-loading-message">{{t "dashboard.loading"}}</div>
+    <div style="display:none;" class="dashboard-details">
+        <div class="widget-header">
+
+        </div>
+        <div class="widget-chart">
+
+        </div>
+
+        {{#if widgetTextDetails}}
+        <div class="widget-title">
+            {{widgetTextDetails}}
+        </div>
+        {{/if}}
+    </div>
+</div>
+{{else}}
+    <div style="display:none;" class="dashboard-loading-message">{{t "dashboard.loading"}}</div>
+    <div style="display:none;" class="dashboard-details">
+        <div class="widget-header">
+
+        </div>
+        <div class="widget-chart">
+
+        </div>
+
+        {{#if widgetTextDetails}}
+            <div class="widget-title">
+                {{widgetTextDetails}}
+            </div>
+        {{/if}}
+    </div>
+{{/unless}}

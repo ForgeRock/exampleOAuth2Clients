@@ -1,0 +1,37 @@
+{{!--
+  Copyright 2016-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="select-{{property}}">{{t label}}</label>
+    <div class="col-sm-6">
+        <select id="select-{{property}}"
+                class="form-control {{#if disallowCustomTags}}array-selection-no-custom{{else}}array-selection{{/if}}"
+                name="{{property}}"
+                multiple="multiple">
+            {{#eachTwoLists options value}}
+                {{#contains ../value this}}
+                    <option selected value="{{this}}">{{this}}</option>
+                {{else}}
+                    {{#unless ../value}}
+                        {{#equals ../default this}}
+                            <option selected value="{{this}}">{{this}}</option>
+                        {{else}}
+                            <option value="{{this}}">{{this}}</option>
+                        {{/equals}}
+                    {{else}}
+                        <option value="{{this}}">{{this}}</option>
+                    {{/unless}}
+                {{/contains}}
+            {{/eachTwoLists}}
+
+        </select>
+
+        {{#if helpKey}}
+        <div class="help-block">{{t helpKey}}</div>
+        {{/if}}
+    </div>
+</div>

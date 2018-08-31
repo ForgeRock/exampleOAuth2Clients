@@ -1,0 +1,76 @@
+{{!--
+  Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<div class="fr-top-bar">
+    <div class="container">
+        <h3 class="fr-backbar">
+            <a class="fr-back-crumb" href="#profile/signInAndSecurity">{{t "templates.signInAndSecurity.title"}}</a>
+        </h3>
+    </div>
+</div>
+<div class="container">
+    <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <div class="fr-profile-page row">
+            <div class="page-header">
+                <h1>{{t "templates.socialIdentities.socialSignin"}}</h1>
+            </div>
+            <p class="section-help">{{t "templates.socialIdentities.linkedAccounts"}}</p>
+            <div role="alert" id="idpUnbindError" class="alert alert-warning">
+                <i class="fa fa-times pull-right closeErrorMsg"></i>
+                {{unbindText}}
+                <a href="#signinandsecurity/password/" role="button">{{t "config.messages.socialProviders.cannotUnbindLink"}}</a>
+            </div>
+            {{#if providers}}
+            <div class="fr-panel-list fr-hover-panel-list">
+                {{#each providers}}
+                    <div class="panel panel-default fr-collapse-panel fr-hover-panel {{#if @first}}fr-first-list-panel{{/if}} {{#if @last}}fr-last-list-panel{{/if}} collapsed" data-toggle="collapse" data-parent=".fr-panel-list" data-target="#collapse{{provider}}">
+                        <div class="panel-body">
+                            <div class="row fr-three-column">
+                                <div class="col-sm-4 fr-column {{#unless active}}disabled{{/unless}}">
+                                    {{> providers/_providerCircle size="small"}}
+                                    <span class="fr-collapse-panel-name">{{displayName}}</span>
+                                </div>
+                                <div class="fr-panel-list-description fr-column col-sm-7">
+                                    <div class="fr-profile-additional-details text-muted">{{#if active}}{{t "templates.socialIdentities.accessingInfo"}}{{else}}{{t "templates.socialIdentities.notLinked"}}{{/if}}</div>
+                                </div>
+                                <div class="col-sm-1 fr-column fr-panel-list-arrow fr-collapse-icon">
+                                    <i></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapse{{provider}}" class="panel panel-default panel-collapse collapse" data-name="{{provider}}" role="tabpanel" aria-labelledby="heading{{provider}}" aria-expanded="false">
+                        <div class="panel-body">
+                            <dl class="dl-horizontal">
+                                <dt class="fr-toggle-label">{{t "templates.socialIdentities.connectAccount"}}</dt>
+                                <dd>
+                                    <div class="checkbox checkbox-slider-md checkbox-slider--b-flat checkbox-slider-primary social-toggle">
+                                        <label>
+                                            <input type="checkbox" value="true" {{#if active}}checked{{/if}}><span></span>
+                                        </label>
+                                    </div>
+                                </dd>
+                                <dt>{{t "templates.socialIdentities.youreSharing"}}</dt>
+                                <dd>
+                                    {{t "templates.socialIdentities.basicAccountInfo"}} {{displayName}}
+                                    <ul class="list-unstyled text-muted fr-scope-list">
+                                        {{#each scope}}
+                                        <li><i class="fa fa-check text-success"></i> {{this}}</li>
+                                        {{/each}}
+                                    </ul>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+            {{else}}
+            <div class="no-providers text-muted">{{t "templates.socialIdentities.noSocialProviders"}}</div>
+            {{/if}}
+        </div>
+    </div>
+</div>

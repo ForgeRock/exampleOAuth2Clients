@@ -1,0 +1,16 @@
+{{!
+Copyright 2016-2018 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+{{#if updatingExisitingKBA}}
+<ul id="kbaItems" class="list-unstyled"></ul>
+{{else}}
+<p id="kbaDescription"></p>
+<ul id="kbaItems" class="list-unstyled"></ul>
+<p class="text-left">
+    <a href="#" role="button" data-add-question><i class="fa fa-plus"></i> {{t 'common.user.kba.provideAnother'}}</a>
+</p>
+{{/if}}

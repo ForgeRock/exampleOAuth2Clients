@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>AppAuthJS Redirect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript">
+  /*
+    This placeholder file handles the query string parameters provided by the AS
+    when returning from the authorization endpoint. It converts them to a hash fragment
+    which is recognizable by the SPA code (which is assumed to be located at the root URI)
+  */
+    var REDIRECT_URI = '/'; // location of the SPA
+    document.addEventListener('DOMContentLoaded', function() {
+      var queryString = window.location.search.substring(1); // includes '?'
+      var path = [REDIRECT_URI, queryString].join('#');
+      setTimeout(function() {
+        window.location.assign(path);
+      }, 0);
+    });
+  </script>
+</head>
+</html>

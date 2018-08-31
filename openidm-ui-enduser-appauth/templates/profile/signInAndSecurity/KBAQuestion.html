@@ -1,0 +1,44 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<div class="security-question">
+    <div class="form-group has-feedback">
+        <label class="col-sm-3 control-label">Security Question</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="questionSelect" data-validator="required">
+                {{#staticSelect questionData.questionId}}
+                    <option class="placeholder" value="" >{{t "common.user.kba.selectQuestion"}}</option>
+                    {{#each questionsList}}
+                        <option value="{{questionId}}">{{text}}</option>
+                    {{/each}}
+                    <option value="custom">{{t "common.user.kba.custom"}}</option>
+                {{/staticSelect}}
+            </select>
+        </div>
+    </div>
+    {{#equals questionData.questionId "custom"}}
+        <div class="form-group has-feedback custom-question">
+            <label class="col-sm-3 control-label">{{t "common.user.kba.customQuestion"}}</label>
+            <div class="col-sm-6">
+                <input class="form-control" name="customQuestion" value="{{questionData.text}}" data-validator="required" type="text">
+                <div class="validation-message"></div>
+            </div>
+        </div>
+    {{/equals}}
+    <div class="form-group has-feedback">
+        <label class="col-sm-3 control-label">{{t "common.user.kba.securityAnswer"}}</label>
+        <div class="col-sm-6">
+            <input class="form-control" data-validator="{{#unless questionData.answer}}required{{/unless}}" name="answer" placeholder="{{placeholder}}" type="text">
+            <div class="validation-message"></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-6 col-sm-offset-3">
+            <a href="#" role="button" class="delete-KBA-question hidden" data-cid="{{cid}}">{{t "common.form.delete"}}</a>
+        </div>
+    </div>
+</div>

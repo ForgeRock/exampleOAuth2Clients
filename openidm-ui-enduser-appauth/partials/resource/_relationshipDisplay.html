@@ -1,0 +1,26 @@
+{{!--
+  Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+{{#if newRelationship}}
+<button id="{{editButtonId}}" class="btn btn-default">
+    <i class="fa fa-plus"></i>
+    {{displayText}}
+</button>
+{{else}}
+<div class="media">
+    <div class="media-left">
+        <div class="circle-icon circle-icon-xs">
+            <i class="fa {{iconClass}}"></i>
+        </div>
+    </div>
+    <div class="media-body media-middle">
+        <a id="resourceEditLink-{{propName}}" href="#{{resourceEditPath}}">{{displayText}}</a>
+        <a id="relationshipLink-{{propName}}"  href="#" class="btn btn-default btn-xs updateRelationshipButton"><i class="fa fa-pencil"></i>{{editButtonText}}</a>
+        <a id="removeRelationshipLink-{{propName}}"  href="#" class="btn btn-default btn-xs removeRelationshipButton"><i class="fa fa-times"></i>{{removeButtonText}}</a>
+    </div>
+</div>
+{{/if}}

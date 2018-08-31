@@ -1,0 +1,22 @@
+{{!--
+Copyright 2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+--}}
+
+<div class="bootstrap-dialog-message" id="EditRequestDialog">
+    <form class="form-horizontal" role="form">
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">{{t "templates.sharing.shareWith"}}</label>
+            <div class="col-sm-6">
+                <span class="fr-plain-text-form-item">{{user}}</span>
+            </div>
+        </div>
+
+        {{> form/_tagSelectize value=permissions label="Permissions" property="scope" noValidation="true"}}
+
+    </form>
+</div>

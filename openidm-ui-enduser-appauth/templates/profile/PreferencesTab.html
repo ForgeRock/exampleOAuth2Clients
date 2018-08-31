@@ -1,0 +1,50 @@
+{{!--
+  Copyright 2016-2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+<div class="fr-profile-page">
+    <div class="page-header">
+        <h1>{{t "templates.preferences.header"}}</h1>
+    </div>
+
+    <form id="preferences">
+        <div class="fr-panel-list">
+            <div class="panel panel-default">
+                <div class="panel-heading pull-left">
+                    <div class="checkbox checkbox-slider-md checkbox-slider--b-flat checkbox-slider-primary">
+                        <label>
+                            <input name="{{prefix}}preferences.updates" type="checkbox" value="true" {{#if preferences.updates}} checked{{/if}}><span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="media">
+                        <div class="media-body">
+                            <h4 class="media-heading">{{t "templates.preferences.updates"}}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading pull-left">
+                    <div class="checkbox checkbox-slider-md checkbox-slider--b-flat checkbox-slider-primary">
+                        <label>
+                            <input name="{{prefix}}preferences.marketing" type="checkbox" value="true" {{#if preferences.marketing}} checked{{/if}}><span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="media">
+                        <div class="media-body">
+                            <h4 class="media-heading">{{t "templates.preferences.marketing"}}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

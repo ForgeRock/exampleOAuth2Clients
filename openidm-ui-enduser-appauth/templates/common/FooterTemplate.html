@@ -1,0 +1,21 @@
+{{!
+Copyright 2015-2017 ForgeRock AS. All Rights Reserved
+
+Use of this code requires a commercial software license with ForgeRock AS.
+or with one of its affiliates. All use shall be exclusively subject
+to such license between the licensee and ForgeRock AS.
+}}
+<div class="container">
+    <p>
+        <a href="mailto: {{theme.settings.footer.mailto}}">{{theme.settings.footer.mailto}}</a>
+        {{#if theme.settings.footer.phone}}
+            {{t "templates.user.DefaultBaseTemplate.orPhone"}} {{theme.settings.footer.phone}}.
+        {{/if}}
+        {{#if version}}
+            <br/>
+            {{version}}
+        {{/if}}
+        <br/>
+        {{t "common.form.copyright"}}
+    </p>
+</div>

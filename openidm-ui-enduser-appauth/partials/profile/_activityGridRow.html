@@ -1,0 +1,23 @@
+{{!--
+  Copyright 2017 ForgeRock AS. All Rights Reserved
+
+  Use of this code requires a commercial software license with ForgeRock AS.
+  or with one of its affiliates. All use shall be exclusively subject
+  to such license between the licensee and ForgeRock AS.
+--}}
+
+<div class="fr-three-column">
+
+    <div class="col-sm-1 icon-margin">
+        <img class="fr-panel-logo img-rounded" src="{{#if icon}}{{icon}}{{else}}images/resource.png{{/if}}"/>
+    </div>
+
+    <div class="col-sm-8 fr-stacked-text stacked-text-margin">
+        <div class="fr-major-text">{{resourceSetName}}</div>
+        <div class="fr-minor-text text-muted minor-text-margin">{{action}}</div>
+    </div>
+
+    <div class="col-sm-3 fr-panel-list-arrow pull-right vertical-align">
+        <div class="fr-major-text text-muted ">{{eventTime}}</div>
+    </div>
+</div>
