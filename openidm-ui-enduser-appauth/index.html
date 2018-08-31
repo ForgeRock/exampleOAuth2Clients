@@ -27,6 +27,104 @@
 <div id="dialogs"></div>
 
 <footer id="footer" class="footer"></footer>
+
+
+<script type="text/javascript" src="libs/jquery-2.1.1-min.js"></script>
+<script type="text/javascript" src="appAuth.js"></script>
+
+<script>
+(function () {
+
+    var appAuthClient = {
+        /* These details will vary with your particular environment. */
+        clientId: 'appAuthClient',
+        redirectUri: 'http://localhost:8888/redirect.html',
+        issuer: 'http://am-service.sample.svc.cluster.local/openam/oauth2',
+        scopes: "openid profile consent_read workflow_tasks notifications",
+
+        notifier: new AppAuth.AuthorizationNotifier(),
+        authorizationHandler: new AppAuth.RedirectRequestHandler(),
+        tokenHandler: new AppAuth.BaseTokenRequestHandler()
+    };
+
+    appAuthClient.authorizationHandler.setAuthorizationNotifier(appAuthClient.notifier);
+    appAuthClient.notifier.setAuthorizationListener(function (request, response, error) {
+        if (response) {
+            appAuthClient.code = response.code;
+        }
+    });
+    appAuthClient.authorizationHandler.completeAuthorizationRequestIfPossible();
+
+    AppAuth.AuthorizationServiceConfiguration
+    .fetchFromIssuer(appAuthClient.issuer)
+    .then(function (response) {
+        /*
+            This call to the well-known endpoint can be avoided if you prefer to hard-code the
+            configuration. If your AS does not change often doing so will improve performance.
+        */
+        appAuthClient.configuration = response;
+    })
+    .then(function () {
+        var request;
+        if (appAuthClient.code) {
+            request = new AppAuth.TokenRequest(
+                appAuthClient.clientId,
+                appAuthClient.redirectUri,
+                AppAuth.GRANT_TYPE_AUTHORIZATION_CODE,
+                appAuthClient.code,
+                undefined
+            );
+            appAuthClient.tokenHandler
+            .performTokenRequest(appAuthClient.configuration, request)
+            .then(function (token_endpoint_response) {
+                /*
+                    token_endpoint_response will contain values like so:
+                    {
+                        "accessToken": "d5MqRg-2TWzxzQq76r7fkDtd0M8",
+                        "idToken": "eyJ0eX......35uNGtw",
+                        "scope": "consent_read openid profile notifications workflow_tasks",
+                        "tokenType": "Bearer",
+                        "issuedAt": 1535666764,
+                        "expiresIn": 3599
+                    }
+
+                    Use the accessToken in your XHR requests to any resource server endpoint as a header:
+
+                        Authorization: `Bearer ${accessToken}`
+
+                    You may want to save the accessToken value in localstorage or sessionstorage, otherwise
+                    page refreshes will lose it. For simplicity this example merely saves it as a global variable,
+                    to be used in the code that handles XHR requests.
+                */
+                ACCESS_TOKEN = token_endpoint_response.accessToken;
+
+                /*
+                    Reset the hash to remove the url parameters included within
+                    it and initialize the normal app logic based on the default route.
+                */
+                window.location.hash = "";
+            });
+        } else {
+            request = new AppAuth.AuthorizationRequest(
+                appAuthClient.clientId,
+                appAuthClient.redirectUri,
+                appAuthClient.scopes,
+                AppAuth.AuthorizationRequest.RESPONSE_TYPE_CODE,
+                undefined, /* state */
+                { /* extra parameters */
+                });
+
+            appAuthClient.authorizationHandler.performAuthorizationRequest(
+                appAuthClient.configuration,
+                request
+            );
+        }
+    });
+}());
+</script>
+
+
+
 <script type="text/javascript">
     var require = {
         urlArgs : "v=6.0.0",

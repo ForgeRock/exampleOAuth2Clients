@@ -8,7 +8,7 @@
  * to such license between the licensee and ForgeRock AS.
  */
 
-define(["jquery", "lodash", "org/forgerock/openidm/ui/util/delegates/AMDelegate", "org/forgerock/commons/ui/common/main/Configuration", "org/forgerock/openidm/ui/common/delegates/ConfigDelegate", "org/forgerock/openidm/ui/util/delegates/ConsentDelegate", "org/forgerock/commons/ui/common/components/Navigation", "org/forgerock/openidm/ui/common/delegates/SiteConfigurationDelegate", "UserProfileView", "org/forgerock/commons/ui/common/util/Constants", "org/forgerock/commons/ui/common/main/EventManager"], function ($, _, AMDelegate, Configuration, ConfigDelegate, ConsentDelegate, Navigation, SiteConfigurationDelegate, UserProfileView, Constants, EventManager) {
+define(["jquery", "lodash", "org/forgerock/commons/ui/common/main/ServiceInvoker", "org/forgerock/openidm/ui/util/delegates/AMDelegate", "org/forgerock/commons/ui/common/main/Configuration", "org/forgerock/openidm/ui/common/delegates/ConfigDelegate", "org/forgerock/openidm/ui/util/delegates/ConsentDelegate", "org/forgerock/commons/ui/common/components/Navigation", "org/forgerock/openidm/ui/common/delegates/SiteConfigurationDelegate", "UserProfileView", "org/forgerock/commons/ui/common/util/Constants", "org/forgerock/commons/ui/common/main/EventManager"], function ($, _, ServiceInvoker, AMDelegate, Configuration, ConfigDelegate, ConsentDelegate, Navigation, SiteConfigurationDelegate, UserProfileView, Constants, EventManager) {
 
     var obj = Object.create(SiteConfigurationDelegate),
         amDataEndpoints,
@@ -17,6 +17,8 @@ define(["jquery", "lodash", "org/forgerock/openidm/ui/util/delegates/AMDelegate"
     obj.adminCheck = false;
 
     obj.getConfiguration = function (successCallback, errorCallback) {
+        // ACCESS_TOKEN is a global set in index.html
+        ServiceInvoker.configuration.defaultHeaders["Authorization"] = "Bearer " + ACCESS_TOKEN;
         return SiteConfigurationDelegate.getConfiguration().then(function (configuration) {
             if (configuration.amDataEndpoints) {
                 amDataEndpoints = configuration.amDataEndpoints;
@@ -212,7 +214,7 @@ define(["jquery", "lodash", "org/forgerock/openidm/ui/util/delegates/AMDelegate"
     };
 
     obj.getDataFromOpenAM = function () {
-        if (amDataEndpoints) {
+        if (false) {
             AMDelegate.setDataPoints(amDataEndpoints, Configuration.loggedUser.authenticationId);
 
             return $.when(AMDelegate.getTrustedDevices(), AMDelegate.getOAuthApplications(), AMDelegate.getAuditHistory(), AMDelegate.getResourceSet()).then(function (trustedDevices, oauthApplications, auditHistory, resourceSet) {
