@@ -1,0 +1,34 @@
+<!-- Example: navigation partial -->
+<nav>
+  <ul>
+    <li class="<% if (locals.originalUrl === '/') {%> active<% } %>">
+      <a class="nav-link" href="/">
+          Home
+      </a>
+    </li>
+    <% if (locals.authenticated) { %>
+      <li class="<% if (locals.originalUrl === '/protected/profile') {%> active<% } %>">
+        <a class="nav-link" href="/protected/profile">
+            Profile
+        </a>
+      </li>
+      <li class="<% if (locals.originalUrl === '/protected/api') {%> active<% } %>">
+        <a class="nav-link" href="/protected/api">
+            API
+        </a>
+      </li>
+      <li>
+        <a class="nav-link" id="logout" href="/protected/logout">
+            Sign Out
+        </a>
+      </li>
+      <li>
+        Signed in as:
+        <% Object.keys(locals.accounts).forEach(function (e) { %>
+          * <%= locals.accounts[e].profile.displayName || locals.accounts[e].profile.id %>
+        <% }) %>
+      </li>
+    <% } %>
+  </ul>
+</nav>
+<!-- Example: end -->

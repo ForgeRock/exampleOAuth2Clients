@@ -1,0 +1,63 @@
+<!-- Example: profile template -->
+<h2>Signed in with:</h2>
+
+<ul id="profiles">
+  <% Object.keys(locals.accounts).forEach(function (e) { %>
+    <li>
+      <h3><%= e %> strategy, as</h3>
+
+      <table>
+        <tr>
+          <th>
+            ID
+          </th>
+          <td>
+            <%= locals.accounts[e].profile.id %>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Name
+          </th>
+          <td>
+            <%= accounts[e].profile.displayName %>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Access Token
+          </th>
+          <td>            
+            <%= accounts[e].tokenInfo.token_type %>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Scope
+          </th>
+          <td>
+            <ul>
+              <% accounts[e].tokenInfo.scope.split(' ').forEach(function (s) { %>
+                <li>
+                  <%= s %>
+                </li>
+              <% }); %>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Expires on
+          </th>
+          <td class="<% if (new Date((locals.accounts[e].tokenInfo.claims.iat + locals.accounts[e].tokenInfo.expires_in) * 1000) < (new Date)) { %> alert <% } %>">
+            <%=  (new Date((locals.accounts[e].tokenInfo.claims.iat + locals.accounts[e].tokenInfo.expires_in) * 1000)).toLocaleString() %>
+          </td>
+        </tr>
+      </table>
+      <p>
+        <img src="<%= accounts[e].profile['_json'].picture %>">
+      </p>
+    </li>
+  <% }) %>
+</ul>
+<!-- Example: end -->
