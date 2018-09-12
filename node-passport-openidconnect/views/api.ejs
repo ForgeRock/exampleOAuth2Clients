@@ -1,0 +1,74 @@
+<!-- Example: API page template -->
+<ul id="apis">
+  <% var api_endpoint_index = 0 %>
+
+  <!-- 
+    constructing an interface for querying accessible API(s) from
+    OpenID Provider(s) information provided via `res.locals`
+  -->
+  <% Object.keys(locals.accounts).forEach(function (strategyName) { %>
+    <% var strategyLabel = strategyName.split('-')[0] %>
+
+    <li>
+      <h3 class="strategy-label">
+        <%= strategyLabel %>
+      </h3>
+
+      <% if (new Date((locals.accounts[strategyName].tokenInfo.claims.iat + locals.accounts[strategyName].tokenInfo.expires_in) * 1000) > (new Date)) { %>
+        <!-- the access token has not expired -->
+        <% locals.accounts[strategyName].issuerInfo.exampleUrls.forEach(function (eurl) { %> 
+          <% var inputId = 'api_endpoint_' + api_endpoint_index %>
+
+          <div>
+            <label>
+              Endpoint:
+            
+              <input id="<%= inputId %>" size="80" value="<%= eurl %>">
+            </label>
+            
+            <button id="<%= inputId %>_button">GET JSON</button>
+          </div>
+        
+          <pre id="<%= inputId %>_result"></pre>
+
+          <script>
+            (function () {
+              var input;
+              var button;
+              var result;
+              var url;
+
+              button = document.getElementById('<%= inputId %>_button');
+
+              button.addEventListener('click', function () {
+                input = document.getElementById('<%= inputId %>');
+                result = document.getElementById('<%= inputId %>_result');
+                url = new URL(document.location + '../../../protected/server/<%= encodeURIComponent(strategyName) %>');
+
+                result.innerHTML = '';
+
+                url.search = new URLSearchParams({url: input.value});
+
+                fetch(url, {
+                  credentials: 'include'
+                })
+                  .then(function (data) {
+                    return data.json();
+                  })
+                  .then(function (data) {
+                    result.innerHTML = JSON.stringify(data, null, ' ');
+                  });
+              });
+            }())
+          </script>
+
+          <% api_endpoint_index += 1 %>
+        <% }) %>
+      <% } else { %>
+        <!-- the access token has expired -->
+        <p class="alert">Token expired, please sign in again</p>
+      <% } %>
+    </li>
+  <% }) %>
+</ul>
+<!-- Example: end -->

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!-- Example: the layout template -->
+<% locals.pageTitle = locals.pageTitle || '' -%>
+<html>
+  <head>
+    <title><%= 'Node Passport OIDC ' + locals.pageTitle %></title>
+    <link rel="stylesheet" href="/stylesheets/style.custom.css" />
+  </head>
+  <body>
+    <header role="banner">
+      <% include _nav.ejs %>
+    </header>
+
+    <main>
+      <h1><%= pageTitle %></h1>
+
+      <%- body %>
+    </main>
+
+    <footer role="contentinfo">
+
+    </footer>
+  </body>
+</html>
+<!-- Example: end -->

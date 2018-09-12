@@ -1,0 +1,94 @@
+/* Example: CSS */
+html, body {
+  padding: 0;
+  margin: 0;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+main {
+  padding: 16px;
+  max-width: 1600px;
+  overflow: hidden;
+}
+
+a {
+  color: #00B7FF;
+}
+
+nav {
+  margin: 0;
+  display: block;
+  padding: 0px;
+  background: black;
+}
+
+tr {
+  vertical-align: top;
+}
+
+input, label, button {
+  font-size: 1em;
+}
+
+nav ul {
+  margin: 0;
+}
+
+nav li {
+  list-style: none;
+  display: inline-block;
+  color: white;
+  padding: 12px;
+  font-size: 1.2em;
+}
+
+nav li a {
+  color: white;
+}
+
+nav li.active {
+  background: #252525;
+  outline: white solid 1px;
+}
+
+nav li.active a {
+  text-decoration: none;
+}
+
+table li {
+  list-style: none;
+}
+
+table ul {
+  padding-left: 0;
+}
+
+a.login-link {
+  font-size: 2em;
+  letter-spacing: 0.05em;
+  text-transform: capitalize;
+  display: inline-block;
+  padding: 0.25em;
+  border-radius: 0.1em;
+}
+
+.strategy-label {
+  text-transform: capitalize;
+}
+
+.alert {
+  color: red;
+}
+
+#fr-login-link {
+  color: #005f5e;
+}
+
+#google-login-link {
+  color: #4385f4;
+}
+
+#profiles img {
+  width: 96px;
+}
+/* Example: end */
