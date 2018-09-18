@@ -73,8 +73,9 @@ This is the primary new functionality that this client provides.
 
 AppAuthJS is a new library that (as of this writing) does not have any releases. To build it as done for this example, you will need to check out the project locally from https://github.com/openid/AppAuth-JS/. Once checked out, you can build the stand-alone library like so:
 
-1. `npm run-script compile`
-2. `browserify --s AppAuth -o appAuth.js built/index.js`
+1. `npm install`
+2. `npm run-script compile`
+3. `browserify --s AppAuth -o appAuth.js built/index.js`
 
 This produces a file similar to the one shipped in this example under "/appAuth.js".
 
@@ -102,6 +103,8 @@ The below code is taken from index.html; it should serve as a simple starting po
         appAuthClient.authorizationHandler.setAuthorizationNotifier(appAuthClient.notifier);
         appAuthClient.notifier.setAuthorizationListener(function (request, response, error) {
             if (response) {
+                appAuthClient.request = request;
+                appAuthClient.response = response;
                 appAuthClient.code = response.code;
             }
         });
@@ -119,13 +122,18 @@ The below code is taken from index.html; it should serve as a simple starting po
         .then(function () {
             var request;
             if (appAuthClient.code) {
-                request = new AppAuth.TokenRequest(
-                    appAuthClient.clientId,
-                    appAuthClient.redirectUri,
-                    AppAuth.GRANT_TYPE_AUTHORIZATION_CODE,
-                    appAuthClient.code,
-                    undefined
-                );
+                var extras = {};
+                if (appAuthClient.request && appAuthClient.request.internal) {
+                    extras['code_verifier'] = appAuthClient.request.internal['code_verifier'];
+                }
+                request = new AppAuth.TokenRequest({
+                    client_id: appAuthClient.clientId,
+                    redirect_uri: appAuthClient.redirectUri,
+                    grant_type: AppAuth.GRANT_TYPE_AUTHORIZATION_CODE,
+                    code: appAuthClient.code,
+                    refresh_token: undefined,
+                    extras: extras
+                });
                 appAuthClient.tokenHandler
                 .performTokenRequest(appAuthClient.configuration, request)
                 .then(function (token_endpoint_response) {
@@ -157,14 +165,14 @@ The below code is taken from index.html; it should serve as a simple starting po
                     window.location.hash = "";
                 });
             } else {
-                request = new AppAuth.AuthorizationRequest(
-                    appAuthClient.clientId,
-                    appAuthClient.redirectUri,
-                    appAuthClient.scopes,
-                    AppAuth.AuthorizationRequest.RESPONSE_TYPE_CODE,
-                    undefined, /* state */
-                    { /* extra parameters */
-                    });
+                request = new AppAuth.AuthorizationRequest({
+                    client_id: appAuthClient.clientId,
+                    redirect_uri: appAuthClient.redirectUri,
+                    scope: appAuthClient.scopes,
+                    response_type: AppAuth.AuthorizationRequest.RESPONSE_TYPE_CODE,
+                    state: undefined,
+                    extras: { 'prompt': 'consent', 'access_type': 'offline' }
+                });
 
                 appAuthClient.authorizationHandler.performAuthorizationRequest(
                     appAuthClient.configuration,

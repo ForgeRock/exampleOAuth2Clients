@@ -15,12 +15,13 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 var crypto_utils_1 = require("./crypto_utils");
+var logger_1 = require("./logger");
 /**
  * Generates a cryptographically random new state. Useful for CSRF protection.
  */
-var BYTES_LENGTH = 10; // 10 bytes
-var newState = function (generateRandom) {
-    return generateRandom(BYTES_LENGTH);
+var SIZE = 10; // 10 bytes
+var newState = function (crypto) {
+    return crypto.generateRandom(SIZE);
 };
 /**
  * Represents the AuthorizationRequest.
@@ -33,41 +34,69 @@ var AuthorizationRequest = /** @class */ (function () {
      * Use a `undefined` value for the `state` parameter, to generate a random
      * state for CSRF protection.
      */
-    function AuthorizationRequest(clientId, redirectUri, scope, responseType, state, extras, generateRandom) {
-        if (responseType === void 0) { responseType = AuthorizationRequest.RESPONSE_TYPE_CODE; }
-        if (generateRandom === void 0) { generateRandom = crypto_utils_1.cryptoGenerateRandom; }
-        this.clientId = clientId;
-        this.redirectUri = redirectUri;
-        this.scope = scope;
-        this.responseType = responseType;
-        this.extras = extras;
-        this.state = state || newState(generateRandom);
+    function AuthorizationRequest(request, crypto, usePkce) {
+        if (crypto === void 0) { crypto = new crypto_utils_1.DefaultCrypto(); }
+        if (usePkce === void 0) { usePkce = true; }
+        this.crypto = crypto;
+        this.usePkce = usePkce;
+        this.clientId = request.client_id;
+        this.redirectUri = request.redirect_uri;
+        this.scope = request.scope;
+        this.responseType = request.response_type || AuthorizationRequest.RESPONSE_TYPE_CODE;
+        this.state = request.state || newState(crypto);
+        this.extras = request.extras;
+        // read internal properties if available
+        this.internal = request.internal;
     }
+    AuthorizationRequest.prototype.setupCodeVerifier = function () {
+        var _this = this;
+        if (!this.usePkce) {
+            return Promise.resolve();
+        }
+        else {
+            var codeVerifier_1 = this.crypto.generateRandom(128);
+            var challenge = this.crypto.deriveChallenge(codeVerifier_1).catch(function (error) {
+                logger_1.log('Unable to generate PKCE challenge. Not using PKCE', error);
+                return undefined;
+            });
+            return challenge.then(function (result) {
+                if (result) {
+                    // keep track of the code used.
+                    _this.internal = _this.internal || {};
+                    _this.internal['code_verifier'] = codeVerifier_1;
+                    _this.extras = _this.extras || {};
+                    _this.extras['code_challenge'] = result;
+                    // We always use S256. Plain is not good enough.
+                    _this.extras['code_challenge_method'] = 'S256';
+                }
+            });
+        }
+    };
     /**
      * Serializes the AuthorizationRequest to a JavaScript Object.
      */
     AuthorizationRequest.prototype.toJson = function () {
-        return {
-            response_type: this.responseType,
-            client_id: this.clientId,
-            redirect_uri: this.redirectUri,
-            scope: this.scope,
-            state: this.state,
-            extras: this.extras
-        };
+        var _this = this;
+        // Always make sure that the code verifier is setup when toJson() is called.
+        return this.setupCodeVerifier().then(function () {
+            return {
+                response_type: _this.responseType,
+                client_id: _this.clientId,
+                redirect_uri: _this.redirectUri,
+                scope: _this.scope,
+                state: _this.state,
+                extras: _this.extras,
+                internal: _this.internal
+            };
+        });
     };
-    /**
-     * Creates a new instance of AuthorizationRequest.
-     */
-    AuthorizationRequest.fromJson = function (input) {
-        return new AuthorizationRequest(input.client_id, input.redirect_uri, input.scope, input.response_type, input.state, input.extras);
-    };
+    AuthorizationRequest.RESPONSE_TYPE_TOKEN = 'token';
     AuthorizationRequest.RESPONSE_TYPE_CODE = 'code';
     return AuthorizationRequest;
 }());
 exports.AuthorizationRequest = AuthorizationRequest;
 
-},{"./crypto_utils":5}],2:[function(require,module,exports){
+},{"./crypto_utils":5,"./logger":9}],2:[function(require,module,exports){
 "use strict";
 /*
  * Copyright 2017 Google Inc.
@@ -115,9 +144,9 @@ exports.BUILT_IN_PARAMETERS = ['redirect_uri', 'client_id', 'response_type', 'st
  * using various methods (iframe / popup / different process etc.).
  */
 var AuthorizationRequestHandler = /** @class */ (function () {
-    function AuthorizationRequestHandler(utils, generateRandom) {
+    function AuthorizationRequestHandler(utils, crypto) {
         this.utils = utils;
-        this.generateRandom = generateRandom;
+        this.crypto = crypto;
         // notifier send the response back to the client.
         this.notifier = null;
     }
@@ -204,15 +233,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * https://tools.ietf.org/html/rfc6749#section-4.1.2
  */
 var AuthorizationResponse = /** @class */ (function () {
-    function AuthorizationResponse(code, state) {
-        this.code = code;
-        this.state = state;
+    function AuthorizationResponse(response) {
+        this.code = response.code;
+        this.state = response.state;
     }
     AuthorizationResponse.prototype.toJson = function () {
         return { code: this.code, state: this.state };
-    };
-    AuthorizationResponse.fromJson = function (json) {
-        return new AuthorizationResponse(json.code, json.state);
     };
     return AuthorizationResponse;
 }());
@@ -223,11 +249,11 @@ exports.AuthorizationResponse = AuthorizationResponse;
  * https://tools.ietf.org/html/rfc6749#section-4.1.2.1
  */
 var AuthorizationError = /** @class */ (function () {
-    function AuthorizationError(error, errorDescription, errorUri, state) {
-        this.error = error;
-        this.errorDescription = errorDescription;
-        this.errorUri = errorUri;
-        this.state = state;
+    function AuthorizationError(error) {
+        this.error = error.error;
+        this.errorDescription = error.error_description;
+        this.errorUri = error.error_uri;
+        this.state = error.state;
     }
     AuthorizationError.prototype.toJson = function () {
         return {
@@ -236,9 +262,6 @@ var AuthorizationError = /** @class */ (function () {
             error_uri: this.errorUri,
             state: this.state
         };
-    };
-    AuthorizationError.fromJson = function (json) {
-        return new AuthorizationError(json.error, json.error_description, json.error_uri, json.state);
     };
     return AuthorizationError;
 }());
@@ -277,14 +300,12 @@ var OPENID_CONFIGURATION = 'openid-configuration';
  * More information at https://openid.net/specs/openid-connect-discovery-1_0-17.html
  */
 var AuthorizationServiceConfiguration = /** @class */ (function () {
-    function AuthorizationServiceConfiguration(authorizationEndpoint, tokenEndpoint, revocationEndpoint, // for Revoking Access Tokens
-    endSessionEndpoint, // for OpenID session management
-    userInfoEndpoint) {
-        this.authorizationEndpoint = authorizationEndpoint;
-        this.tokenEndpoint = tokenEndpoint;
-        this.revocationEndpoint = revocationEndpoint;
-        this.endSessionEndpoint = endSessionEndpoint;
-        this.userInfoEndpoint = userInfoEndpoint;
+    function AuthorizationServiceConfiguration(request) {
+        this.authorizationEndpoint = request.authorization_endpoint;
+        this.tokenEndpoint = request.token_endpoint;
+        this.revocationEndpoint = request.revocation_endpoint;
+        this.userInfoEndpoint = request.userinfo_endpoint;
+        this.endSessionEndpoint = request.end_session_endpoint;
     }
     AuthorizationServiceConfiguration.prototype.toJson = function () {
         return {
@@ -295,15 +316,12 @@ var AuthorizationServiceConfiguration = /** @class */ (function () {
             userinfo_endpoint: this.userInfoEndpoint
         };
     };
-    AuthorizationServiceConfiguration.fromJson = function (json) {
-        return new AuthorizationServiceConfiguration(json.authorization_endpoint, json.token_endpoint, json.revocation_endpoint, json.end_session_endpoint, json.userinfo_endpoint);
-    };
     AuthorizationServiceConfiguration.fetchFromIssuer = function (openIdIssuerUrl, requestor) {
         var fullUrl = openIdIssuerUrl + "/" + WELL_KNOWN_PATH + "/" + OPENID_CONFIGURATION;
         var requestorToUse = requestor || new xhr_1.JQueryRequestor();
         return requestorToUse
             .xhr({ url: fullUrl, dataType: 'json' })
-            .then(function (json) { return AuthorizationServiceConfiguration.fromJson(json); });
+            .then(function (json) { return new AuthorizationServiceConfiguration(json); });
     };
     return AuthorizationServiceConfiguration;
 }());
@@ -325,34 +343,68 @@ exports.AuthorizationServiceConfiguration = AuthorizationServiceConfiguration;
  * limitations under the License.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+var base64 = require("base64-js");
+var errors_1 = require("./errors");
+var HAS_CRYPTO = typeof window !== 'undefined' && !!window.crypto;
+var HAS_SUBTLE_CRYPTO = HAS_CRYPTO && !!window.crypto.subtle;
+var HAS_TEXT_ENCODER = typeof window !== 'undefined' && !!(TextEncoder);
 var CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 function bufferToString(buffer) {
     var state = [];
     for (var i = 0; i < buffer.byteLength; i += 1) {
-        var index = (buffer[i] % CHARSET.length) | 0;
+        var index = buffer[i] % CHARSET.length;
         state.push(CHARSET[index]);
     }
     return state.join('');
 }
 exports.bufferToString = bufferToString;
-var DEFAULT_SIZE = 1; /** size in bytes */
-var HAS_CRYPTO = typeof window !== 'undefined' && !!window.crypto;
-exports.cryptoGenerateRandom = function (sizeInBytes) {
-    if (sizeInBytes === void 0) { sizeInBytes = DEFAULT_SIZE; }
-    var buffer = new Uint8Array(sizeInBytes);
-    if (HAS_CRYPTO) {
-        window.crypto.getRandomValues(buffer);
+function urlSafe(buffer) {
+    var encoded = base64.fromByteArray(new Uint8Array(buffer));
+    return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+exports.urlSafe = urlSafe;
+/**
+ * The default implementation of the `Crypto` interface.
+ * This uses the capabilities of the browser.
+ */
+var DefaultCrypto = /** @class */ (function () {
+    function DefaultCrypto() {
     }
-    else {
-        // fall back to Math.random() if nothing else is available
-        for (var i = 0; i < sizeInBytes; i += 1) {
-            buffer[i] = Math.random();
+    DefaultCrypto.prototype.generateRandom = function (size) {
+        var buffer = new Uint8Array(size);
+        if (HAS_CRYPTO) {
+            window.crypto.getRandomValues(buffer);
         }
-    }
-    return bufferToString(buffer);
-};
+        else {
+            // fall back to Math.random() if nothing else is available
+            for (var i = 0; i < size; i += 1) {
+                buffer[i] = Math.random();
+            }
+        }
+        return bufferToString(buffer);
+    };
+    DefaultCrypto.prototype.deriveChallenge = function (code) {
+        if (code.length < 43 || code.length > 128) {
+            return Promise.reject(new errors_1.AppAuthError('Invalid code length.'));
+        }
+        if (!HAS_SUBTLE_CRYPTO) {
+            return Promise.reject(new errors_1.AppAuthError('window.crypto.subtle is unavailable.'));
+        }
+        if (!HAS_TEXT_ENCODER) {
+            return Promise.reject(new errors_1.AppAuthError('TextEncoder is unavailable.'));
+        }
+        var encoder = new TextEncoder();
+        return new Promise(function (resolve, reject) {
+            crypto.subtle.digest('SHA-256', encoder.encode(code)).then(function (buffer) {
+                return resolve(urlSafe(new Uint8Array(buffer)));
+            }, function (error) { return reject(error); });
+        });
+    };
+    return DefaultCrypto;
+}());
+exports.DefaultCrypto = DefaultCrypto;
 
-},{}],6:[function(require,module,exports){
+},{"./errors":6,"base64-js":18}],6:[function(require,module,exports){
 "use strict";
 /*
  * Copyright 2017 Google Inc.
@@ -579,9 +631,12 @@ exports.BasicQueryStringUtils = BasicQueryStringUtils;
  * limitations under the License.
  */
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -616,23 +671,26 @@ var RedirectRequestHandler = /** @class */ (function (_super) {
     // use the provided storage backend
     // or initialize local storage with the default storage backend which
     // uses window.localStorage
-    storageBackend, utils, locationLike, generateRandom) {
+    storageBackend, utils, locationLike, crypto) {
         if (storageBackend === void 0) { storageBackend = new storage_1.LocalStorageBackend(); }
         if (utils === void 0) { utils = new query_string_utils_1.BasicQueryStringUtils(); }
         if (locationLike === void 0) { locationLike = window.location; }
-        if (generateRandom === void 0) { generateRandom = crypto_utils_1.cryptoGenerateRandom; }
-        var _this = _super.call(this, utils, generateRandom) || this;
+        if (crypto === void 0) { crypto = new crypto_utils_1.DefaultCrypto(); }
+        var _this = _super.call(this, utils, crypto) || this;
         _this.storageBackend = storageBackend;
         _this.locationLike = locationLike;
         return _this;
     }
     RedirectRequestHandler.prototype.performAuthorizationRequest = function (configuration, request) {
         var _this = this;
-        var handle = this.generateRandom();
+        var handle = this.crypto.generateRandom(10);
         // before you make request, persist all request related data in local storage.
         var persisted = Promise.all([
             this.storageBackend.setItem(AUTHORIZATION_REQUEST_HANDLE_KEY, handle),
-            this.storageBackend.setItem(authorizationRequestKey(handle), JSON.stringify(request.toJson())),
+            // Calling toJson() adds in the code & challenge when possible
+            request.toJson().then(function (result) {
+                return _this.storageBackend.setItem(authorizationRequestKey(handle), JSON.stringify(result));
+            }),
             this.storageBackend.setItem(authorizationServiceConfigurationKey(handle), JSON.stringify(configuration.toJson())),
         ]);
         persisted.then(function () {
@@ -658,7 +716,7 @@ var RedirectRequestHandler = /** @class */ (function (_super) {
                     // requires a corresponding instance of result
                     // TODO(rahulrav@): check for inconsitent state here
                     .then(function (result) { return JSON.parse(result); })
-                    .then(function (json) { return authorization_request_1.AuthorizationRequest.fromJson(json); })
+                    .then(function (json) { return new authorization_request_1.AuthorizationRequest(json); })
                     .then(function (request) {
                     // check redirect_uri and state
                     var currentUri = "" + _this.locationLike.origin + _this.locationLike.pathname;
@@ -675,11 +733,15 @@ var RedirectRequestHandler = /** @class */ (function (_super) {
                             // get additional optional info.
                             var errorUri = queryParams['error_uri'];
                             var errorDescription = queryParams['error_description'];
-                            authorizationError =
-                                new authorization_response_1.AuthorizationError(error, errorDescription, errorUri, state);
+                            authorizationError = new authorization_response_1.AuthorizationError({
+                                error: error,
+                                error_description: errorDescription,
+                                error_uri: errorUri,
+                                state: state
+                            });
                         }
                         else {
-                            authorizationResponse = new authorization_response_1.AuthorizationResponse(code, state);
+                            authorizationResponse = new authorization_response_1.AuthorizationResponse({ code: code, state: state });
                         }
                         // cleanup state
                         return Promise
@@ -714,19 +776,6 @@ exports.RedirectRequestHandler = RedirectRequestHandler;
 
 },{"./authorization_request":1,"./authorization_request_handler":2,"./authorization_response":3,"./crypto_utils":5,"./logger":9,"./query_string_utils":10,"./storage":13}],12:[function(require,module,exports){
 "use strict";
-/*
- * Copyright 2017 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the
- * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing permissions and
- * limitations under the License.
- */
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Represents a revoke token request.
@@ -734,11 +783,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * https://tools.ietf.org/html/rfc7009#section-2.1
  */
 var RevokeTokenRequest = /** @class */ (function () {
-    function RevokeTokenRequest(token, tokenTypeHint, clientId, clientSecret) {
-        this.token = token;
-        this.tokenTypeHint = tokenTypeHint;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
+    function RevokeTokenRequest(request) {
+        this.token = request.token;
+        this.tokenTypeHint = request.token_type_hint;
+        this.clientId = request.client_id;
+        this.clientSecret = request.client_secret;
     }
     /**
      * Serializes a TokenRequest to a JavaScript object.
@@ -756,8 +805,10 @@ var RevokeTokenRequest = /** @class */ (function () {
         }
         return json;
     };
-    RevokeTokenRequest.fromJson = function (input) {
-        return new RevokeTokenRequest(input.token, input.token_type_hint, input.client_id, input.client_secret);
+    RevokeTokenRequest.prototype.toStringMap = function () {
+        var json = this.toJson();
+        // :(
+        return json;
     };
     return RevokeTokenRequest;
 }());
@@ -779,9 +830,12 @@ exports.RevokeTokenRequest = RevokeTokenRequest;
  * limitations under the License.
  */
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -871,15 +925,13 @@ exports.GRANT_TYPE_REFRESH_TOKEN = 'refresh_token';
  * https://tools.ietf.org/html/rfc6749#section-4.1.3
  */
 var TokenRequest = /** @class */ (function () {
-    function TokenRequest(clientId, redirectUri, 
-    // TODO(rahulrav@): Add the ability to infer grant types.
-    grantType, code, refreshToken, extras) {
-        this.clientId = clientId;
-        this.redirectUri = redirectUri;
-        this.grantType = grantType;
-        this.code = code;
-        this.refreshToken = refreshToken;
-        this.extras = extras;
+    function TokenRequest(request) {
+        this.clientId = request.client_id;
+        this.redirectUri = request.redirect_uri;
+        this.grantType = request.grant_type;
+        this.code = request.code;
+        this.refreshToken = request.refresh_token;
+        this.extras = request.extras;
     }
     /**
      * Serializes a TokenRequest to a JavaScript object.
@@ -916,9 +968,6 @@ var TokenRequest = /** @class */ (function () {
             }
         }
         return map;
-    };
-    TokenRequest.fromJson = function (input) {
-        return new TokenRequest(input.client_id, input.redirect_uri, input.grant_type, input.code, input.refresh_token, input.extras);
     };
     return TokenRequest;
 }());
@@ -961,9 +1010,8 @@ var BaseTokenRequestHandler = /** @class */ (function () {
         var revokeTokenResponse = this.requestor.xhr({
             url: configuration.revocationEndpoint,
             method: 'POST',
-            dataType: 'json',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            data: request.toJson()
+            data: this.utils.stringify(request.toStringMap())
         });
         return revokeTokenResponse.then(function (response) {
             return true;
@@ -980,10 +1028,10 @@ var BaseTokenRequestHandler = /** @class */ (function () {
         });
         return tokenResponse.then(function (response) {
             if (_this.isTokenResponse(response)) {
-                return token_response_1.TokenResponse.fromJson(response);
+                return new token_response_1.TokenResponse(response);
             }
             else {
-                return Promise.reject(new errors_1.AppAuthError(response.error, token_response_1.TokenError.fromJson(response)));
+                return Promise.reject(new errors_1.AppAuthError(response.error, new token_response_1.TokenError(response)));
             }
         });
     };
@@ -1007,26 +1055,26 @@ exports.BaseTokenRequestHandler = BaseTokenRequestHandler;
  * limitations under the License.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+// constants
+var AUTH_EXPIRY_BUFFER = 10 * 60; // 10 mins in seconds
 /**
  * Returns the instant of time in seconds.
  */
-var nowInSeconds = function () { return Math.round(new Date().getTime() / 1000); };
+exports.nowInSeconds = function () { return Math.round(new Date().getTime() / 1000); };
 /**
  * Represents the Token Response type.
  * For more information look at:
  * https://tools.ietf.org/html/rfc6749#section-5.1
  */
 var TokenResponse = /** @class */ (function () {
-    function TokenResponse(accessToken, idToken, refreshToken, scope, tokenType, issuedAt, expiresIn) {
-        if (tokenType === void 0) { tokenType = 'bearer'; }
-        if (issuedAt === void 0) { issuedAt = nowInSeconds(); }
-        this.accessToken = accessToken;
-        this.idToken = idToken;
-        this.refreshToken = refreshToken;
-        this.scope = scope;
-        this.tokenType = tokenType;
-        this.issuedAt = issuedAt;
-        this.expiresIn = expiresIn;
+    function TokenResponse(response) {
+        this.accessToken = response.access_token;
+        this.tokenType = response.token_type || 'bearer';
+        this.expiresIn = response.expires_in;
+        this.refreshToken = response.refresh_token;
+        this.scope = response.scope;
+        this.idToken = response.id_token;
+        this.issuedAt = response.issued_at || exports.nowInSeconds();
     }
     TokenResponse.prototype.toJson = function () {
         return {
@@ -1039,18 +1087,15 @@ var TokenResponse = /** @class */ (function () {
             expires_in: this.expiresIn
         };
     };
-    TokenResponse.prototype.isValid = function () {
+    TokenResponse.prototype.isValid = function (buffer) {
+        if (buffer === void 0) { buffer = AUTH_EXPIRY_BUFFER; }
         if (this.expiresIn) {
-            var now = nowInSeconds();
-            return now < this.issuedAt + this.expiresIn;
+            var now = exports.nowInSeconds();
+            return now < this.issuedAt + this.expiresIn + buffer;
         }
         else {
             return true;
         }
-    };
-    TokenResponse.fromJson = function (input) {
-        var issuedAt = !input.issued_at ? nowInSeconds() : input.issued_at;
-        return new TokenResponse(input.access_token, input.id_token, input.refresh_token, input.scope, input.token_type, issuedAt, input.expires_in);
     };
     return TokenResponse;
 }());
@@ -1061,18 +1106,15 @@ exports.TokenResponse = TokenResponse;
  * https://tools.ietf.org/html/rfc6749#section-5.2
  */
 var TokenError = /** @class */ (function () {
-    function TokenError(error, errorDescription, errorUri) {
-        this.error = error;
-        this.errorDescription = errorDescription;
-        this.errorUri = errorUri;
+    function TokenError(tokenError) {
+        this.error = tokenError.error;
+        this.errorDescription = tokenError.error_description;
+        this.errorUri = tokenError.error_uri;
     }
     TokenError.prototype.toJson = function () {
         return {
             error: this.error, error_description: this.errorDescription, error_uri: this.errorUri
         };
-    };
-    TokenError.fromJson = function (input) {
-        return new TokenError(input.error, input.error_description, input.error_uri);
     };
     return TokenError;
 }());
@@ -1094,9 +1136,12 @@ exports.TokenError = TokenError;
  * limitations under the License.
  */
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1155,5 +1200,158 @@ var TestRequestor = /** @class */ (function (_super) {
 }(Requestor));
 exports.TestRequestor = TestRequestor;
 
-},{"./errors":6}]},{},[8])(8)
+},{"./errors":6}],18:[function(require,module,exports){
+'use strict'
+
+exports.byteLength = byteLength
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
+}
+
+// Support decoding URL-safe base64 strings, as Node.js does.
+// See: https://en.wikipedia.org/wiki/Base64#URL_applications
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
+
+function getLens (b64) {
+  var len = b64.length
+
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // Trim off extra bytes after placeholder bytes are found
+  // See: https://github.com/beatgammit/base64-js/issues/42
+  var validLen = b64.indexOf('=')
+  if (validLen === -1) validLen = len
+
+  var placeHoldersLen = validLen === len
+    ? 0
+    : 4 - (validLen % 4)
+
+  return [validLen, placeHoldersLen]
+}
+
+// base64 is 4/3 + up to two characters of the original data
+function byteLength (b64) {
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function _byteLength (b64, validLen, placeHoldersLen) {
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function toByteArray (b64) {
+  var tmp
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+
+  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
+
+  var curByte = 0
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  var len = placeHoldersLen > 0
+    ? validLen - 4
+    : validLen
+
+  for (var i = 0; i < len; i += 4) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 18) |
+      (revLookup[b64.charCodeAt(i + 1)] << 12) |
+      (revLookup[b64.charCodeAt(i + 2)] << 6) |
+      revLookup[b64.charCodeAt(i + 3)]
+    arr[curByte++] = (tmp >> 16) & 0xFF
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 2) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 2) |
+      (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 1) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 10) |
+      (revLookup[b64.charCodeAt(i + 1)] << 4) |
+      (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] +
+    lookup[num >> 12 & 0x3F] +
+    lookup[num >> 6 & 0x3F] +
+    lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp =
+      ((uint8[i] << 16) & 0xFF0000) +
+      ((uint8[i + 1] << 8) & 0xFF00) +
+      (uint8[i + 2] & 0xFF)
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(
+      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
+    ))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 2] +
+      lookup[(tmp << 4) & 0x3F] +
+      '=='
+    )
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 10] +
+      lookup[(tmp >> 4) & 0x3F] +
+      lookup[(tmp << 2) & 0x3F] +
+      '='
+    )
+  }
+
+  return parts.join('')
+}
+
+},{}]},{},[8])(8)
 });

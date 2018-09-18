@@ -50,6 +50,8 @@
     appAuthClient.authorizationHandler.setAuthorizationNotifier(appAuthClient.notifier);
     appAuthClient.notifier.setAuthorizationListener(function (request, response, error) {
         if (response) {
+            appAuthClient.request = request;
+            appAuthClient.response = response;
             appAuthClient.code = response.code;
         }
     });
@@ -67,13 +69,18 @@
     .then(function () {
         var request;
         if (appAuthClient.code) {
-            request = new AppAuth.TokenRequest(
-                appAuthClient.clientId,
-                appAuthClient.redirectUri,
-                AppAuth.GRANT_TYPE_AUTHORIZATION_CODE,
-                appAuthClient.code,
-                undefined
-            );
+            var extras = {};
+            if (appAuthClient.request && appAuthClient.request.internal) {
+                extras['code_verifier'] = appAuthClient.request.internal['code_verifier'];
+            }
+            request = new AppAuth.TokenRequest({
+                client_id: appAuthClient.clientId,
+                redirect_uri: appAuthClient.redirectUri,
+                grant_type: AppAuth.GRANT_TYPE_AUTHORIZATION_CODE,
+                code: appAuthClient.code,
+                refresh_token: undefined,
+                extras: extras
+            });
             appAuthClient.tokenHandler
             .performTokenRequest(appAuthClient.configuration, request)
             .then(function (token_endpoint_response) {
@@ -105,14 +112,14 @@
                 window.location.hash = "";
             });
         } else {
-            request = new AppAuth.AuthorizationRequest(
-                appAuthClient.clientId,
-                appAuthClient.redirectUri,
-                appAuthClient.scopes,
-                AppAuth.AuthorizationRequest.RESPONSE_TYPE_CODE,
-                undefined, /* state */
-                { /* extra parameters */
-                });
+            request = new AppAuth.AuthorizationRequest({
+                client_id: appAuthClient.clientId,
+                redirect_uri: appAuthClient.redirectUri,
+                scope: appAuthClient.scopes,
+                response_type: AppAuth.AuthorizationRequest.RESPONSE_TYPE_CODE,
+                state: undefined,
+                extras: { 'prompt': 'consent', 'access_type': 'offline' }
+            });
 
             appAuthClient.authorizationHandler.performAuthorizationRequest(
                 appAuthClient.configuration,
