@@ -30,16 +30,20 @@
 
 <!-- JSO: initializing the client:  https://github.com/andreassolberg/jso#how-to-use -->
 
-<!-- JSO: getting the library -->
+<!-- JSO: loading the library -->
 <script type="text/javascript" src="https://unpkg.com/jso/dist/jso.js"></script>
+<!-- JSO: the latest tested version:
+    <script type="text/javascript" src="https://unpkg.com/jso@4.1.1/dist/jso.js"></script>
+-->
 
 <script>
     var JSO_CLIENT;
     
     /* JSO: 
-        configuring the JSO object for ForgeRock OAuth 2.0 Provider with the client specific settings and assigning it to a global variable, accessible throughout the application
-        "redirect_uri" parameter needs to match exactly one of the Redirection URIs registered for this OAuth 2.0 Client in the authorization server
-        "authorization" parameter is populated with a well-known end point, which can be discovered in the OpenID Provider Configuration Document, in this case - at http://am-service.sample.svc.cluster.local/openam/oauth2/.well-known/openid-configuration?f=jsonp
+        configuring the JSO object for an OpenID Provider (OP) and a Relying Party (RP) and
+        saving it in a global variable, accessible throughout the Single-page application
+        (ForgeRock Access Management (AM) is the OP and a client registered with AM is the RP);
+        initiating request to the OP
     */
     JSO_CLIENT = new jso.JSO({
         providerID: "forgerock",
@@ -58,16 +62,20 @@
         debug: true
     });
 
-    /* JSO: processing response from the authorization server */
     try {
+        /* JSO: 
+            processing response from the OP and,
+            if the authentication and the authorization were successful,
+            saving the token response in the browser's localStorage
+        */
         JSO_CLIENT.callback();
     } catch (e) {
-        /* JSO: process error returned from the callback and, optionally, redirect to an appropriate screen */
-
-        /* JSO: for example: if the resource owner (which we know and love as "user") denies access to its resources, the error may look like:
+        /* JSO: 
+            handling error returned from the callback function and, optionally, redirecting to an appropriate screen,
+            for example: if the resource owner denies access to its resources, the error may look like:
             {
                 "error_description": "Resource Owner did not authorize the request",
-                "state": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", 
+                "state": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
                 "error":"access_denied"
             }
         */
@@ -87,7 +95,6 @@
         if (message) {
             alert(message);
         }
-        /* JSO: for example: end */
     }
 </script>
 <!-- JSO: initializing the client: end -->
