@@ -18,7 +18,7 @@ define(["jquery", "lodash", "org/forgerock/commons/ui/common/main/ServiceInvoker
 
     obj.getConfiguration = function (successCallback, errorCallback) {
         // ACCESS_TOKEN is a global set in index.html
-        ServiceInvoker.configuration.defaultHeaders["Authorization"] = "Bearer " + ACCESS_TOKEN;
+        ServiceInvoker.configuration.defaultHeaders["Authorization"] = "Bearer " + sessionStorage.getItem("accessToken");
         return SiteConfigurationDelegate.getConfiguration().then(function (configuration) {
             if (configuration.amDataEndpoints) {
                 amDataEndpoints = configuration.amDataEndpoints;
