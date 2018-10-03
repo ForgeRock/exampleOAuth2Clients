@@ -120,10 +120,11 @@ You can see a full example of how all of these blocks are put together within [i
 
     An example implementation of *tokenResponseHandler* is provided below:
     ```
-     var tokenResponseHandler = function (token_endpoint_response) {
-         // store token as a global variable, to be read elsewhere in application as part of XHR calls
-         ACCESS_TOKEN = token_endpoint_response.accessToken;
-     });
+    var tokenResponseHandler = function (token_endpoint_response) {
+        // keep tokens within sessionStorage, to be read elsewhere in application as part of XHR calls
+        sessionStorage.setItem('accessToken', token_endpoint_response.accessToken);
+        sessionStorage.setItem('idToken', token_endpoint_response.idToken);
+    };
     ```
     You may want to save the accessToken value in localStorage or sessionStorage, otherwise page refreshes will lose it.
 
@@ -158,7 +159,8 @@ curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/realm-c
     -X PUT --data '{
         "coreOAuth2ClientConfig": {
             "redirectionUris": [
-                "http://localhost:8888/redirect.html"
+                "http://localhost:8888/redirect.html",
+                "http://localhost:8888/checkSession.html"
             ],
             "scopes": [
                 "openid",
@@ -167,6 +169,11 @@ curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/realm-c
                 "workflow_tasks",
                 "notifications"
             ],
+            "grantTypes": [
+                "authorization_code",
+                "implicit"
+            ],
+            "isConsentImplied": true,
             "clientType": "Public",
             "tokenEndpointAuthMethod": "client_secret_post"
         }
