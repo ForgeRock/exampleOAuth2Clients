@@ -165,6 +165,7 @@ curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/realm-c
             "scopes": [
                 "openid",
                 "profile",
+                "profile_update",
                 "consent_read",
                 "workflow_tasks",
                 "notifications"
@@ -191,7 +192,7 @@ Alternatively you can add *appAuthClient* manually, utilizing the platform UI: [
     * "Client ID": "appAuthClient"
     * "Client type": "Public"
     * "Redirection URIs": ["http://localhost:8888/redirect.html"]
-    * "Scope(s)": ["openid", "profile", "consent_read", "workflow_tasks", "notifications"]
+    * "Scope(s)": ["openid", "profile", "profile_update", "consent_read", "workflow_tasks", "notifications"]
 * Click Save, then go to "Advanced"
     * "Token Endpoint Authentication Method": "client_secret_post"
 
