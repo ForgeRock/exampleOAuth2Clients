@@ -44,7 +44,7 @@
             "token_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/access_token",
             "revocation_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/token/revoke"
         }),
-        scopes: "openid profile consent_read workflow_tasks notifications",
+        scopes: "openid profile profile_update consent_read workflow_tasks notifications",
         notifier: new AppAuth.AuthorizationNotifier(),
         authorizationHandler: new AppAuth.RedirectRequestHandler(),
         tokenHandler: new AppAuth.BaseTokenRequestHandler()
@@ -86,7 +86,7 @@
                     {
                         "accessToken": "d5MqRg-2TWzxzQq76r7fkDtd0M8",
                         "idToken": "eyJ0eX......35uNGtw",
-                        "scope": "consent_read openid profile notifications workflow_tasks",
+                        "scope": "consent_read openid profile profile_update notifications workflow_tasks",
                         "tokenType": "Bearer",
                         "issuedAt": 1535666764,
                         "expiresIn": 3599
