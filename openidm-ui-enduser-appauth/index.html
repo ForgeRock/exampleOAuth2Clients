@@ -28,192 +28,54 @@
 
 <footer id="footer" class="footer"></footer>
 
-
-<script type="text/javascript" src="libs/jquery-2.1.1-min.js"></script>
-<script type="text/javascript" src="appAuth.js"></script>
-
-<script>
-(function () {
-    var appBasePath = (document.location.origin + document.location.pathname).split('/').slice(0,-1).join('/');
-    var appAuthClient = {
-        /* These details will vary with your particular environment. */
-        clientId: 'appAuthClient',
-        redirectUri: appBasePath+'/redirect.html',
-        configuration: new AppAuth.AuthorizationServiceConfiguration({
-            "authorization_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/authorize",
-            "token_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/access_token",
-            "revocation_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/token/revoke"
-        }),
-        scopes: "openid profile profile_update consent_read workflow_tasks notifications",
-        notifier: new AppAuth.AuthorizationNotifier(),
-        authorizationHandler: new AppAuth.RedirectRequestHandler(),
-        tokenHandler: new AppAuth.BaseTokenRequestHandler()
-    };
-
-    appAuthClient.authorizationHandler.setAuthorizationNotifier(appAuthClient.notifier);
-    appAuthClient.notifier.setAuthorizationListener(function (request, response, error) {
-        if (response) {
-            appAuthClient.request = request;
-            appAuthClient.response = response;
-            appAuthClient.code = response.code;
-        }
-        if (error) {
-            appAuthClient.error = error;
-        }
-    });
-
-    appAuthClient.authorizationHandler.completeAuthorizationRequestIfPossible()
-    .then(function () {
-        var request;
-        if (appAuthClient.code) {
-            var extras = {};
-            if (appAuthClient.request && appAuthClient.request.internal) {
-                extras['code_verifier'] = appAuthClient.request.internal['code_verifier'];
-            }
-            request = new AppAuth.TokenRequest({
-                client_id: appAuthClient.clientId,
-                redirect_uri: appAuthClient.redirectUri,
-                grant_type: AppAuth.GRANT_TYPE_AUTHORIZATION_CODE,
-                code: appAuthClient.code,
-                refresh_token: undefined,
-                extras: extras
-            });
-            appAuthClient.tokenHandler
-            .performTokenRequest(appAuthClient.configuration, request)
-            .then(function (token_endpoint_response) {
-                /*
-                    token_endpoint_response will contain values like so:
-                    {
-                        "accessToken": "d5MqRg-2TWzxzQq76r7fkDtd0M8",
-                        "idToken": "eyJ0eX......35uNGtw",
-                        "scope": "consent_read openid profile profile_update notifications workflow_tasks",
-                        "tokenType": "Bearer",
-                        "issuedAt": 1535666764,
-                        "expiresIn": 3599
-                    }
-
-                    Use the accessToken in your XHR requests to any resource server endpoint as a header:
-
-                        Authorization: `Bearer ${accessToken}`
-
-                    You may want to save the accessToken value in localstorage or sessionstorage, otherwise
-                    page refreshes will lose it. For simplicity this example merely saves it as a global variable,
-                    to be used in the code that handles XHR requests.
-                */
-
-                sessionStorage.setItem('accessToken', token_endpoint_response.accessToken);
-                sessionStorage.setItem('idToken', token_endpoint_response.idToken);
-
-                /*
-                    Reset the hash to remove the url parameters included within
-                    it and initialize the normal app logic based on the default route.
-                */
-                window.location.hash = "";
-            });
-        } else if (appAuthClient.error) {
-            alert("Problem logging in: " + appAuthClient.error.error_description);
-        } else if (!sessionStorage.getItem('accessToken') || !sessionStorage.getItem('idToken')) {
-            request = new AppAuth.AuthorizationRequest({
-                client_id: appAuthClient.clientId,
-                redirect_uri: appAuthClient.redirectUri,
-                scope: appAuthClient.scopes,
-                response_type: AppAuth.AuthorizationRequest.RESPONSE_TYPE_CODE,
-                state: undefined,
-                extras: { }
-            });
-
-            appAuthClient.authorizationHandler.performAuthorizationRequest(
-                appAuthClient.configuration,
-                request
-            );
-        }
-
-
-        function logout() {
-            if (!sessionStorage.getItem('accessToken')) {
-                return;
-            }
-            var revokeRequest = new AppAuth.RevokeTokenRequest({
-                client_id: appAuthClient.clientId,
-                token: sessionStorage.getItem('accessToken')
-            });
-            return appAuthClient.tokenHandler
-                .performRevokeTokenRequest( appAuthClient.configuration, revokeRequest)
-                .then(function () {
-                    return fetch("http://am-service.sample.svc.cluster.local:80/openam/oauth2/connect/endSession" +
-                        "?id_token_hint=" + sessionStorage.getItem('idToken'));
-                })
-                .then(function () {
-                    sessionStorage.removeItem("accessToken");
-                    sessionStorage.removeItem("idToken");
-                    window.location.href = appBasePath;
-                });
-        }
-
-        window.logout = logout;
-
-        // monitor session state by polling OP with implicit OIDC flow
-        setInterval(function () {
-            sessionStorage.setItem("checkSessionNonce", Math.floor(Math.random() * 10000));
-            var iframeSrc =
-                appAuthClient.configuration.authorizationEndpoint +
-                "?prompt=none&response_type=id_token&scope=openid&client_id=" +
-                appAuthClient.clientId + "&redirect_uri="+appBasePath+"/checkSession.html" +
-                "&id_token_hint=" + sessionStorage.getItem("idToken") +
-                "&nonce=" + sessionStorage.getItem("checkSessionNonce");
-            $("#op_iframe").attr("src", iframeSrc);
-        }, 5000);
-
-        window.addEventListener("message", function (e) {
-            if (e.origin !== document.location.origin) {
-                return;
-            }
-            function getIdTokenClaims(id_token) {
-                return JSON.parse(
-                    atob(
-                        id_token.split('.')[1]
-                        .replace('-', '+')
-                        .replace('_', '/')
-                    )
-                );
-            }
-
-            var fieldMap = e.data.split('&')
-                .map(function (pair) {
-                    return pair.split('=');
-                })
-                .reduce(function (result, pair) {
-                    result[pair[0]] = decodeURIComponent(pair[1]);
-                    return result;
-                }, {});
-
-            if (fieldMap["error"]) {
-                return logout();
-            }
-
-            if (fieldMap["id_token"]) {
-                var new_claims = getIdTokenClaims(fieldMap["id_token"]);
-                var stored_claims = getIdTokenClaims(sessionStorage.getItem('idToken'));
-                if (new_claims.sub !== stored_claims.sub ||
-                    new_claims.nonce !== sessionStorage.getItem("checkSessionNonce")) {
-                    return logout();
-                }
-            }
-        }, false);
-
-    });
-}());
-</script>
-
-
-
 <script type="text/javascript">
     var require = {
         urlArgs : "v=6.0.0",
         deps : ['main']
     };
 </script>
-<script data-main="main" src="libs/requirejs-2.1.14-min.js"></script>
-<iframe id="op_iframe" style="display:none"/>
+
+<script src="appAuthFrame.js"></script>
+<script>
+(function () {
+    // handle various token-related events issued from the appAuthFrame as appropriate in the SPA context
+    // "appAuthLoaded" - the iframe is ready to start working. Send it a "login" message whenever you're ready to get tokens.
+    // "tokensAvailable" - the access token and id token are now saved in sessionStorage
+    // "tokensRenewed" - the access token and id token that were in sessionStorage have been replaced with updated tokens
+    // "tokensRemoved" - there are no longer tokens available (probably due to a logout event)
+    window.addEventListener("message", function (e) {
+        if (e.origin !== document.location.origin) {
+            return;
+        }
+        switch (e.data) {
+            case "tokensRenewed":
+            case "tokensAvailable":
+                // load the main SPA app once the tokens are available / fresh
+                if (!document.getElementById("mainScript")) {
+                    var mainScript = document.createElement("script");
+                    mainScript.setAttribute("src", "libs/requirejs-2.1.14-min.js");
+                    mainScript.setAttribute("data-main", "main");
+                    mainScript.setAttribute("id", "mainScript");
+                    document.getElementsByTagName("body")[0].appendChild(mainScript);
+                }
+                break;
+            case "tokensRemoved":
+                // reset the SPA if the tokens are gone, triggering a new login flow
+                window.location.href = "";
+                break;
+            case "appAuthLoaded":
+                // In this application, we want tokens immediately, before any user interaction is attempted
+                document.getElementById("appAuthFrame").contentWindow.postMessage("getTokens", document.location.origin);
+                break;
+        }
+    }, false);
+
+    // trigger logout from anywhere in the SPA by calling this global function
+    window.logout = function () {
+        document.getElementById("appAuthFrame").contentWindow.postMessage("removeTokens", document.location.origin);
+    };
+}());
+</script>
+
 </body>
 </html>

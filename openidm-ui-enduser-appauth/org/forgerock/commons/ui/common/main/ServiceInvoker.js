@@ -42,30 +42,18 @@ define(["jquery", "underscore", "org/forgerock/commons/ui/common/main/AbstractCo
             _rejectHandler,
             ie11 = !!window.MSInputMethodContext && !!document.documentMode;
 
-        resolveHandler = function resolveHandler() {
-            promise.resolve.apply(promise, arguments);
-        };
+        options.retryAttempts = 0;
 
-        _rejectHandler = function rejectHandler(jqXHR, textStatus, errorThrown) {
+        resolveHandler = promise.resolve;
+
+        _rejectHandler = function (jqXHR, textStatus, errorThrown) {
             if (!options.suppressEvents) {
-                // attempt to handle session timeout errors (indicated by a 401)
-                // gracefully, by deferring the failure until after the user has
-                // had a chance to reauthenticate. After they have successfully
-                // logged-in, resubmit their original request. Only do this if there
-                // isn't an errorsHandler for 401 included in the request.
-                if (jqXHR.status === 401 && !ErrorsHandler.matchError({ status: 401 }, options.errorsHandlers)) {
-                    EventManager.sendEvent(Constants.EVENT_SHOW_LOGIN_DIALOG, {
-                        authenticatedCallback: function authenticatedCallback() {
-                            $.ajax(options).then(resolveHandler, _rejectHandler);
-                        }
-                    });
+                if (jqXHR.getResponseHeader("www-authenticate") && options.retryAttempts < 1) {
+                    // The access token may have been updated since the last attempt; update the request to use it.
+                    options.headers["Authorization"] = "Bearer " + sessionStorage.getItem("accessToken");
+                    options.retryAttempts++;
+                    $.ajax(options).then(resolveHandler, _rejectHandler);
                 } else {
-                    EventManager.sendEvent(Constants.EVENT_REST_CALL_ERROR, {
-                        data: $.extend({}, jqXHR, { type: this.type }),
-                        textStatus: textStatus,
-                        errorThrown: errorThrown,
-                        errorsHandlers: options.errorsHandlers
-                    });
                     if (errorCallback) {
                         errorCallback(jqXHR);
                     }
@@ -90,6 +78,9 @@ define(["jquery", "underscore", "org/forgerock/commons/ui/common/main/AbstractCo
         }
 
         obj.applyDefaultHeadersIfNecessary(options, obj.configuration.defaultHeaders);
+
+        // Add the access token to all xhr requests before they are sent
+        options.headers["Authorization"] = "Bearer " + sessionStorage.getItem("accessToken");
 
         if (!options.suppressEvents) {
             EventManager.sendEvent(Constants.EVENT_START_REST_CALL, {

@@ -1,0 +1,231 @@
+
+<script type="text/javascript" src="appAuth.js"></script>
+
+<script>
+/*
+    This code is designed to execute within a hidden iframe as part of a single-page applciation (SPA).
+*/
+(function () {
+    var appBasePath = (document.location.origin + document.location.pathname).split('/').slice(0,-1).join('/');
+
+    /* ALTER THESE VALUES TO MATCH YOUR ENVIRONMENT */
+    var sessionCheckDelayInSeconds = 5; // Minimum time to wait between calls to check for session validity
+    var appAuthClient = {
+        clientId: 'appAuthClient',
+        scopes: "openid profile profile_update consent_read workflow_tasks notifications",
+        redirectUri: appBasePath+'/redirect.html',
+        configuration: new AppAuth.AuthorizationServiceConfiguration({
+            "authorization_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/authorize",
+            "token_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/access_token",
+            "revocation_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/token/revoke",
+            "end_session_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/connect/endSession"
+        }),
+    /* DO NOT ALTER ANY CODE BELOW THIS POINT */
+        notifier: new AppAuth.AuthorizationNotifier(),
+        authorizationHandler: new AppAuth.RedirectRequestHandler(),
+        tokenHandler: new AppAuth.BaseTokenRequestHandler({
+            // fetch-based alternative to built-in jquery implementation
+            xhr: function (settings) {
+                return new Promise(function (resolve, reject) {
+                    fetch(settings.url, {
+                        method: settings.method,
+                        body: settings.data,
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        headers: settings.headers
+                    }).then(function (response) {
+                        if (response.ok) {
+                            response.json().then(resolve);
+                        } else {
+                            reject(response.statusText);
+                        }
+                    }, reject);
+                });
+            }
+        })
+    };
+    appAuthClient.authorizationHandler.setAuthorizationNotifier(appAuthClient.notifier);
+
+
+    /**
+     * Simple jwt parsing code purely used for extracting claims.
+     */
+    function getIdTokenClaims(id_token) {
+        return JSON.parse(
+            atob(
+                id_token.split('.')[1]
+                .replace('-', '+')
+                .replace('_', '/')
+            )
+        );
+    }
+
+    /**
+     * logout() will revoke the access token, use the id_token to end the session on the OP, clear them from the
+     * local session, and finally notify the SPA that they are gone.
+     */
+    function logout() {
+        if (!sessionStorage.getItem('accessToken')) {
+            return;
+        }
+        var revokeRequest = new AppAuth.RevokeTokenRequest({
+            client_id: appAuthClient.clientId,
+            token: sessionStorage.getItem('accessToken')
+        });
+        return appAuthClient.tokenHandler
+            .performRevokeTokenRequest(appAuthClient.configuration, revokeRequest)
+            .then(function () {
+                return fetch(appAuthClient.configuration.endSessionEndpoint +
+                    "?id_token_hint=" + sessionStorage.getItem('idToken'));
+            })
+            .then(function () {
+                sessionStorage.removeItem("accessToken");
+                sessionStorage.removeItem("idToken");
+                parent.postMessage("tokensRemoved", document.location.origin);
+            });
+    }
+
+    /**
+     * Helper function that reduces the amount of duplicated code, as there are several different
+     * places in the code that require initiating an authorization request.
+     */
+    function authnRequest(scopes, extras) {
+        var request = new AppAuth.AuthorizationRequest({
+            client_id: appAuthClient.clientId,
+            redirect_uri: appAuthClient.redirectUri,
+            scope: scopes,
+            response_type: AppAuth.AuthorizationRequest.RESPONSE_TYPE_CODE,
+            extras: extras || {}
+        });
+
+        appAuthClient.authorizationHandler.performAuthorizationRequest(
+            appAuthClient.configuration,
+            request
+        );
+    }
+
+
+    /**
+     * This is invoked when the browser has returned from the OP with either a code or an error.
+     */
+    appAuthClient.notifier.setAuthorizationListener(function (request, response, error) {
+        if (response) {
+            appAuthClient.request = request;
+            appAuthClient.response = response;
+            appAuthClient.code = response.code;
+        }
+        if (error) {
+            appAuthClient.error = error;
+        }
+        // The top level hash will match the frame hash when the user logs in interactively
+        // Clearing it here from the top level is important so that it does not interfere
+        // with the hash routing done by the SPA
+        if (window.top.location.hash === document.location.hash) {
+            window.top.location.hash = ""; // remove the code/state/etc.. from the hash)
+        }
+    });
+
+    appAuthClient.authorizationHandler.completeAuthorizationRequestIfPossible()
+    .then(function () {
+        var request;
+        // The case when the user has successfully returned from the authorization request
+        if (appAuthClient.code) {
+            var extras = {};
+            // PKCE support
+            if (appAuthClient.request && appAuthClient.request.internal) {
+                extras['code_verifier'] = appAuthClient.request.internal['code_verifier'];
+            }
+            request = new AppAuth.TokenRequest({
+                client_id: appAuthClient.clientId,
+                redirect_uri: appAuthClient.redirectUri,
+                grant_type: AppAuth.GRANT_TYPE_AUTHORIZATION_CODE,
+                code: appAuthClient.code,
+                refresh_token: undefined,
+                extras: extras
+            });
+            appAuthClient.tokenHandler
+            .performTokenRequest(appAuthClient.configuration, request)
+            .then(function (token_endpoint_response) {
+                if (token_endpoint_response.scope !== "openid" || !sessionStorage.getItem('idToken')) {
+                    var message;
+                    if (sessionStorage.getItem('idToken') || sessionStorage.getItem('accessToken')) {
+                        message = "tokensRenewed";
+                    } else {
+                        message = "tokensAvailable";
+                    }
+                    sessionStorage.setItem('accessToken', token_endpoint_response.accessToken);
+                    sessionStorage.setItem('idToken', token_endpoint_response.idToken);
+                    parent.postMessage( message, document.location.origin);
+                } else {
+                    // session check only
+                    var new_claims = getIdTokenClaims(token_endpoint_response.idToken);
+                    var stored_claims = getIdTokenClaims(sessionStorage.getItem('idToken'));
+                    if (new_claims.sub !== stored_claims.sub) {
+                        return logout();
+                    }
+                }
+            });
+        } else if (appAuthClient.error) {
+            // this is when silent authorization failed - likely the user did not have an active session on the OP
+            if (appAuthClient.error.error === "interaction_required") {
+                appAuthClient.authorizationHandler = (new AppAuth.RedirectRequestHandler(
+                    // redirect the parent frame to the OP login screen
+                    void 0, void 0, window.top.location
+                ));
+                authnRequest(appAuthClient.scopes);
+            } else {
+                // Hopefully this won't happen
+                console.error("Problem logging in: " + appAuthClient.error.errorDescription);
+                alert("Problem logging in: " + appAuthClient.error.errorDescription);
+            }
+        } else {
+            parent.postMessage( "appAuthLoaded", document.location.origin);
+        }
+
+
+        window.addEventListener("message", function (e) {
+            if (e.origin !== document.location.origin) {
+                return;
+            }
+            // Helper function used to prevent simultaneous authentication requests being issued
+            function authnRequestCooldown(timeStampName, cooldownPeriod, scopes) {
+                var timestamp = (new Date()).getTime();
+                if (!sessionStorage.getItem(timeStampName) ||
+                    (parseInt(sessionStorage.getItem(timeStampName)) + cooldownPeriod) < timestamp) {
+                    sessionStorage.setItem(timeStampName, timestamp);
+                    authnRequest(scopes, { "prompt": "none" });
+                }
+            }
+            switch (e.data) {
+                // expect to get "renewToken" messages after an invalid_token error from the RS endpoints
+                case "renewToken":
+                    authnRequestCooldown("renewTokenTimestamp", 1000, appAuthClient.scopes);
+                break;
+                // expect to get this message as part of every xhr request. This is the event we monitor for as a trigger
+                // to check the session status at the OP.
+                case "xhrSend":
+                    // only need to get a new id_token to check the session
+                    authnRequestCooldown("checkSessionTimestamp", (1000 * sessionCheckDelayInSeconds), 'openid');
+                break;
+                // either try to get tokens silently or use whichever tokens are available in session storage.
+                // if silent authorization fails, the parent frame will be redirected to the AS for interactive authorization
+                case "getTokens":
+                    if (!sessionStorage.getItem('accessToken') || !sessionStorage.getItem('idToken')) {
+                        // attempt silent authorization
+                        authnRequest(appAuthClient.scopes, { "prompt": "none" });
+                    } else {
+                        // previously held tokens still around, try to use them
+                        parent.postMessage( "tokensAvailable", document.location.origin);
+                    }
+                break;
+                // If the parent frame asks us to logout, we do so.
+                case "removeTokens":
+                    logout();
+                break;
+            }
+
+        }, false);
+
+    });
+}());
+</script>
