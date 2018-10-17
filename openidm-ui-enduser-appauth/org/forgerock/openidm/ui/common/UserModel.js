@@ -197,7 +197,7 @@ define(["jquery", "underscore", "org/forgerock/commons/ui/common/main/AbstractMo
             return updatedHeaders;
         },
         logout: function logout() {
-            window.logout();
+            return window.logout();
         },
         getProfile: function getProfile(headers) {
             var _this5 = this;
