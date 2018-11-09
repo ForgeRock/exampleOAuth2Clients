@@ -21,7 +21,7 @@ def sessionHandler = SessionHandler.create(store)
 router.route().handler(sessionHandler)
 
 def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
-    site:"http://am-service.sample.svc.cluster.local:80/openam",
+    site:"https://login.sample.svc.cluster.local",
     clientID: "vertxClient", // replace with your client id
     clientSecret: "vertxClientSecret", // replace with your client secret
     tokenPath:"/oauth2/access_token",
@@ -58,13 +58,13 @@ router.route("/protected")
         // We can use the access_token associated with the user to make
         // requests to any resource server endpoint which is expecting
         // tokens from AM. For example, these IDM endpoints:
-        user.fetch("http://rs-service.sample.svc.cluster.local/openidm/info/login", { infoResponse ->
+        user.fetch("https://rs-service.sample.svc.cluster.local/openidm/info/login", { infoResponse ->
             if (infoResponse.failed()) {
                 routingContext.response().end("Unable to read info login")
             } else {
                 def infoDetails = infoResponse.result().jsonObject()
                 def userPath = "${infoDetails.authorization.component}/${infoDetails.authorization.id}"
-                user.fetch("http://rs-service.sample.svc.cluster.local/openidm/${userPath}", { userResponse ->
+                user.fetch("https://rs-service.sample.svc.cluster.local/openidm/${userPath}", { userResponse ->
                     if (userResponse.failed()) {
                         routingContext.response().end("Unable to read user details")
                     } else {

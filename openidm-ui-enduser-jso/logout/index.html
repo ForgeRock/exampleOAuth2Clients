@@ -15,7 +15,7 @@
         jso_client = new jso.JSO({
             providerID: "forgerock",
             client_id: "openidm-ui-enduser-jso",
-            authorization: "http://am-service.sample.svc.cluster.local:80/openam/oauth2/authorize",
+            authorization: "https://login.sample.svc.cluster.local/oauth2/authorize",
             debug: true
         });
 
@@ -33,7 +33,7 @@
                 thus ending the user's session in AM and returning to the redirection URI
             */
 
-            end_session_endpoint = 'http://am-service.sample.svc.cluster.local/openam/oauth2/connect/endSession'
+            end_session_endpoint = 'https://login.sample.svc.cluster.local/oauth2/connect/endSession'
             + '?post_logout_redirect_uri=' + end_session_endpoint 
             + '&id_token_hint=' + jso_token.id_token;
         }
