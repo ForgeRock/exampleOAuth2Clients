@@ -43,10 +43,10 @@ After you have copied these files, you will need to edit [appAuth.html](./appAut
         scopes: "openid profile profile_update consent_read workflow_tasks notifications",
         redirectUri: appBasePath+'/redirect.html',
         configuration: new AppAuth.AuthorizationServiceConfiguration({
-            "authorization_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/authorize",
-            "token_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/access_token",
-            "revocation_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/token/revoke",
-            "end_session_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/connect/endSession"
+            "authorization_endpoint": "http://login.sample.svc.cluster.local:80/oauth2/authorize",
+            "token_endpoint": "http://login.sample.svc.cluster.local:80/oauth2/access_token",
+            "revocation_endpoint": "http://login.sample.svc.cluster.local:80/oauth2/token/revoke",
+            "end_session_endpoint": "http://login.sample.svc.cluster.local:80/oauth2/connect/endSession"
         }),
 
 `sessionCheckDelayInSeconds` is the minimum time to wait between XHR calls to check for session validity at the OP
@@ -55,7 +55,7 @@ After you have copied these files, you will need to edit [appAuth.html](./appAut
 
 `scopes` is the space-delimited list of scope values that your client needs to obtain in the access token it is requesting. Be sure to always include "openid" in order to get an id_token.
 
-`*_endpoint` These are the various URLs to your "OpenID Provider" (OP), which is the OpenID Connect term used to describe the OAuth2 Authorization Server. You can read these from your OP's [discovery document](https://openid.net/specs/openid-connect-discovery-1_0.html) (e.g. http://am-service.sample.svc.cluster.local/openam/oauth2/.well-known/openid-configuration)
+`*_endpoint` These are the various URLs to your "OpenID Provider" (OP), which is the OpenID Connect term used to describe the OAuth2 Authorization Server. You can read these from your OP's [discovery document](https://openid.net/specs/openid-connect-discovery-1_0.html) (e.g. http://login.sample.svc.cluster.local/oauth2/.well-known/openid-configuration)
 
 #### Integrating into your SPA
 Next, you will need to add this code to your SPA. This should be added to the base response HTML (the primary or "single" page).
@@ -138,7 +138,7 @@ getIdTokenClaims(sessionStorage.getItem("idToken")) // -> returns a map of value
     "at_hash": "7LsOpEFOK4zH46H96iDOHg",
     "sub": "amadmin",
     "auditTrackingId": "b2e094db-b135-4504-85a2-05897fcb7e6c-31192",
-    "iss": "http://am-service.sample.svc.cluster.local:80/openam/oauth2",
+    "iss": "http://login.sample.svc.cluster.local:80/oauth2",
     "tokenName": "id_token",
     "aud": "appAuthClient",
     "c_hash": "X7O8AL3Zt4B2Cr6BwmeFmg",
@@ -209,7 +209,7 @@ You can see a full example of how all of these blocks are put together within [a
 
  - Provide the client details in an object and initialize library. The string values will vary with your particular environment.
     ```
-    var opBasePath = "http://am-service.sample.svc.cluster.local:80/openam";
+    var opBasePath = "http://login.sample.svc.cluster.local:80";
     var appBasePath = (document.location.origin + document.location.pathname).split('/').slice(0,-1).join('/');
     var appAuthClient = {
         clientId: 'appAuthClient',
@@ -353,7 +353,7 @@ This example serves as a contrast with the openidm-ui-enduser-jso example, which
 
 Sign in:
 ```
-curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/authenticate' \
+curl 'http://login.sample.svc.cluster.local/json/realms/root/authenticate' \
     -X POST -H 'X-OpenAM-Username:amadmin' -H 'X-OpenAM-Password:password'
 ```
 
@@ -364,7 +364,7 @@ Note *tokenId* key in the results:
 Register a new OAuth2 public client. Note that you need to assign the above tokenId value to *iPlanetDirectoryPro* cookie:
 
 ```
-curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/realm-config/agents/OAuth2Client/appAuthClient' \
+curl 'http://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/appAuthClient' \
     -X PUT --data '{
         "coreOAuth2ClientConfig": {
             "redirectionUris": [
@@ -391,7 +391,7 @@ curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/realm-c
 ```
 >{"_id":"appAuthClient", . . . "_type":{"_id":"OAuth2Client","name":"OAuth2 Clients","collection":true}}
 
-Alternatively you can add *appAuthClient* manually, utilizing the platform UI: [AM Console](http://am-service.sample.svc.cluster.local/openam/console)
+Alternatively you can add *appAuthClient* manually, utilizing the platform UI: [AM Console](http://login.sample.svc.cluster.local/console)
 
 * Sign in with *amadmin/password*
 * Navigate to *Top Level Realm* > *Applications* > *OAuth 2.0
@@ -427,7 +427,7 @@ If you look closely at the network traffic produced by your browser, you will se
 
 This is the primary new functionality that this client provides.
 
-If you open a new window or tab, you can go to the AS directly (http://am-service.sample.svc.cluster.local/openam/) and log out. You will notice that if you go back to the window running the example app, when you perform any further interaction the application will redirect you back to the AS to login.
+If you open a new window or tab, you can go to the AS directly (http://login.sample.svc.cluster.local/) and log out. You will notice that if you go back to the window running the example app, when you perform any further interaction the application will redirect you back to the AS to login.
 
 ## Building your own copy of AppAuthJS
 

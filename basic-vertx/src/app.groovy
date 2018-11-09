@@ -21,7 +21,7 @@ def sessionHandler = SessionHandler.create(store)
 router.route().handler(sessionHandler)
 
 def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
-    site:"http://am-service.sample.svc.cluster.local:80/openam",
+    site:"http://login.sample.svc.cluster.local:80",
     clientID: "vertxClient", // replace with your client id
     clientSecret: "vertxClientSecret", // replace with your client secret
     tokenPath:"/oauth2/access_token",

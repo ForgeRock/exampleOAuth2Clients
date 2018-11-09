@@ -11,7 +11,7 @@ Copy and paste from these samples to get started building your own Vert.x OAuth 
 This is the core configuration that you will need to specify to match your use:
 
     def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
-        site:"http://am-service.sample.svc.cluster.local:80/openam",
+        site:"http://login.sample.svc.cluster.local:80",
         clientID: "vertxClient", // replace with your client id
         clientSecret: "vertxClientSecret", // replace with your client secret
         tokenPath:"/oauth2/access_token",
@@ -82,7 +82,7 @@ The [app.groovy](src/app.groovy) code has the full context of these two snippets
 
 Sign in:
 ```
-curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/authenticate' -X POST -H 'X-OpenAM-Username:amadmin' -H 'X-OpenAM-Password:password'
+curl 'http://login.sample.svc.cluster.local/json/realms/root/authenticate' -X POST -H 'X-OpenAM-Username:amadmin' -H 'X-OpenAM-Password:password'
 ```
 
 Note *tokenId* key in the results:
@@ -92,11 +92,11 @@ Note *tokenId* key in the results:
 Register a new OAuth2 public client. Note that you need to assign the above tokenId value to *iPlanetDirectoryPro* cookie:
 
 ```
-curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/realm-config/agents/OAuth2Client/vertxClient' -X PUT --data '{"coreOAuth2ClientConfig":{"userpassword":"vertxClientSecret","redirectionUris":["http://localhost:8888/callback"],"scopes":["openid","profile"],"tokenEndpointAuthMethod":"client_secret_post"}}' -H 'Content-Type: application/json' -H 'Accept: application/json' -H 'Cookie: iPlanetDirectoryPro=AQIC5wM...3MTYxOA..*'
+curl 'http://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/vertxClient' -X PUT --data '{"coreOAuth2ClientConfig":{"userpassword":"vertxClientSecret","redirectionUris":["http://localhost:8888/callback"],"scopes":["openid","profile"],"tokenEndpointAuthMethod":"client_secret_post"}}' -H 'Content-Type: application/json' -H 'Accept: application/json' -H 'Cookie: iPlanetDirectoryPro=AQIC5wM...3MTYxOA..*'
 ```
 >{"_id":"vertxClient", . . . "_type":{"_id":"OAuth2Client","name":"OAuth2 Clients","collection":true}}
 
-Alternatively you can add *vertxClient* manually, utilizing the platform UI: [AM Console](http://am-service.sample.svc.cluster.local/openam/console)
+Alternatively you can add *vertxClient* manually, utilizing the platform UI: [AM Console](http://login.sample.svc.cluster.local/console)
 
 * Sign in with *amadmin/password*
 * Navigate to *Top Level Realm* > *Applications* > *OAuth 2.0

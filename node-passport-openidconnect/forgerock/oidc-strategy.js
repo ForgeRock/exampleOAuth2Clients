@@ -2,7 +2,7 @@
   Example: configuring a new passport-openidconnect (https://github.com/jaredhanson/passport-openidconnect) strategy 
   with the ForgeRock platform specific parameters, including the well-known enpoints, 
   which can be obtained from the OpenID Provider Configuration Document: 
-  http://am-service.sample.svc.cluster.local/openam/oauth2/.well-known/openid-configuration
+  http://login.sample.svc.cluster.local/oauth2/.well-known/openid-configuration
 */
 var OidcStrategy = require('passport-openidconnect').Strategy;
 var clientConfig = require('./client-config.js');
@@ -34,7 +34,7 @@ module.exports = new OidcStrategy({
       profile: profile,
       issuerInfo: {
         exampleUrls: [
-          'http://am-service.sample.svc.cluster.local:80/openam/oauth2/userinfo',
+          'http://login.sample.svc.cluster.local:80/oauth2/userinfo',
           'http://rs-service.sample.svc.cluster.local/openidm/config/ui/dashboard',
           'http://rs-service.sample.svc.cluster.local/openidm/info/login',
           'http://rs-service.sample.svc.cluster.local/openidm/managed/user/:authorization.id (from http://rs-service.sample.svc.cluster.local/openidm/info/login)'

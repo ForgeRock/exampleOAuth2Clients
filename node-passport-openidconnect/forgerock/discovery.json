@@ -1,7 +1,7 @@
 {
-  "issuer": "http://am-service.sample.svc.cluster.local:80/openam/oauth2",
-  "authorization_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/authorize",
-  "token_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/access_token",
-  "userinfo_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/userinfo",
-  "end_session_endpoint": "http://am-service.sample.svc.cluster.local:80/openam/oauth2/connect/endSession"
+  "issuer": "http://login.sample.svc.cluster.local:80/oauth2",
+  "authorization_endpoint": "http://login.sample.svc.cluster.local:80/oauth2/authorize",
+  "token_endpoint": "http://login.sample.svc.cluster.local:80/oauth2/access_token",
+  "userinfo_endpoint": "http://login.sample.svc.cluster.local:80/oauth2/userinfo",
+  "end_session_endpoint": "http://login.sample.svc.cluster.local:80/oauth2/connect/endSession"
 }

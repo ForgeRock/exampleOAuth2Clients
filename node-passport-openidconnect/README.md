@@ -28,7 +28,7 @@ The steps:
 
 1. Collect information about the OP
 
-    In this step you gather the OP's endpoints that will be used in an instance of the Passport-OpenID Connect strategy. If supported by the OP, this information can be found at the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) well-known endpoint. You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known point in [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance.example.com/openam/oauth2/.well-known/openid-configuration`. 
+    In this step you gather the OP's endpoints that will be used in an instance of the Passport-OpenID Connect strategy. If supported by the OP, this information can be found at the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) well-known endpoint. You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known point in [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance.example.com/oauth2/.well-known/openid-configuration`. 
 
     At a minimum, you will need values for the following:
 
@@ -491,7 +491,7 @@ This web application was started with the [Express application generator](https:
 
       Sign in:
       ```bash
-      curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/authenticate' \
+      curl 'http://login.sample.svc.cluster.local/json/realms/root/authenticate' \
       -X POST \
       -H 'X-OpenAM-Username:amadmin' \
       -H 'X-OpenAM-Password:password'
@@ -504,7 +504,7 @@ This web application was started with the [Express application generator](https:
       Assign the `tokenId` value to `iPlanetDirectoryPro` cookie in the next request:
 
       ```bash
-      curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/realm-config/agents/OAuth2Client/node-passport-openidconnect' \
+      curl 'http://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/node-passport-openidconnect' \
       -X PUT \
       --data '{
           "userpassword": "password",
@@ -527,7 +527,7 @@ This web application was started with the [Express application generator](https:
 
     * Option 2: Utilizing the Platform sample UI
 
-      * Navigate to [AM Console](http://am-service.sample.svc.cluster.local/openam/console)
+      * Navigate to [AM Console](http://login.sample.svc.cluster.local/console)
       * Sign in with _`amadmin/password`_
       * Navigate to: _Top Level Realm_ > _Applications_ > _OAuth 2.0_
       * Add new client:
@@ -657,7 +657,7 @@ This web application was started with the [Express application generator](https:
 
     The strategies in this example are populated with hard-coded values. Clients' properties are exported from `client-config.js` files, while the endpoints for each OP are saved in `discovery.json` files. When [supported](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery) by an OP, the discovery content could be obtained dynamically from the [OpenID Provider Configuration Documents](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig), which for the two OPs could be found at:
 
-    * [ForgeRock AM](http://am-service.sample.svc.cluster.local/openam/oauth2/.well-known/openid-configuration)
+    * [ForgeRock AM](http://login.sample.svc.cluster.local/oauth2/.well-known/openid-configuration)
     * [Google](https://accounts.google.com/.well-known/openid-configuration) 
 
     To implement an additional OP, a separate, similarly organized sub-directory may be introduced in the code base. 

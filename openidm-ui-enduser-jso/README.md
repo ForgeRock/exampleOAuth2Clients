@@ -18,7 +18,7 @@ A generic (OP independent) version of the workflow employed in this example is o
 
 1. Collect information about the OP
 
-    In this step you gather the OP endpoints that will be used for making authentication requests by the JSO library. If supported by the OP, this information can be found at the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) well-known endpoint. You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known point in [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance.example.com/openam/oauth2/.well-known/openid-configuration`. 
+    In this step you gather the OP endpoints that will be used for making authentication requests by the JSO library. If supported by the OP, this information can be found at the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) well-known endpoint. You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known point in [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance.example.com/oauth2/.well-known/openid-configuration`. 
     
     At a minimum, you will need the value for:
 
@@ -170,7 +170,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
         Sign in:
         ```bash
-        curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/authenticate' \
+        curl 'http://login.sample.svc.cluster.local/json/realms/root/authenticate' \
         -X POST \
         -H 'X-OpenAM-Username:amadmin' \
         -H 'X-OpenAM-Password:password'
@@ -182,7 +182,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
         Assign the `tokenId` value to `iPlanetDirectoryPro` cookie in the next request:
         ```bash
-        curl 'http://am-service.sample.svc.cluster.local/openam/json/realms/root/realm-config/agents/OAuth2Client/openidm-ui-enduser-jso' \
+        curl 'http://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/openidm-ui-enduser-jso' \
         -X PUT \
         --data '{
             "clientType": "Public",
@@ -203,7 +203,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
     * Option 2: Utilizing the platform sample UI
 
-        * Navigate to [AM Console](http://am-service.sample.svc.cluster.local/openam/console)
+        * Navigate to [AM Console](http://login.sample.svc.cluster.local/console)
         * Sign in with *`amadmin/password`*
         * Navigate to: *Top Level Realm* > *Applications* > *OAuth 2.0* 
         * Add new client
@@ -268,7 +268,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             providerID: "forgerock",
             client_id: "openidm-ui-enduser-jso",
             redirect_uri: window.location.origin,
-            authorization: "http://am-service.sample.svc.cluster.local:80/openam/oauth2/authorize",
+            authorization: "http://login.sample.svc.cluster.local:80/oauth2/authorize",
             scopes: { 
                 request: [
                     "openid",
@@ -357,7 +357,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             jso_client = new jso.JSO({
                 providerID: "forgerock",
                 client_id: "openidm-ui-enduser-jso",
-                authorization: "http://am-service.sample.svc.cluster.local:80/openam/oauth2/authorize",
+                authorization: "http://login.sample.svc.cluster.local:80/oauth2/authorize",
                 debug: true
             });
 
@@ -375,7 +375,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
                     thus ending the user's session in AM and returning to the redirection URI
                 */
 
-                end_session_endpoint = 'http://am-service.sample.svc.cluster.local/openam/oauth2/connect/endSession'
+                end_session_endpoint = 'http://login.sample.svc.cluster.local/oauth2/connect/endSession'
                 + '?post_logout_redirect_uri=' + end_session_endpoint 
                 + '&id_token_hint=' + jso_token.id_token;
             }
