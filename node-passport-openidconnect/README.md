@@ -6,7 +6,7 @@ In this OAuth 2.0 [confidential client](https://tools.ietf.org/html/rfc6749#sect
 
 Node.js provides means for performing communications between a [client application](https://tools.ietf.org/html/rfc6749#section-1.1) (client) and an [Authorization Server](https://tools.ietf.org/html/rfc6749#section-1.1) (AS) via a back-channel. This allows for secure client authentication using a confidential "client secret" registered with the AS. It also makes it possible to keep the ID token and the access token (obtained from the AS) away from the user agent.
 
-The Passport middleware is employed for making requests to and handling the responses from an OP's [authorization endpoint](https://tools.ietf.org/html/rfc6749#section-3.1) and [token endpoint](https://tools.ietf.org/html/rfc6749#section-3.2). This functionality is driven by defining a Passport-OpenID Connect strategy specific to a combination of an OP and the RP, which this client application plays the role of. The strategy is populated with the OP's well-known endpoints and requested scopes, along with the RP's redirection URI, ID, and secret. In this example, Passport is also used for managing the authenticated user data in a local (Express) session.  
+The Passport middleware is employed for making requests to and handling the responses from an OP's [authorization endpoint](https://tools.ietf.org/html/rfc6749#section-3.1) and [token endpoint](https://tools.ietf.org/html/rfc6749#section-3.2). This functionality is driven by defining a Passport-OpenID Connect strategy specific to a combination of an OP and the RP, which this client application plays the role of. The strategy is populated with the OP's well-known endpoints and requested scopes, along with the RP's redirection URI, ID, and secret. In this example, Passport is also used for managing the authenticated user data in a local (Express) session.
 
 ***
 
@@ -177,7 +177,7 @@ The steps:
     app.use(passport.initialize());
     app.use(passport.session());
 
-    /* storing user data received from the strategy callback in the session, i.e. in `req.session.passport.user` */    
+    /* storing user data received from the strategy callback in the session, i.e. in `req.session.passport.user` */
     passport.serializeUser(function (user, next) {
       next(null, user);
     });
@@ -209,7 +209,7 @@ The steps:
     /*
       for each request, checking if the user is signed in and
       saving certain content in the response `locals` object to
-      make it available in the next request handlers and in the views  
+      make it available in the next request handlers and in the views
     */
     app.use(function (req, res, next) {
       res.locals.authenticated = req.session.passport && req.session.passport.user;
@@ -374,7 +374,7 @@ The steps:
 
       res.redirect('/');
     });
-    ```  
+    ```
 
     Export the configured `protected` router:
 
@@ -489,20 +489,6 @@ This web application was started with the [Express application generator](https:
 
     * Option 1: API requests with cURL
 
-      Sign in:
-      ```bash
-      curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
-      -X POST \
-      -H 'X-OpenAM-Username:amadmin' \
-      -H 'X-OpenAM-Password:password'
-      ```
-
-      Note `tokenId` key in the results:
-
-      >{"tokenId":"AQIC5wM...3MTYxOA..*","successUrl":"http://client-service.sample.svc.cluster.local/user/#profile/details","realm":"/"}
-
-      Assign the `tokenId` value to `iPlanetDirectoryPro` cookie in the next request:
-
       ```bash
       curl -k 'https://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/node-passport-openidconnect' \
       -X PUT \
@@ -518,7 +504,13 @@ This web application was started with the [Express application generator](https:
       }' \
       -H 'Content-Type: application/json' \
       -H 'Accept: application/json' \
-      -H 'Cookie: iPlanetDirectoryPro=AQIC5wM...3MTYxOA..*'
+      -H 'Cookie: iPlanetDirectoryPro='$( \
+        curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
+        -X POST \
+        -H 'X-OpenAM-Username:amadmin' \
+        -H 'X-OpenAM-Password:password' \
+        | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/'
+      )
       ```
 
       The newly created client information will be displayed in the results:
@@ -593,7 +585,7 @@ This web application was started with the [Express application generator](https:
         client_secret: 'AAAAAAAAAAAAAAAAAAAAAAAA',
         callbackURL: '/google/redirect',
         scope: 'openid profile'
-      }    
+      }
     };
 
     module.exports = config;
