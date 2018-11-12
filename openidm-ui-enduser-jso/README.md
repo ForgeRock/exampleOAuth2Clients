@@ -123,7 +123,7 @@ A generic (OP independent) version of the workflow employed in this example is o
             /*
                 making request to a Resource Server (RS), which is
                 to support CORS and to recognize the access token
-            */                    
+            */
             var request;
 
             request = new XMLHttpRequest();
@@ -168,33 +168,32 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
     * Option 1: API requests with cURL
 
-        Sign in:
-        ```bash
-        curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
-        -X POST \
-        -H 'X-OpenAM-Username:amadmin' \
-        -H 'X-OpenAM-Password:password'
-        ```
-
-        Note `tokenId` key in the results:
-
-        >{"tokenId":"AQIC5wM...3MTYxOA..*","successUrl":"http://client-service.sample.svc.cluster.local/user/#profile/details","realm":"/"}
-
-        Assign the `tokenId` value to `iPlanetDirectoryPro` cookie in the next request:
         ```bash
         curl -k 'https://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/openidm-ui-enduser-jso' \
         -X PUT \
         --data '{
             "clientType": "Public",
             "redirectionUris": ["http://localhost:8888"],
-            "scopes": ["openid", "profile", "consent_read", "workflow_tasks", "notifications"],
+            "scopes": [
+                "openid",
+                "profile",
+                "profile_update",
+                "consent_read",
+                "workflow_tasks",
+                "notifications"
+            ],
             "isConsentImplied": false,
             "postLogoutRedirectUri": ["http://localhost:8888"],
             "grantTypes": ["implicit"]
             }' \
             -H 'Content-Type: application/json' \
             -H 'Accept: application/json' \
-            -H 'Cookie: iPlanetDirectoryPro=AQIC5wM...3MTYxOA..*'
+            -H 'Cookie: iPlanetDirectoryPro='$( \
+                curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
+                -X POST \
+                -H 'X-OpenAM-Username:amadmin' \
+                -H 'X-OpenAM-Password:password' | sed -e 's/^.*"tokenId":"\([^"]*\).*$/\1/' \
+            )
         ```
 
         The newly created client information will be displayed in the results:
@@ -209,7 +208,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
         * Add new client
             * "Client ID": "openidm-ui-enduser-jso"
             * "Redirection URIs": ["http://localhost:8888"]
-            * "Scope(s)": ["openid", "profile", "consent_read", "workflow_tasks", "notifications"]
+            * "Scope(s)": ["openid", "profile", "profile_update", "consent_read", "workflow_tasks", "notifications"]
         * Update the new client
             * *Core* > "Client type": "Public"
             * *Advanced* > "Implied consent": "disabled"
@@ -273,6 +272,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
                 request: [
                     "openid",
                     "profile",
+                    "profile_update",
                     "consent_read",
                     "workflow_tasks",
                     "notifications"
@@ -319,7 +319,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
     <!-- JSO: initializing the client: end -->
     ```
 
-    Note that the OAuth 2.0 related code modifications are supplied with leading and (when necessary) trailing `"JSO: "` comments.  
+    Note that the OAuth 2.0 related code modifications are supplied with leading and (when necessary) trailing `"JSO: "` comments.
 
     If not currently signed in, the user is presented with the "SIGN IN" screen. Any valid AM user credentials will help to overcome the challenge, for example _`user.0/password`_. After signing in, the list of requested scopes is displayed on the authorization page. Denying or allowing access to those will send the user back to the home page, according to the `redirect_uri` parameter. If authorization was denied or not successful an [error response](https://tools.ietf.org/html/rfc6749#section-4.2.2.1) will be produced. The error information, provided in the redirection URI, will be used by the JSO library to produce a JavaScript error. This provides an option to catch and process the error's content. In case of successful authentication and authorization the token information will be stored locally, making it available for future use.
 
