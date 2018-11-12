@@ -197,13 +197,7 @@ define(["jquery", "underscore", "org/forgerock/commons/ui/common/main/AbstractMo
             return updatedHeaders;
         },
         logout: function logout() {
-            var _this4 = this;
-
-            return this.invalidateSession().then(function () {
-                sessionStorageTarget.removeItem("resubmitDataStoreToken");
-                localStorage.removeItem("dataStoreToken");
-                return _this4.logoutUrl;
-            });
+            window.location.assign('/logout')
         },
         getProfile: function getProfile(headers) {
             var _this5 = this;
