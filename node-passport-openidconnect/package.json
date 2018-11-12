@@ -1,8 +1,8 @@
 {
   "name": "node-passport-openidconnect-example",
   "version": "0.1.0",
-  "description":"OAuth 2.0 Authorization Code flow example for a Confidential Client",
-  "keywords":  [
+  "description": "OAuth 2.0 Authorization Code flow example for a Confidential Client",
+  "keywords": [
     "oauth",
     "openid connect",
     "oidc",

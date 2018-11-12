@@ -489,20 +489,6 @@ This web application was started with the [Express application generator](https:
 
     * Option 1: API requests with cURL
 
-      Sign in:
-      ```bash
-      curl 'http://login.sample.svc.cluster.local/json/realms/root/authenticate' \
-      -X POST \
-      -H 'X-OpenAM-Username:amadmin' \
-      -H 'X-OpenAM-Password:password'
-      ```
-
-      Note `tokenId` key in the results:
-
-      >{"tokenId":"AQIC5wM...3MTYxOA..*","successUrl":"http://client-service.sample.svc.cluster.local/user/#profile/details","realm":"/"}
-
-      Assign the `tokenId` value to `iPlanetDirectoryPro` cookie in the next request:
-
       ```bash
       curl 'http://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/node-passport-openidconnect' \
       -X PUT \
@@ -518,7 +504,13 @@ This web application was started with the [Express application generator](https:
       }' \
       -H 'Content-Type: application/json' \
       -H 'Accept: application/json' \
-      -H 'Cookie: iPlanetDirectoryPro=AQIC5wM...3MTYxOA..*'
+      -H 'Cookie: iPlanetDirectoryPro='$( \
+        curl 'http://login.sample.svc.cluster.local/json/realms/root/authenticate' \
+        -X POST \
+        -H 'X-OpenAM-Username:amadmin' \
+        -H 'X-OpenAM-Password:password' \
+        | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/'
+      )
       ```
       
       The newly created client information will be displayed in the results:
