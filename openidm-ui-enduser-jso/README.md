@@ -244,6 +244,8 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
     You should be able now to visit the sample application at [http://localhost:8888](http://localhost:8888). The home page will attempt to initiate the implicit flow with AM.
 
+    Note, that you may need to respond to the invalid certificate warning on the AM's login page, due to communications with the authorization server been forced to use HTTPS and due to simultaneous employment of a self-signed certificate. You may also need to visit the resource server site, currently at `https://rs-service.sample.svc.cluster.local`, and proceed with accepting another untrusted certificate - to enable XHRs perfromed by the UI. If the latter URL is not reachable, find one glowing red in the browser's network traffic after signing in the application.
+
     [index.html](index.html)
     ```html
     <!-- JSO: initializing the client:  https://github.com/andreassolberg/jso#how-to-use -->
