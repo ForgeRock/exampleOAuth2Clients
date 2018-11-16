@@ -639,6 +639,16 @@ This web application was started with the [Express application generator](https:
 
     Using any of those or both will retrieve corresponding ID and access tokens and save them in the session. The tokens can be then reused throughout the life of the session. To renew expired access tokens visit the `Home` page and sign in again.
 
+    Note, that you may need to respond to the invalid certificate warning on the ForgeRock's AM login page, due to communications with the authorization server been forced to use HTTPS and due to simultaneous employment of a self-signed certificate. Node communications over unsecure HTTPS are allowed in the main module:
+
+    [index.js](index.js)
+
+    ```javascript
+    /* FOR DEVELOPMENT ONLY: allow for self-signed/invalid certificates universally */
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    . . .
+    ```
+
     Using the `Sign Out` link will terminate Passport and AM sessions, but Google account will stay signed in.
 
 0. Custom OP strategy

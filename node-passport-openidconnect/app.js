@@ -1,3 +1,6 @@
+/* FOR DEVELOPMENT ONLY: allow for self-signed/invalid certificates universally */
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -61,18 +64,18 @@ passport.serializeUser(function (user, next) {
 
 /* Example: getting the user data back from session and attaching it to the request object, i.e. to `req.user` */
 passport.deserializeUser(function (user, next) {
-  /* 
-    Example: if only a user identifier is stored in the session, this is where 
+  /*
+    Example: if only a user identifier is stored in the session, this is where
     the full set could be retrieved, e.g. from a database, and passed to the next step
   */
 
   next(null, user);
 });
 
-/* 
-  Example: for each request, checking if the user is signed in and 
-  saving data in the response's `locals` object to make 
-  it available in the next request handlers and in the views 
+/*
+  Example: for each request, checking if the user is signed in and
+  saving data in the response's `locals` object to make
+  it available in the next request handlers and in the views
 */
 app.use(function (req, res, next) {
   res.locals.authenticated = req.session.passport && req.session.passport.user;
@@ -96,8 +99,8 @@ app.use('/forgerock', forgerockRoutes);
 /* Example: loading Google OP specific routes */
 app.use('/google', googleRoutes);
 
-/* 
-  Example: loading login protected routes and checking whether the user is signed in 
+/*
+  Example: loading login protected routes and checking whether the user is signed in
   conditionally applying custom handlers to front-channel and back-channel requests
 */
 app.use('/protected/server', utils.ensureAuthenticatedServer, protectedRoutes);
