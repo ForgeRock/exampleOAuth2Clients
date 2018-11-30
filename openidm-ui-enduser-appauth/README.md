@@ -351,44 +351,39 @@ This example serves as a contrast with the openidm-ui-enduser-jso example, which
 
 2. Register *appAuthClient* application with AM as a new OAuth2 Client
 
-Sign in:
-```
-curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
-    -X POST -H 'X-OpenAM-Username:amadmin' -H 'X-OpenAM-Password:password'
-```
-
-Note *tokenId* key in the results:
-
->{"tokenId":"AQIC5wM...3MTYxOA..*"...
-
-Register a new OAuth2 public client. Note that you need to assign the above tokenId value to *iPlanetDirectoryPro* cookie:
-
-```
+```bash
 curl -k 'https://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/appAuthClient' \
-    -X PUT --data '{
-        "coreOAuth2ClientConfig": {
-            "redirectionUris": [
-                "http://localhost:8888/redirect.html"
-            ],
-            "scopes": [
-                "openid",
-                "profile",
-                "profile_update",
-                "consent_read",
-                "workflow_tasks",
-                "notifications"
-            ],
-            "grantTypes": [
-                "authorization_code"
-            ],
-            "isConsentImplied": true,
-            "clientType": "Public",
-            "tokenEndpointAuthMethod": "client_secret_post"
-        }
-    }' \
-    -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    -H 'Cookie: iPlanetDirectoryPro=AQIC5wM...3MTYxOA..*'
+-X PUT \
+--data '{
+    "redirectionUris": [
+        "http://localhost:8888/redirect.html"
+    ],
+    "scopes": [
+        "openid",
+        "profile",
+        "profile_update",
+        "consent_read",
+        "workflow_tasks",
+        "notifications"
+    ],
+    "grantTypes": [
+        "authorization_code"
+    ],
+    "isConsentImplied": true,
+    "clientType": "Public",
+    "tokenEndpointAuthMethod": "client_secret_post"
+}' \
+-H 'Content-Type: application/json' \
+-H 'Accept: application/json' \
+-H 'Cookie: iPlanetDirectoryPro='$( \
+    curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
+    -X POST \
+    -H 'X-OpenAM-Username:amadmin' \
+    -H 'X-OpenAM-Password:password' \
+    | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/'
+)
 ```
+
 >{"_id":"appAuthClient", . . . "_type":{"_id":"OAuth2Client","name":"OAuth2 Clients","collection":true}}
 
 Alternatively you can add *appAuthClient* manually, utilizing the platform UI: [AM Console](https://login.sample.svc.cluster.local/console)
