@@ -35,44 +35,71 @@
     };
 </script>
 
-<script src="appAuthFrame.js"></script>
+<script src="node_modules/oidcsessioncheck/sessionCheck.js"></script>
+<script src="node_modules/appauthhelper/appAuthHelperBundle.js"></script>
+
 <script>
 (function () {
-    // handle various token-related events issued from the appAuthFrame as appropriate in the SPA context
-    // "appAuthLoaded" - the iframe is ready to start working. Send it a "login" message whenever you're ready to get tokens.
-    // "tokensAvailable" - the access token and id token are now saved in sessionStorage
-    // "tokensRenewed" - the access token and id token that were in sessionStorage have been replaced with updated tokens
-    // "tokensRemoved" - there are no longer tokens available (probably due to a logout event)
-    window.addEventListener("message", function (e) {
-        if (e.origin !== document.location.origin) {
-            return;
+    var commonSettings = {
+        clientId: "appAuthClient",
+        authorizationEndpoint: "https://login.sample.forgeops.com/oauth2/authorize"
+    };
+
+    AppAuthHelper.init({
+        clientId: commonSettings.clientId,
+        authorizationEndpoint: commonSettings.authorizationEndpoint,
+        scopes: "openid profile profile_update consent_read workflow_tasks notifications",
+        tokenEndpoint: "https://login.sample.forgeops.com/oauth2/access_token",
+        revocationEndpoint: "https://login.sample.forgeops.com/oauth2/token/revoke",
+        endSessionEndpoint: "https://login.sample.forgeops.com/oauth2/connect/endSession",
+        tokensAvailableHandler: function (claims) {
+            // this function is called every time the tokens are either
+            // originally obtained or renewed
+            if (!document.getElementById("mainScript")) {
+                var sessionCheck = new SessionCheck({
+                    clientId: commonSettings.clientId,
+                    opUrl: commonSettings.authorizationEndpoint,
+                    subject: claims.sub,
+                    invalidSessionHandler: function () {
+                        AppAuthHelper.logout().then(function () {
+                            window.location.href = "";
+                        });
+                    },
+                    cooldownPeriod: 5
+                });
+                // check the validity of the session immediately
+                sessionCheck.triggerSessionCheck();
+
+                // check every minute
+                setInterval(function () {
+                    sessionCheck.triggerSessionCheck();
+                }, 60000);
+                // check with every captured event
+                document.addEventListener("click", function () {
+                    sessionCheck.triggerSessionCheck();
+                });
+                document.addEventListener("keypress", function () {
+                    sessionCheck.triggerSessionCheck();
+                });
+
+                // load the main SPA app
+                var mainScript = document.createElement("script");
+                mainScript.setAttribute("src", "libs/requirejs-2.1.14-min.js");
+                mainScript.setAttribute("data-main", "main");
+                mainScript.setAttribute("id", "mainScript");
+                document.getElementsByTagName("body")[0].appendChild(mainScript);
+            }
         }
-        switch (e.data) {
-            case "tokensRenewed":
-            case "tokensAvailable":
-                // load the main SPA app once the tokens are available / fresh
-                if (!document.getElementById("mainScript")) {
-                    var mainScript = document.createElement("script");
-                    mainScript.setAttribute("src", "libs/requirejs-2.1.14-min.js");
-                    mainScript.setAttribute("data-main", "main");
-                    mainScript.setAttribute("id", "mainScript");
-                    document.getElementsByTagName("body")[0].appendChild(mainScript);
-                }
-                break;
-            case "tokensRemoved":
-                // reset the SPA if the tokens are gone, triggering a new login flow
-                window.location.href = "";
-                break;
-            case "appAuthLoaded":
-                // In this application, we want tokens immediately, before any user interaction is attempted
-                document.getElementById("appAuthFrame").contentWindow.postMessage("getTokens", document.location.origin);
-                break;
-        }
-    }, false);
+    });
+
+    // In this application, we want tokens immediately, before any user interaction is attempted
+    AppAuthHelper.getTokens();
 
     // trigger logout from anywhere in the SPA by calling this global function
     window.logout = function () {
-        document.getElementById("appAuthFrame").contentWindow.postMessage("removeTokens", document.location.origin);
+        AppAuthHelper.logout().then(function () {
+            window.location.href = "";
+        });
     };
 }());
 </script>
