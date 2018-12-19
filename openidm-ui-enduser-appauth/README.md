@@ -14,7 +14,7 @@ These two libraries have legitimate independent uses. When operating together, h
 
 Within [index.html](./index.html) you'll see the main code uses the two libraries (appauthhelper and oidcsessioncheck). This code handles all work related to fetching tokens and making them available for the SPA to use. Here it is:
 
-    <script src="node_modules/oidcsessioncheck/sessionCheck.js"></script>
+    <script src="node_modules/oidcsessioncheck/sessionCheckGlobal.js"></script>
     <script src="node_modules/appauthhelper/appAuthHelperBundle.js"></script>
 
     <script>
