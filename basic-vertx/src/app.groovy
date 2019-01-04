@@ -11,6 +11,7 @@ import io.vertx.ext.web.handler.TemplateHandler
 import io.vertx.ext.web.sstore.LocalSessionStore
 
 import io.vertx.ext.auth.oauth2.OAuth2Auth
+import io.vertx.ext.auth.oauth2.OAuth2ClientOptions
 import io.vertx.ext.auth.oauth2.OAuth2FlowType
 
 def router  = Router.router(vertx)
@@ -20,8 +21,8 @@ def store = LocalSessionStore.create(vertx)
 def sessionHandler = SessionHandler.create(store)
 router.route().handler(sessionHandler)
 
-def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
-    site:"https://login.sample.svc.cluster.local",
+OAuth2ClientOptions opts = new OAuth2ClientOptions([
+    site:"https://login.sample.forgeops.com",
     clientID: "vertxClient", // replace with your client id
     clientSecret: "vertxClientSecret", // replace with your client secret
     tokenPath:"/oauth2/access_token",
@@ -29,6 +30,10 @@ def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
     introspectionPath:"/oauth2/introspect",
     useBasicAuthorizationHeader: false
 ])
+// necessary to work with self-signed certificate in development; should not be used in production
+opts.setTrustAll(true)
+
+def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, opts)
 
 router.route().handler(UserSessionHandler.create(authProvider))
 
@@ -58,13 +63,13 @@ router.route("/protected")
         // We can use the access_token associated with the user to make
         // requests to any resource server endpoint which is expecting
         // tokens from AM. For example, these IDM endpoints:
-        user.fetch("https://rs-service.sample.svc.cluster.local/openidm/info/login", { infoResponse ->
+        user.fetch("https://rs.sample.forgeops.com/openidm/info/login", { infoResponse ->
             if (infoResponse.failed()) {
                 routingContext.response().end("Unable to read info login")
             } else {
                 def infoDetails = infoResponse.result().jsonObject()
                 def userPath = "${infoDetails.authorization.component}/${infoDetails.authorization.id}"
-                user.fetch("https://rs-service.sample.svc.cluster.local/openidm/${userPath}", { userResponse ->
+                user.fetch("https://rs.sample.forgeops.com/openidm/${userPath}", { userResponse ->
                     if (userResponse.failed()) {
                         routingContext.response().end("Unable to read user details")
                     } else {

@@ -154,7 +154,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops/tree/master/samples/fr-platform)
+0. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2)
 
 ### Installing and running the application
 
@@ -169,7 +169,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
     * Option 1: API requests with cURL
 
         ```bash
-        curl -k 'https://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/openidm-ui-enduser-jso' \
+        curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/OAuth2Client/openidm-ui-enduser-jso' \
         -X PUT \
         --data '{
             "clientType": "Public",
@@ -189,7 +189,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             -H 'Content-Type: application/json' \
             -H 'Accept: application/json' \
             -H 'Cookie: iPlanetDirectoryPro='$( \
-                curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
+                curl -k 'https://login.sample.forgeops.com/json/realms/root/authenticate' \
                 -X POST \
                 -H 'X-OpenAM-Username:amadmin' \
                 -H 'X-OpenAM-Password:password' | sed -e 's/^.*"tokenId":"\([^"]*\).*$/\1/' \
@@ -202,7 +202,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
     * Option 2: Utilizing the platform sample UI
 
-        * Navigate to [AM Console](https://login.sample.svc.cluster.local/console)
+        * Navigate to [AM Console](https://login.sample.forgeops.com/console)
         * Sign in with *`amadmin/password`*
         * Navigate to: *Top Level Realm* > *Applications* > *OAuth 2.0*
         * Add new client
@@ -244,7 +244,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
     You should be able now to visit the sample application at [http://localhost:8888](http://localhost:8888). The home page will attempt to initiate the implicit flow with AM.
 
-    Note, that you may need to respond to the invalid certificate warning on AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. You may also need to visit the resource server site, currently at `https://rs-service.sample.svc.cluster.local`, and proceed with accepting another untrusted certificate - to enable XHRs perfromed by the UI. If the latter URL is not reachable, find one glowing red in the browser's network traffic after signing in the application.
+    Note, that you may need to respond to the invalid certificate warning on AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. You may also need to visit the resource server site, currently at `https://rs.sample.forgeops.com`, and proceed with accepting another untrusted certificate - to enable XHRs perfromed by the UI. If the latter URL is not reachable, find one glowing red in the browser's network traffic after signing in the application.
 
     [index.html](index.html)
     ```html
@@ -269,7 +269,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             providerID: "forgerock",
             client_id: "openidm-ui-enduser-jso",
             redirect_uri: window.location.origin,
-            authorization: "https://login.sample.svc.cluster.local/oauth2/authorize",
+            authorization: "https://login.sample.forgeops.com/oauth2/authorize",
             scopes: {
                 request: [
                     "openid",
@@ -359,7 +359,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             jso_client = new jso.JSO({
                 providerID: "forgerock",
                 client_id: "openidm-ui-enduser-jso",
-                authorization: "https://login.sample.svc.cluster.local/oauth2/authorize",
+                authorization: "https://login.sample.forgeops.com/oauth2/authorize",
                 debug: true
             });
 
@@ -377,7 +377,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
                     thus ending the user's session in AM and returning to the redirection URI
                 */
 
-                end_session_endpoint = 'https://login.sample.svc.cluster.local/oauth2/connect/endSession'
+                end_session_endpoint = 'https://login.sample.forgeops.com/oauth2/connect/endSession'
                 + '?post_logout_redirect_uri=' + end_session_endpoint
                 + '&id_token_hint=' + jso_token.id_token;
             }
