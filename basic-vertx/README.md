@@ -11,7 +11,7 @@ Copy and paste from these samples to get started building your own Vert.x OAuth 
 This is the core configuration that you will need to specify to match your use:
 
     def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
-        site:"https://login.sample.svc.cluster.local",
+        site:"https://login.sample.forgeops.com",
         clientID: "vertxClient", // replace with your client id
         clientSecret: "vertxClientSecret", // replace with your client secret
         tokenPath:"/oauth2/access_token",
@@ -51,13 +51,13 @@ This is an example which demonstrates how you would declare a protected area wit
             // We can use the access_token associated with the user to make
             // requests to any resource server endpoint which is expecting
             // tokens from AM. For example, these IDM endpoints:
-            user.fetch("https://rs-service.sample.svc.cluster.local/openidm/info/login", { infoResponse ->
+            user.fetch("https://rs.sample.forgeops.com/openidm/info/login", { infoResponse ->
                 if (infoResponse.failed()) {
                     routingContext.response().end("Unable to read info login")
                 } else {
                     def infoDetails = infoResponse.result().jsonObject()
                     def userPath = "${infoDetails.authorization.component}/${infoDetails.authorization.id}"
-                    user.fetch("https://rs-service.sample.svc.cluster.local/openidm/${userPath}", { userResponse ->
+                    user.fetch("https://rs.sample.forgeops.com/openidm/${userPath}", { userResponse ->
                         if (userResponse.failed()) {
                             routingContext.response().end("Unable to read user details")
                         } else {
@@ -76,12 +76,12 @@ The [app.groovy](src/app.groovy) code has the full context of these two snippets
 
 ### Prerequisites
 
-1. Install and run the [Platform sample](https://github.com/ForgeRock/forgeops/tree/master/samples/fr-platform)
+1. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2)
 
 2. Register *vertxClient* application with AM as a new OAuth2 Client
 
 ```bash
-curl -k 'https://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/vertxClient' \
+curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/OAuth2Client/vertxClient' \
 -X PUT \
 --data '{
     "userpassword": "vertxClientSecret",
@@ -92,7 +92,7 @@ curl -k 'https://login.sample.svc.cluster.local/json/realms/root/realm-config/ag
 -H 'Content-Type: application/json' \
 -H 'Accept: application/json' \
 -H 'Cookie: iPlanetDirectoryPro='$( \
-    curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
+    curl -k 'https://login.sample.forgeops.com/json/realms/root/authenticate' \
     -X POST \
     -H 'X-OpenAM-Username:amadmin' \
     -H 'X-OpenAM-Password:password' \
@@ -102,7 +102,7 @@ curl -k 'https://login.sample.svc.cluster.local/json/realms/root/realm-config/ag
 
 >{"_id":"vertxClient", . . . "_type":{"_id":"OAuth2Client","name":"OAuth2 Clients","collection":true}}
 
-Alternatively you can add *vertxClient* manually, utilizing the platform UI: [AM Console](https://login.sample.svc.cluster.local/console)
+Alternatively you can add *vertxClient* manually, utilizing the platform UI: [AM Console](https://login.sample.forgeops.com/console)
 
 * Sign in with *amadmin/password*
 * Navigate to *Top Level Realm* > *Applications* > *OAuth 2.0
@@ -124,6 +124,6 @@ The easiest way to execute this sample is by using Docker. This will automate th
 
 On Linux, you need to provide a separate flag (*--network host*) to get local host name resolution to work properly:
 
-    docker run -d -p 8888:8888 -p 5005:5005 --network host basicvertxclient:latest
+    docker run -d --network host basicvertxclient:latest
 
 Now you can access the application with http://localhost:8888

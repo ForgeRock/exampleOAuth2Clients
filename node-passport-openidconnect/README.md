@@ -475,7 +475,7 @@ This web application was started with the [Express application generator](https:
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops/tree/master/samples/fr-platform)
+0. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2)
 
 ### Installing and running the application
 
@@ -490,7 +490,7 @@ This web application was started with the [Express application generator](https:
     * Option 1: API requests with cURL
 
       ```bash
-      curl -k 'https://login.sample.svc.cluster.local/json/realms/root/realm-config/agents/OAuth2Client/node-passport-openidconnect' \
+      curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/OAuth2Client/node-passport-openidconnect' \
       -X PUT \
       --data '{
           "userpassword": "password",
@@ -505,7 +505,7 @@ This web application was started with the [Express application generator](https:
       -H 'Content-Type: application/json' \
       -H 'Accept: application/json' \
       -H 'Cookie: iPlanetDirectoryPro='$( \
-        curl -k 'https://login.sample.svc.cluster.local/json/realms/root/authenticate' \
+        curl -k 'https://login.sample.forgeops.com/json/realms/root/authenticate' \
         -X POST \
         -H 'X-OpenAM-Username:amadmin' \
         -H 'X-OpenAM-Password:password' \
@@ -519,7 +519,7 @@ This web application was started with the [Express application generator](https:
 
     * Option 2: Utilizing the Platform sample UI
 
-      * Navigate to [AM Console](https://login.sample.svc.cluster.local/console)
+      * Navigate to [AM Console](https://login.sample.forgeops.com/console)
       * Sign in with _`amadmin/password`_
       * Navigate to: _Top Level Realm_ > _Applications_ > _OAuth 2.0_
       * Add new client:
@@ -659,7 +659,7 @@ This web application was started with the [Express application generator](https:
 
     The strategies in this example are populated with hard-coded values. Clients' properties are exported from `client-config.js` files, while the endpoints for each OP are saved in `discovery.json` files. When [supported](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery) by an OP, the discovery content could be obtained dynamically from the [OpenID Provider Configuration Documents](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig), which for the two OPs could be found at:
 
-    * [ForgeRock AM](https://login.sample.svc.cluster.local/oauth2/.well-known/openid-configuration)
+    * [ForgeRock AM](https://login.sample.forgeops.com/oauth2/.well-known/openid-configuration)
     * [Google](https://accounts.google.com/.well-known/openid-configuration)
 
     To implement an additional OP, a separate, similarly organized sub-directory may be introduced in the code base.
