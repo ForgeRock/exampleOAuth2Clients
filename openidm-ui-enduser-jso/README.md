@@ -58,8 +58,8 @@ A generic (OP independent) version of the workflow employed in this example is o
         var JSO_CLIENT;
 
         JSO_CLIENT = new jso.JSO({
-            providerID: 'your-local-identifier-for-the-op',
-            client_id: `an-arbitrary-local-identifier-for-the-OP`,
+            providerID: `your-local-identifier-for-the-OP`,
+            client_id: `an-arbitrary-local-identifier-for-the-RP`,
             redirect_uri: window.location.origin,
             authorization: `authorization_endpoint`,
             scopes: {
