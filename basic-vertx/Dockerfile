@@ -1,4 +1,4 @@
-FROM vertx/vertx3:latest
+FROM vertx/vertx3:3.5.4
 
 ENV VERTICLE_NAME app.groovy
 ENV VERTICLE_HOME /usr/verticles
