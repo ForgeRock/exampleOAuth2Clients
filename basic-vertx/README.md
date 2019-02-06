@@ -6,79 +6,81 @@ This example is built using the OAuth2 client capabilities shipped as part of th
 
 Copy and paste from these samples to get started building your own Vert.x OAuth 2 client.
 
-### Configuring the Auth Provider:
+### Configuring the Auth Provider
 
 This is the core configuration that you will need to specify to match your use:
 
-    def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
-        site:"https://login.sample.forgeops.com",
-        clientID: "vertxClient", // replace with your client id
-        clientSecret: "vertxClientSecret", // replace with your client secret
-        tokenPath:"/oauth2/access_token",
-        authorizationPath:"/oauth2/authorize",
-        introspectionPath:"/oauth2/introspect",
-        useBasicAuthorizationHeader: false
-    ])
+```groovy
+def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
+    site:"https://login.sample.forgeops.com",
+    clientID: "vertxClient", // replace with your client id
+    clientSecret: "vertxClientSecret", // replace with your client secret
+    tokenPath:"/oauth2/access_token",
+    authorizationPath:"/oauth2/authorize",
+    introspectionPath:"/oauth2/introspect",
+    useBasicAuthorizationHeader: false
+])
 
-    router.route().handler(UserSessionHandler.create(authProvider))
+router.route().handler(UserSessionHandler.create(authProvider))
 
-    def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:8888")
-    oauth2Handler.setupCallback(router.get("/callback"))
+def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:8888")
+oauth2Handler.setupCallback(router.get("/callback"))
 
-    // scopes we want to request during login
-    oauth2Handler.addAuthority("profile")
-    oauth2Handler.addAuthority("openid")
+// scopes we want to request during login
+oauth2Handler.addAuthority("profile")
+oauth2Handler.addAuthority("openid")
+```
 
+This is an example which demonstrates how you would declare a protected area within your application. You can use the tokens you have gotten back from the OAuth 2.0 Authorization Server (AS) to identify the user and also make requests on their behalf to resource server endpoints:
 
-This is an example which demonstrates how you would declare a protected area within your application. You can use the tokens you have gotten back from the AS to identify the user and also make requests on their behalf to resource server endpoints:
+```groovy
+router.route("/protected")
+    .handler(oauth2Handler)
+    .handler({ routingContext ->
+        // At this point we are logged in using the AM provider.
+        // The access and id tokens are saved in the session.
+        def user = routingContext.user()
 
-    router.route("/protected")
-        .handler(oauth2Handler)
-        .handler({ routingContext ->
-            // At this point we are logged in using the AM provider.
-            // The access and id tokens are saved in the session.
-            def user = routingContext.user()
+        // If we want to use the details from the id_token to make local authorization
+        // decisions, we can get them with user.idToken()
+        user.setTrustJWT(true)
+        def id_token = user.idToken()
 
-            // If we want to use the details from the id_token to make local authorization
-            // decisions, we can get them with user.idToken()
-            user.setTrustJWT(true)
-            def id_token = user.idToken()
+        // Putting the prettily-encoded token into the context so it can be
+        // shown in the template, for demo purposes
+        routingContext.put("idTokenDetails", (new JsonObject(id_token)).encodePrettily())
 
-            // Putting the prettily-encoded token into the context so it can be
-            // shown in the template, for demo purposes
-            routingContext.put("idTokenDetails", (new JsonObject(id_token)).encodePrettily())
-
-            // We can use the access_token associated with the user to make
-            // requests to any resource server endpoint which is expecting
-            // tokens from AM. For example, these IDM endpoints:
-            user.fetch("https://rs.sample.forgeops.com/openidm/info/login", { infoResponse ->
-                if (infoResponse.failed()) {
-                    routingContext.response().end("Unable to read info login")
-                } else {
-                    def infoDetails = infoResponse.result().jsonObject()
-                    def userPath = "${infoDetails.authorization.component}/${infoDetails.authorization.id}"
-                    user.fetch("https://rs.sample.forgeops.com/openidm/${userPath}", { userResponse ->
-                        if (userResponse.failed()) {
-                            routingContext.response().end("Unable to read user details")
-                        } else {
-                            routingContext.put("user", userResponse.result().jsonObject())
-                            routingContext.next()
-                        }
-                    })
-                }
-            })
+        // We can use the access_token associated with the user to make
+        // requests to any resource server endpoint which is expecting
+        // tokens from AM. For example, these IDM endpoints:
+        user.fetch("https://rs.sample.forgeops.com/openidm/info/login", { infoResponse ->
+            if (infoResponse.failed()) {
+                routingContext.response().end("Unable to read info login")
+            } else {
+                def infoDetails = infoResponse.result().jsonObject()
+                def userPath = "${infoDetails.authorization.component}/${infoDetails.authorization.id}"
+                user.fetch("https://rs.sample.forgeops.com/openidm/${userPath}", { userResponse ->
+                    if (userResponse.failed()) {
+                        routingContext.response().end("Unable to read user details")
+                    } else {
+                        routingContext.put("user", userResponse.result().jsonObject())
+                        routingContext.next()
+                    }
+                })
+            }
         })
-
+    })
+```
 
 The [app.groovy](src/app.groovy) code has the full context of these two snippets. The intent is to merely provide a working example that you can refer to when building your own Vert.x application.
 
-## Running the sample
+## Running the Sample
 
 ### Prerequisites
 
-1. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2)
+1. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2).
 
-2. Register *vertxClient* application with AM as a new OAuth2 Client
+2. Register *vertxClient* application with AM as a new OAuth2 Client:
 
 ```bash
 curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/OAuth2Client/vertxClient' \
@@ -99,13 +101,17 @@ curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/
     | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/'
 )
 ```
+The response is a JSON resource indicating successful registration.
+The following extract shows some key fields:
+```json
+{"_id":"vertxClient", "_type":{"_id":"OAuth2Client","name":"OAuth2 Clients","collection":true}}
+```
 
->{"_id":"vertxClient", . . . "_type":{"_id":"OAuth2Client","name":"OAuth2 Clients","collection":true}}
-
-Alternatively you can add *vertxClient* manually, utilizing the platform UI: [AM Console](https://login.sample.forgeops.com/console)
+Alternatively you can add *vertxClient* manually, using the platform UI.
+Browse to the [AM Console](https://login.sample.forgeops.com/console) and use these hints:
 
 * Sign in with *amadmin/password*
-* Navigate to *Top Level Realm* > *Applications* > *OAuth 2.0
+* Navigate to *Top Level Realm* > *Applications* > *OAuth 2.0*
 * Add new client:
     * "Client ID": "vertxClient"
     * "Client Secret": "vertxClientSecret"
@@ -119,11 +125,15 @@ Alternatively you can add *vertxClient* manually, utilizing the platform UI: [AM
 
 The easiest way to execute this sample is by using Docker. This will automate the download and setup of your Vert.x execution environment.
 
-    docker build -t basicvertxclient:latest .
-    docker run -d -p 8888:8888 -p 5005:5005 basicvertxclient:latest
+```bash
+docker build -t basicvertxclient:latest .
+docker run -d -p 8888:8888 -p 5005:5005 basicvertxclient:latest
+```
 
 On Linux, you need to provide a separate flag (*--network host*) to get local host name resolution to work properly:
 
-    docker run -d --network host basicvertxclient:latest
+```bash
+docker run -d --network host basicvertxclient:latest
+```
 
-Now you can access the application with http://localhost:8888
+Now you can access the application at <http://localhost:8888>.

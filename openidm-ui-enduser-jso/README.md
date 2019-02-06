@@ -1,44 +1,44 @@
-# OAuth 2.0 Implicit Grant example for a Public Client
+# OAuth 2.0 Implicit Grant Example for a Public Client
 
 Herein we will use terminology of the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) (OIDC) extension for the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) protocol, which will be used as means of authentication and authorization.
 
 In the context of OAuth 2.0, a [Public Client](https://tools.ietf.org/html/rfc6749?#section-2.1) is a [client](https://tools.ietf.org/html/rfc6749?#section-1.1) not capable of secure authentication with the [Authorization Server](https://tools.ietf.org/html/rfc6749?#section-1.1) (AS). This definition loosely corresponds to `user-agent-based` and `native` application profiles described in [OAuth 2.0 Client Types](https://tools.ietf.org/html/rfc6749#section-2.1).
 
-According to *current* [best practices](https://tools.ietf.org/id/draft-ietf-oauth-security-topics-07.html#rfc.section.3.3.2) and [trends](https://oauth.net/2/grant-types/implicit/), [Authorization Code Grant](https://tools.ietf.org/html/rfc6749?#section-4.1) is the recommended OAuth 2.0 flow for public clients, for it provides better security, most notably by avoiding presence of the access token in the redirection URI and browser history and by allowing to utilize the [Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636) (PKCE) extension.
+According to *current* [best practices](https://tools.ietf.org/id/draft-ietf-oauth-security-topics-07.html#rfc.section.3.3.2) and [trends](https://oauth.net/2/grant-types/implicit/), [Authorization Code Grant](https://tools.ietf.org/html/rfc6749?#section-4.1) is the recommended OAuth 2.0 flow for public clients, for it provides better security, most notably by avoiding presence of the access token in the redirection URI and browser history and by using the [Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636) (PKCE) extension.
 
-Despite security advantages the authorization code grant provides, there may be cases of [Implicit Grant](https://tools.ietf.org/html/rfc6749?#section-4.2) been still employed, e.g. when the AS does not support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) requests, which are necessary part of the authorization code flow for a public client.
+Despite the security advantages the authorization code grant provides, there may be cases where the [Implicit Grant](https://tools.ietf.org/html/rfc6749?#section-4.2) still should be employed, for example, when the AS does not support cross origin resource sharing ([CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)) requests, which are necessary part of the authorization code flow for a public client.
 
-The implicit grant is implemented in this example with [JSO JavaScript library](https://github.com/andreassolberg/jso) (JSO) included in a [Single-page application](https://en.wikipedia.org/wiki/Single-page_application) (SPA), serving as an instance of a user-agent-based OAuth 2.0 client, playing the role of an [OpenID Connect Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP). The client must be registered with an [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP); the library then needs to be provided with the information about this registration - in order to be able to implement the authentication flow. In this context the RP and the OP are special cases of a client and an authorization server respectively and the end user is the [Resource Owner](https://tools.ietf.org/html/rfc6749?#section-1.1).
+The implicit grant is implemented in this example with [JSO JavaScript library](https://github.com/andreassolberg/jso) (JSO) included in a [Single-page application](https://en.wikipedia.org/wiki/Single-page_application) (SPA), serving as an instance of a user-agent-based OAuth 2.0 client, playing the role of an [OpenID Connect Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP). The client must be registered with an [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP); the library then needs to be provided with the information about this registration to implement the authentication flow. In this context the RP and the OP are special cases of a client and an authorization server, respectively. The end user is the [Resource Owner](https://tools.ietf.org/html/rfc6749?#section-1.1).
 
 ***
 
 ## Core Functionality
 
-A generic (OP independent) version of the workflow employed in this example is outlined in a few implementation steps below.
+A generic (OP-independent) version of the workflow employed in this example is outlined in a few implementation steps below.
 
-1. Collect information about the OP
+1. Collect information about the OP.
 
-    In this step you gather the OP endpoints that will be used for making authentication requests by the JSO library. If supported by the OP, this information can be found at the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) well-known endpoint. You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known point in [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance.example.com/oauth2/.well-known/openid-configuration`.
+    In this step you gather the OP endpoints that will be used for making authentication requests by the JSO library. If supported by the OP, this information can be found in the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) at the well-known endpoint. You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known point in the [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance.example.com/oauth2/.well-known/openid-configuration`.
 
     At a minimum, you will need the value for:
 
-    * authorization_endpoint
+    * `authorization_endpoint`
 
-0. Collect information about the RP
+0. Collect information about the RP.
 
     The library will also need following details about the RP registration with the OP:
 
-    * client_id
+    * `client_id`
     * redirection URI
     * scopes available for this client (to choose from when sending the authorization request)
 
-    How to obtain the RP registration details is specific to the OP and not covered here. As an example, you can consult with the [Registering OAuth 2.0 Clients With the Authorization Service](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) guide on creating and obtaining client credentials and scopes for an AM account.
+    Obtaining the RP registration details is specific to the OP and not covered here. As an example, you can consult the section on [_Registering OAuth 2.0 Clients With the Authorization Service_](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) in the AM documentation for creating and obtaining client credentials and scopes for an AM account.
 
-    After successful authentication and authorization the end-user may be redirected back to the home page, e.g. `http://localhost:8888`. Note, that the full and exact redirection URI, including scheme, host, port, and path, MUST be registered for the RP with the OP.
+    After successful authentication and authorization the end-user may be redirected back to the home page, such as `http://localhost:8888`. Note that the full and exact redirection URI, including scheme, host, port, and path, MUST be registered for the RP with the OP.
 
 0. Configure the JSO library in your application and implement the Implicit Flow
 
-    Load the library from CDN (or a locally hosted module), e.g.:
+    Load the library from CDN (or a locally hosted module). For example:
 
     ```html
     <!-- loading the library -->
@@ -74,7 +74,7 @@ A generic (OP independent) version of the workflow employed in this example is o
     </script>
     ```
 
-    Use the callback method to check for response from the OP when the user is redirected back to the home page.
+    Use the callback method to check for the response from the OP when the user is redirected back to the home page.
 
     ```html
     <script>
@@ -138,17 +138,17 @@ A generic (OP independent) version of the workflow employed in this example is o
     </script>
     ```
 
-    This concludes introduction to the essential parts. To see the implicit grant employed in a featured SPA utilizing its RS' endpoints please proceed to the next section.
+    This concludes introduction to the essential parts. To see the implicit grant employed in an SPA utilizing its RS's endpoints, please proceed to the next section.
 
 ***
 
 ## Full Example
 
-This example demonstrates how [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) (IDM) end-user UI can be modified to utilize standard OAuth 2.0 means for providing access to IDM resources.
+This example demonstrates how the [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) (IDM) end-user UI can be modified to use standard OAuth 2.0 means for providing access to IDM resources.
 
-The UI serves the role of an RP, [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) is the OP, and [ForgeRock Identity Gateway](https://www.forgerock.com/platform/identity-gateway) (IG) is the RS protecting IDM REST endpoints, while a user registered in AM represents the resource owner. This environment is described in more detail in [Using IG to Protect IDM For Secure and Standards-Based Integration](https://forum.forgerock.com/2018/08/using-ig-protect-idm-secure-standards-based-integration/) article.
+The UI serves the role of an RP, [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) is the OP, and [ForgeRock Identity Gateway](https://www.forgerock.com/platform/identity-gateway) (IG) is the RS protecting IDM REST endpoints, while a user registered in AM represents the resource owner. This environment is described in more detail in the article on [_Using IG to Protect IDM For Secure and Standards-Based Integration_](https://forum.forgerock.com/2018/08/using-ig-protect-idm-secure-standards-based-integration/).
 
-IDM UI is an SPA and, being a public client, is not capable of maintaining the confidentiality of any credentials (including its own). Hence, the application can only employ OAuth 2.0 [Authorization Code](https://tools.ietf.org/html/rfc6749#section-1.3.1) and [Implicit](https://tools.ietf.org/html/rfc6749#section-1.3.2) Grants, both of which could be implemented without secure authentication of the _client_, i.e. the RP. (In these scenarios, the resource owner, i.e. an AM user, can still be authenticated securely, but the client application _may_ not have to provide a "client secret" in the authorization code flow.)
+IDM UI is an SPA and, being a public client, is not capable of maintaining the confidentiality of any credentials (including its own). Hence, the application can only employ OAuth 2.0 [Authorization Code](https://tools.ietf.org/html/rfc6749#section-1.3.1) and [Implicit](https://tools.ietf.org/html/rfc6749#section-1.3.2) Grants, both of which could be implemented without secure authentication of the _client_, that is, the RP. (In these scenarios, the resource owner, that is, an AM user, can still be authenticated securely, but the client application _may_ not have to provide a "client secret" in the authorization code flow.)
 
 The following illustrates how an SPA application can employ the Implicit flow against the ForgeRock Identity Platform. An implementation of the authorization code flow can be found in the [openidm-ui-enduser-appauth](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/openidm-ui-enduser-appauth) example.
 
@@ -156,13 +156,13 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
 0. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2)
 
-### Installing and running the application
+### Installing and Running the Application
 
-1. Get the application
+1. Get the application.
 
-    Download or clone the code from [https://github.com/ForgeRock/exampleOAuth2Clients](https://github.com/ForgeRock/exampleOAuth2Clients)
+    Download or clone the code from [https://github.com/ForgeRock/exampleOAuth2Clients](https://github.com/ForgeRock/exampleOAuth2Clients).
 
-0. Register the application as an OAuth 2.0 Client in AM
+0. Register the application as an OAuth 2.0 Client in AM.
 
     The application needs to be registered with AM, which plays the role of an OP in the running platform sample. Create the OAuth 2.0 client with one of the following options:
 
@@ -196,11 +196,14 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             )
         ```
 
-        The newly created client information will be displayed in the results:
+        The newly created client information will be displayed in the JSON output.
+        The following example shows the key field:
 
-        >{"_id":"openidm-ui-enduser-jso", . . . }
+        ```json
+        {"_id":"openidm-ui-enduser-jso"}
+        ```
 
-    * Option 2: Utilizing the platform sample UI
+    * Option 2: Using the platform UI
 
         * Navigate to [AM Console](https://login.sample.forgeops.com/console)
         * Sign in with *`amadmin/password`*
@@ -216,9 +219,9 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             * *OpenID Connect* > "Post Logout Redirect URIs": ["http://localhost:8888"]
             * Save Changes
 
-0. Run the application
+0. Run the application.
 
-    Navigate to [openidm-ui-enduser-jso](/openidm-ui-enduser-jso) sub-directory and start an HTTP server.
+    Navigate to the [openidm-ui-enduser-jso](./openidm-ui-enduser-jso) sub-directory and start an HTTP server.
 
     * Example 1: Node.js
 
@@ -240,11 +243,11 @@ The following illustrates how an SPA application can employ the Implicit flow ag
         python -m SimpleHTTPServer 8888
         ```
 
-0. Using the application
+0. Use the application.
 
     You should be able now to visit the sample application at [http://localhost:8888](http://localhost:8888). The home page will attempt to initiate the implicit flow with AM.
 
-    Note, that you may need to respond to the invalid certificate warning on AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. You may also need to visit the resource server site, currently at `https://rs.sample.forgeops.com`, and proceed with accepting another untrusted certificate - to enable XHRs perfromed by the UI. If the latter URL is not reachable, find one glowing red in the browser's network traffic after signing in the application.
+    Note that you may need to respond to the invalid certificate warning on AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. You may also need to visit the resource server site, currently at `https://rs.sample.forgeops.com`, and proceed to accept another untrusted certificate - to enable XHRs perfromed by the UI. If the latter URL is not reachable, find one glowing red in the browser's network traffic after signing in the application.
 
     [index.html](index.html)
     ```html
@@ -323,11 +326,12 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
     Note that the OAuth 2.0 related code modifications are supplied with leading and (when necessary) trailing `"JSO: "` comments.
 
-    If not currently signed in, the user is presented with the "SIGN IN" screen. Any valid AM user credentials will help to overcome the challenge, for example _`user.0/password`_. After signing in, the list of requested scopes is displayed on the authorization page. Denying or allowing access to those will send the user back to the home page, according to the `redirect_uri` parameter. If authorization was denied or not successful an [error response](https://tools.ietf.org/html/rfc6749#section-4.2.2.1) will be produced. The error information, provided in the redirection URI, will be used by the JSO library to produce a JavaScript error. This provides an option to catch and process the error's content. In case of successful authentication and authorization the token information will be stored locally, making it available for future use.
+    If not currently signed in, the user is presented with the "SIGN IN" screen. Any valid AM user credentials will help to overcome the challenge, for example, _`user.0/password`_. After signing in, the list of requested scopes is displayed on the authorization page. Denying or allowing access to those will send the user back to the home page, according to the `redirect_uri` parameter. If authorization was denied or not successful an [error response](https://tools.ietf.org/html/rfc6749#section-4.2.2.1) will be produced. The error information, provided in the redirection URI, will be used by the JSO library to produce a JavaScript error. This provides an option to catch and process the error's content. In case of successful authentication and authorization the token information will be stored locally, making it available for future use.
 
-    At this point, the access token received from AM can be included in each request to the IDM REST endpoints, e.g.:
+    At this point, the access token received from AM can be included in each request to the IDM REST endpoints. For example:
 
     [org/forgerock/openidm/ui/util/delegates/SiteConfigurationDelegate.js](org/forgerock/openidm/ui/util/delegates/SiteConfigurationDelegate.js), lines #21-26
+
     ```javascript
     /* JSO: getting tokens received in /index.html */
     return JSO_CLIENT.getToken()
@@ -389,7 +393,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
     <!-- JSO: signing out: end -->
     ```
 
-    A similar implementation can be executed in your own SPA by reusing sections of the code marked with the example-specific comments.
+    A similar implementation can be included in your own SPA by reusing sections of the code marked with the example-specific comments.
 
 ## License
 
