@@ -1,10 +1,12 @@
-# OAuth 2.0 Authorization Code flow example for a Confidential Client
+# OAuth 2.0 Authorization Code Flow Example for a Confidential Client
 
-The language used in this document leverages terminology defined in the [OpenID Connect extension](https://openid.net/specs/openid-connect-core-1_0.html) for the [OAuth 2.0. protocol](https://tools.ietf.org/html/rfc6749).
+The language used in this document leverages terminology defined in the
+[OpenID Connect extension](https://openid.net/specs/openid-connect-core-1_0.html)
+for the [OAuth 2.0. protocol](https://tools.ietf.org/html/rfc6749).
 
-In this OAuth 2.0 [confidential client](https://tools.ietf.org/html/rfc6749#section-2.1) example the [Authorization Code Grant](https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth) is implemented in a [Node.js](https://nodejs.org/en/) [Express](https://github.com/expressjs) web application with the [Passport](https://github.com/jaredhanson/passport#readme) and the [Passport-OpenID Connect](https://github.com/jaredhanson/passport-openidconnect#readme) middleware. The web application serves the role of an [OpenID Connect Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) authenticating against one or more [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The access token obtained during the authentication and authorization process can be used then for querying endpoints on the OP's [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
+In this OAuth 2.0 [confidential client](https://tools.ietf.org/html/rfc6749#section-2.1) example the [Authorization Code Grant](https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth) is implemented in a [Node.js](https://nodejs.org/en/) [Express](https://github.com/expressjs) web application with the [Passport](https://github.com/jaredhanson/passport#readme) and the [Passport-OpenID Connect](https://github.com/jaredhanson/passport-openidconnect#readme) middleware. The web application serves the role of an [OpenID Connect Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) authenticating against one or more [OpenID Providers](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The access token obtained during the authentication and authorization process can be used then for querying endpoints on the OP's [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
 
-Node.js provides means for performing communications between a [client application](https://tools.ietf.org/html/rfc6749#section-1.1) (client) and an [Authorization Server](https://tools.ietf.org/html/rfc6749#section-1.1) (AS) via a back-channel. This allows for secure client authentication using a confidential "client secret" registered with the AS. It also makes it possible to keep the ID token and the access token (obtained from the AS) away from the user agent.
+Node.js provides a means for performing communications between a [client application](https://tools.ietf.org/html/rfc6749#section-1.1) (client) and an [Authorization Server](https://tools.ietf.org/html/rfc6749#section-1.1) (AS) via a back-channel. This allows for secure client authentication using a confidential "client secret" registered with the AS. It also makes it possible to keep the ID token and the access token (obtained from the AS) away from the user agent.
 
 The Passport middleware is employed for making requests to and handling the responses from an OP's [authorization endpoint](https://tools.ietf.org/html/rfc6749#section-3.1) and [token endpoint](https://tools.ietf.org/html/rfc6749#section-3.2). This functionality is driven by defining a Passport-OpenID Connect strategy specific to a combination of an OP and the RP, which this client application plays the role of. The strategy is populated with the OP's well-known endpoints and requested scopes, along with the RP's redirection URI, ID, and secret. In this example, Passport is also used for managing the authenticated user data in a local (Express) session.
 
@@ -12,7 +14,7 @@ The Passport middleware is employed for making requests to and handling the resp
 
 ## Core Functionality
 
-A generic (OP independent) version of the workflow utilized in this example is outlined with a few implementation steps below. Copying and pasting blocks of code in the order they are presented and providing the RP's and the OP's proprietary values instead of the placeholders should result in a working Node.js application performing authorization code flow, with following file structure:
+A generic (OP-independent) version of the workflow utilized in this example is outlined with a few implementation steps below. Copying and pasting blocks of code in the order they are presented and providing the RP's and the OP's proprietary values instead of the placeholders should result in a working Node.js application performing authorization code flow, with following file structure:
 ```bash
 .
 + node_modules
@@ -26,31 +28,31 @@ package.json
 
 The steps:
 
-1. Collect information about the OP
+1. Collect information about the OP.
 
     In this step you gather the OP's endpoints that will be used in an instance of the Passport-OpenID Connect strategy. If supported by the OP, this information can be found at the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) well-known endpoint. You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known point in [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance.example.com/oauth2/.well-known/openid-configuration`.
 
     At a minimum, you will need values for the following:
 
-    * issuer
-    * authorization_endpoint
-    * token_endpoint
-    * userinfo_endpoint
+    * `issuer`
+    * `authorization_endpoint`
+    * `token_endpoint`
+    * `userinfo_endpoint`
 
-0. Collect information about the RP
+0. Collect information about the RP.
 
-    The strategy will also need following details about the RP registration with the OP:
+    The strategy will also need following details about the RP's registration with the OP:
 
-    * client_id
-    * client_secret
+    * `client_id`
+    * `client_secret`
     * redirection URI
     * scopes available for this client  (to choose from when sending the authorization request)
 
-    How to obtain the RP registration details is specific to the OP and not covered here. As an example, you can consult with the [Registering OAuth 2.0 Clients With the Authorization Service](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) guide on creating and obtaining client credentials and scopes for an AM account.
+    How to obtain the RP registration details is specific to the OP and not covered here. As an example, you can read [_Registering OAuth 2.0 Clients With the Authorization Service_](https://backstage.forgerock.com/docs/am/6.5/oauth2-guide/#register-oauth2-client) in the AM documentation on creating and obtaining client credentials and scopes for an AM account.
 
-    For the purpose of this example, we will use `/oauth2/redirect` route for the redirection URI parameter. Note, that the full and exact redirection URI, including scheme, host, port, and path, MUST be registered for the RP with the OP, for example: `http://localhost:3000/oauth2/redirect`
+    For the purpose of this example, we will use `/oauth2/redirect` route for the redirection URI parameter. Note that the full and exact redirection URI, including scheme, host, port, and path, MUST be registered for the RP with the OP. For example: `http://localhost:3000/oauth2/redirect`
 
-0. Create Node.js application
+0. Create a Node.js application.
 
     You can start a Node.js project with `npm init` command run in a desired directory. The `-y` option allows for populating the `package.json` file with default values; omit this option if you'd like to enter the initial settings manually:
 
@@ -66,7 +68,7 @@ The steps:
 
     By default, your primary entry point to the application is `index.js`. If you provided a different module ID for the `main` field, use your custom value instead of `index.js` references below.
 
-    Create the main module, e.g.:
+    Create the main module. For example:
     ```bash
     touch index.js
     ```
@@ -84,11 +86,11 @@ The steps:
     var app = express();
     ```
 
-0. Configure Express session
+0. Configure the Express session.
 
-    In this example we employ a server-side session management middleware: [expressjs/session](https://github.com/expressjs/session). This means, only a session identifier is stored on the client side, within a cookie.
+    In this example we employ a server-side session management middleware: [expressjs/session](https://github.com/expressjs/session). This means only a session identifier is stored on the client side, within a cookie.
 
-    Please consult with expressjs/session [options](https://github.com/expressjs/session#sessionoptions) documentation on the parameters passed to the middleware when creating a new session. For example:
+    Please consult the expressjs/session [options](https://github.com/expressjs/session#sessionoptions) documentation on the parameters passed to the middleware when creating a new session. For example:
 
     ```javascript
     /* index.js */
@@ -103,11 +105,11 @@ The steps:
     }));
     ```
 
-0. Configure an instance of the Passport-OpenID Connect strategy
+0. Configure an instance of the Passport-OpenID Connect strategy.
 
-    Use the OP and the RP information retrieved in steps 1 and 2 to populate the strategy parameters and define its callback function, which will run after successful authentication and authorization. The strategy will be used by Passport for implementing the authorization code flow. Remember, as an example, we are going to populate the `callbackURL` parameter with the `/oauth2/redirect` route.
+    Use the OP and the RP information retrieved in steps 1 and 2 to populate the strategy parameters and define the RP's callback function, which will run after successful authentication and authorization. The strategy will be used by Passport for implementing the authorization code flow. Remember, as an example, we are going to populate the `callbackURL` parameter with the `/oauth2/redirect` route.
 
-    The callback function in this strategy may receive different number of arguments, which is defined in the Passport-OpenID Connect library (in `/node_modules/passport-openidconnect/lib/strategy.js`, currently `lines 220-246`). In the below example all the arguments are presented:
+    The callback function in this strategy may receive different number of arguments, which is defined in the Passport-OpenID Connect library (in `/node_modules/passport-openidconnect/lib/strategy.js`, currently `lines 220-246`). In the example below all the arguments are presented:
 
     * `issuer`: the [iss](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.1) claim
     * `sub`: the [sub](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.2) claim
@@ -116,9 +118,9 @@ The steps:
     * `accessToken`: an [access token](https://tools.ietf.org/html/rfc6749#section-1.4)
     * `refereshToken`: a [refresh token](https://tools.ietf.org/html/rfc6749#section-1.5)
     * `tokenResponse`: a full response from the OP's token endpoint
-    * `done`: call to the next handler in Passport
+    * `done`: call the next handler in Passport
 
-    >In addition, the request object can be received as the first argument in the callback by enabling `passReqToCallback` option, as described in Passport [Authorize](http://www.passportjs.org/docs/authorize/) documentation.
+    In addition, the request object can be received as the first argument in the callback by enabling `passReqToCallback` option, as described in the Passport [Authorize](http://www.passportjs.org/docs/authorize/) documentation.
 
     Define the strategy:
 
@@ -159,11 +161,11 @@ The steps:
     });
     ```
 
-0. Configure Passport
+0. Configure Passport.
 
-    The strategy, configured in the previous step, is utilized by Passport for performing the authentication requests and handling the results. After successful authentication and authorization, the user data retrieved from the OP is stored in a local session and is attached to the request object in subsequent requests. In addition to the comments below, please consult with the [Passport Sessions](https://github.com/jaredhanson/passport#sessions) documentation on maintaining persistent login data in a Passport application.
+    The strategy, configured in the previous step, is utilized by Passport for performing the authentication requests and handling the results. After successful authentication and authorization, the user data retrieved from the OP is stored in a local session and is attached to the request object in subsequent requests. In addition to the comments below, please consult the [Passport Sessions](https://github.com/jaredhanson/passport#sessions) documentation on maintaining persistent login data in a Passport application.
 
-    Note, that in this example the entire user object defined in the strategy callback is stored in the session. Typically, you'd probably want to store only a user identifier in the session and retrieve the rest of the data from a local store, e.g. a database, in subsequent requests.
+    Note that in this example the entire user object defined in the strategy callback is stored in the session. Typically, you'd probably want to store only a user identifier in the session and retrieve the rest of the data from a local store, such as a database, in subsequent requests.
 
     ```javascript
     /* index.js */
@@ -193,13 +195,13 @@ The steps:
     });
     ```
 
-0. Checking if the user is signed in
+0. Check if the user is signed in.
 
-    Before defining any routes, for every request, we can check if the user has been authenticated by utilizing a custom middleware, which could optionally be encapsulated in an external function/module and applied to individual routes. Alternatively, you could use a third party middleware for this purpose, e.g. [connect-ensure-login](https://github.com/jaredhanson/connect-ensure-login).
+    Before defining any routes, for every request, we can check if the user has been authenticated by utilizing a custom middleware, which could optionally be encapsulated in an external function/module and applied to individual routes. Alternatively, you could use a third party middleware for this purpose, such as [connect-ensure-login](https://github.com/jaredhanson/connect-ensure-login).
 
     In this example we will preserve the login status information and some rudimentary navigation content (to be sent back to the browser) in the request scope, by attaching both to the [res.locals](http://expressjs.com/en/api.html#res.locals) object.
 
-    >For this example is to demonstrate the core functionality only, we do not employ any templating engine nor views.
+    This example demonstrates the core functionality only. It does not employ any templating engine or views.
 
     ```javascript
     /* index.js */
@@ -234,15 +236,16 @@ The steps:
     });
     ```
 
-0. Configure routes
+0. Configure routes.
 
-    For clarity, we will define routes of related purposes in separate modules and save them in `routes` sub-directory, e.g.:
+    For clarity, we will define routes of related purposes in separate modules and save them in `routes` sub-directory.
+    For example:
 
     ```bash
     mkdir routes && cd routes && touch oauth2.js && touch protected.js && cd ..
     ```
 
-    Create authentication routes in `routes/oauth2.js` module:
+    Create authentication routes in the `routes/oauth2.js` module:
 
     ```javascript
     /* routes/oauth2.js */
@@ -262,7 +265,7 @@ The steps:
 
     This route will take the user to the OP's authorization endpoint, specified in the strategy, and prompt the user to sign in. When signed in, the user may be prompted to authorize access to the scopes specified in the strategy; presence of such consent screen will depend on how the RP is configured with the OP.
 
-    In case of successful authentication and authorization, the user will be taken to the redirection URI specified in the strategy (in the callbackURL parameter), which we populated with the `/oauth2/redirect` route. Create handler for this route:
+    On successful authentication and authorization, the user will be taken to the redirection URI specified in the strategy (in the callbackURL parameter), which we populated with the `/oauth2/redirect` route. Create a handler for this route:
 
     ```javascript
     /* routes/oauth2.js */
@@ -307,7 +310,7 @@ The steps:
     module.exports = router;
     ```
 
-    Create protected by login routes in `routes/protected.js` module. This way, it will be easy to control access to them in one place.
+    Create routes that require protection in the `routes/protected.js` module. This way, it will be easy to control access to the routes in one place.
 
     The access token, received from the OP and preserved in the session, can be added as a [Bearer Token](https://tools.ietf.org/html/rfc6750#section-1.2) to the `Authorization` header in requests sent to the RS instances where the token is accepted. We will use [axios](https://github.com/axios/axios) for making back-channel XHR requests but any such library should do, including the built-in `HTTP` module.
 
@@ -360,7 +363,7 @@ The steps:
     });
     ```
 
-    Since signing a user out makes particular sense when the user is signed in, `/logout` will be a part of the protected routes. Its implementation may depend on the OP; please consult with [OpenID Connect Session Management](https://openid.net/specs/openid-connect-session-1_0.html) on maintaining related OP and RP sessions. In this example the `/logout` route will terminate the local session only:
+    Since signing a user out makes the most sense when the user is signed in, `/logout` will be a part of the protected routes. Its implementation may depend on the OP; please consult the [OpenID Connect Session Management](https://openid.net/specs/openid-connect-session-1_0.html) specification on maintaining related OP and RP sessions. In this example the `/logout` route will terminate the local session only:
 
     ```javascript
     /* routes/protected.js */
@@ -386,9 +389,9 @@ The steps:
     module.exports = router;
     ```
 
-0. Add routes to the main module
+0. Add routes to the main module.
 
-    At the top of the main module, along with other `require` statements, add the two route modules you've created:
+    At the top of the main module, alongside the other `require` statements, add the two route modules you've created:
 
     ```javascript
     /* index.js */
@@ -399,7 +402,7 @@ The steps:
     /* . . . */
     ```
 
-    Add route handlers to the main module and place them *after* checking for the user login status.
+    Add route handlers to the main module and place them *after* checking whether the user is logged in.
 
     ```javascript
     /* index.js */
@@ -435,7 +438,7 @@ The steps:
     });
     ```
 
-    At the end of the main module, start the web server e.g.:
+    At the end of the main module, start the web server. For example:
 
     ```javascript
     /* index.js */
@@ -447,19 +450,19 @@ The steps:
     });
     ```
 
-0. Running the application
+0. Run the application.
 
-    In the application directory, start the application, e.g.:
+    In the application directory, start the application. For example:
 
     ```bash
     node index.js
     ```
 
-    Visit the site in a browser, e.g.:
+    Visit the site in a browser. For example:
 
     [http://localhost:3000/](http://localhost:3000/)
 
-    Click on the `Sign in` link. After been redirected to the login screen, sign in with any valid credentials existing in the OP.
+    Click on the `Sign in` link. After being redirected to the login screen, sign in with any valid credentials existing in the OP.
 
     If prompted, authorize access to the displayed scopes.
 
@@ -471,19 +474,19 @@ This concludes a quick intro to the essential parts. To run the full sample, all
 
 ## Full Example
 
-This web application was started with the [Express application generator](https://expressjs.com/en/starter/generator.html) and then modified by implementing Passport-OpenID Connect strategies for two OPs: : [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) and Google. The presentation and display  has been aided by adding additional libraries, custom functionality, extra static content, and a layout support. All code modifications against the default Express application have been supplied with leading and (when necessary) trailing "Example: " comments. These reference points may be used as a guide line for future customizations, e.g. for adding other OP definitions or modifying the existing ones.
+This web application was started with the [Express application generator](https://expressjs.com/en/starter/generator.html) and then modified by implementing Passport-OpenID Connect strategies for two OPs: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) and Google. The presentation and display has been aided by adding additional libraries, custom functionality, extra static content, and layout support. All code modifications against the default Express application have been supplied with leading and (when necessary) trailing "Example: " comments. These reference points may be used as a guideline for further customization, such as adding other OP definitions or modifying the existing ones.
 
 ### Prerequisites
 
-0. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2)
+0. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2).
 
-### Installing and running the application
+### Installing and Running the Application
 
-1. Get the application
+1. Get the application.
 
-    Download or clone the code from [https://github.com/ForgeRock/exampleOAuth2Clients](https://github.com/ForgeRock/exampleOAuth2Clients)
+    Download or clone the code from [https://github.com/ForgeRock/exampleOAuth2Clients](https://github.com/ForgeRock/exampleOAuth2Clients).
 
-0. Register the application as an OAuth 2.0 Client in AM
+0. Register the application as an OAuth 2.0 Client in AM.
 
     The application needs to be registered as an RP with AM, which plays the role of OP in the running platform sample. Create the OAuth 2.0 client with one of the following options:
 
@@ -513,11 +516,14 @@ This web application was started with the [Express application generator](https:
       )
       ```
 
-      The newly created client information will be displayed in the results:
+      The newly created client information will be displayed in the results.
+      The following JSON extract shows some key fields:
 
-      >{"_id":"node-passport-openidconnect", . . . "_type":{"_id":"OAuth2Client","name":"OAuth2 Clients","collection":true}}
+      ```json
+      {"_id":"node-passport-openidconnect", "_type":{"_id":"OAuth2Client","name":"OAuth2 Clients","collection":true}}
+      ```
 
-    * Option 2: Utilizing the Platform sample UI
+    * Option 2: Use the platform UI
 
       * Navigate to [AM Console](https://login.sample.forgeops.com/console)
       * Sign in with _`amadmin/password`_
@@ -537,7 +543,7 @@ This web application was started with the [Express application generator](https:
 
     In both cases, please note that "client_secret_post" is the value chosen for the token endpoint authentication method. This is because the [oauth](https://github.com/ciaranj/node-oauth#readme) library, employed by the strategies, sends the client credentials in the request body (instead of utilizing HTTP Basic authentication, recommended by the [OAuth 2.0 standard](https://tools.ietf.org/html/rfc6749#section-2.3.1)).
 
-    The client ID and secret provided during client registration are to be used in the configuration file, e.g.:
+    The client ID and secret provided during client registration are to be used in the configuration file. For example:
 
     [forgerock/client-config.js](forgerock/client-config.js)
     ```javascript
@@ -565,15 +571,15 @@ This web application was started with the [Express application generator](https:
     /* Example: end */
     ```
 
-0. (Optional) Register the application as an OAuth 2.0 Client in Google
+0. (Optional) Register the application as an OAuth 2.0 Client in Google.
 
-    In order to authenticate with a Google account and authorize access to its resources, the application needs to be registered with that provider as well. If you don't have a Google account (for testing purposes) one can be created with [Create your Google Account](https://accounts.google.com/signup/v2/webcreateaccount?continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&flowName=GlifWebSignIn&flowEntry=SignUp).
+    In order to authenticate with a Google account and authorize access to its resources, the application needs to be registered with that provider as well. If you don't have a Google account (for testing purposes) one can be created. See [Create your Google Account](https://accounts.google.com/signup/v2/webcreateaccount?continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&flowName=GlifWebSignIn&flowEntry=SignUp).
 
-    With the Google account in place, follow [Using OAuth 2.0 to Access Google APIs](https://developers.google.com/identity/protocols/OAuth2) guide for creating and obtaining client credentials and scopes that could be used in the application. In `Authorized redirect URIs` section of the project that you created in [Google API Console](https://console.developers.google.com/apis/dashboard) add:
+    With the Google account in place, follow [Using OAuth 2.0 to Access Google APIs](https://developers.google.com/identity/protocols/OAuth2) guide for creating and obtaining client credentials and scopes that could be used in the application. In the `Authorized redirect URIs` section of the project that you created in [Google API Console](https://console.developers.google.com/apis/dashboard), add:
 
     *`http://localhost:3000/google/redirect`*
 
-    In case of a Google client/RP, the default fake credentials saved in [google/client-config.js](google/client-config.js) will never work; hence, you'd need to replace them with the real ones: either in place or by creating `google/client-config.js.ignore` file, e.g.:
+    In case of a Google client/RP, the default fake credentials saved in [google/client-config.js](google/client-config.js) will never work; hence, you'd need to replace them with the real ones: either in place or by creating a `google/client-config.js.ignore` file. For example:
 
     ```javascript
     /*
@@ -591,9 +597,9 @@ This web application was started with the [Express application generator](https:
     module.exports = config;
     ```
 
-0. Run the application
+0. Run the application.
 
-    Navigate to [node-passport-openidconnect](/node-passport-openidconnect) sub-directory
+    Navigate to the [node-passport-openidconnect](/node-passport-openidconnect) sub-directory.
 
     * Option 1: Node.js
 
@@ -604,7 +610,7 @@ This web application was started with the [Express application generator](https:
 
     * Option 2: Docker
 
-      If you have [Docker](https://www.docker.com/) installed, you can run the application in a Docker container. The example below assumes the docker server running on _`localhost`_ and port _`3000`_ been exposed in the Docker file.
+      If you have [Docker](https://www.docker.com/) installed, you can run the application in a Docker container. The example below assumes the Docker server running on _`localhost`_ and port _`3000`_ has been exposed in the Docker file.
 
       Build the image from the provided [Dockerfile](Dockerfile):
 
@@ -612,24 +618,25 @@ This web application was started with the [Express application generator](https:
       docker build -t node-passport-openidconnect .
       ```
 
-      And now, with two hands:
+      Run the container from the image:
       ```
       docker run -p 3000:3000 node-passport-openidconnect:latest
       ```
-
-      >**CONTAINER ID**|**IMAGE**|**COMMAND**|**CREATED**|**STATUS**|**PORTS**|**NAMES**
-      >:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:
-      >d153a9591aa4|node-passport-openidconnect:latest|"http-server -p 3000"|5 seconds ago|Up 5 seconds|0.0.0.0:3000->3000/tcp|inexplicable\_universe
-
-      On Linux you may need to explicitly allow for direct communications between the container and the host's network:
-
+      The `docker ps` output shows the container is running:
       ```
-      docker run -p 3000:3000 --network host node-passport-openidconnect:latest
+      CONTAINER ID    IMAGE                                 COMMAND                CREATED          STATUS          PORTS                     NAMES
+      d153a9591aa4    node-passport-openidconnect:latest    http-server -p 3000    5 seconds ago    Up 5 seconds    0.0.0.0:3000->3000/tcp    inexplicable_universe
       ```
 
-      Please consult with [Docker documentation](https://docs.docker.com/network/host/) for details.
+      On Linux you explicitly allow for direct communications between the container and the host's network:
 
-0. Using the application
+      ```
+      docker run --network host node-passport-openidconnect:latest
+      ```
+
+      Please consult the [Docker documentation](https://docs.docker.com/network/host/) for details.
+
+0. Use the application.
 
     You should be able now to access the running application at [http://localhost:3000/](http://localhost:3000/).
 
@@ -639,7 +646,7 @@ This web application was started with the [Express application generator](https:
 
     Using any of those or both will retrieve corresponding ID and access tokens and save them in the session. The tokens can be then reused throughout the life of the session. To renew expired access tokens visit the `Home` page and sign in again.
 
-    Note, that you may need to respond to the invalid certificate warning on ForgeRock's AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. Node communications over unsecure HTTPS have been allowed in the main module:
+    Note that you may need to respond to the invalid certificate warning on ForgeRock's AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. Node communications over unsecure HTTPS have been allowed in the main module:
 
     [index.js](index.js)
 
@@ -651,7 +658,7 @@ This web application was started with the [Express application generator](https:
 
     Using the `Sign Out` link will terminate Passport and AM sessions, but Google account will stay signed in.
 
-0. Custom OP strategy
+0. (Optional) Develop a custom OP strategy.
 
     The authentication strategies and routers are defined in a separate sub-directory for each OP:<br />
     [forgerock](forgerock)<br />
@@ -676,7 +683,7 @@ This web application was started with the [Express application generator](https:
     The layout and views (except the "sign in" partials for each OP) are placed in:<br />
     [views](views)
 
-    When instantiated with the `passport.use` call, the new strategy should receive a custom name and be referenced by that name in the strategy-specific routes and in the session, e.g.:
+    When instantiated with the `passport.use` call, the new strategy should receive a custom name and be referenced by that name in the strategy-specific routes and in the session. For example:
 
     [forgerock/routes.js](forgerock/routes.js)
 
@@ -714,7 +721,7 @@ This web application was started with the [Express application generator](https:
     . . .
     ```
 
-    Such naming convention allows for accommodating generic/shared code in the views and the protected routes, e.g.:
+    Such naming convention allows for accommodating generic/shared code in the views and the protected routes. For example:
 
     [views/api.ejs](views/api.ejs)
     ```html
