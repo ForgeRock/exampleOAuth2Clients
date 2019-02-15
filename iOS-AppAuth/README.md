@@ -323,8 +323,8 @@ We will build the app in a few implementation steps:
             */
             func getOIDCProviderConfiguration() -> OIDServiceConfiguration {
                 let configuration = OIDServiceConfiguration.init(
-                    authorizationEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/authorize")!,
-                    tokenEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/access_token")!
+                    authorizationEndpoint: URL(string: "https://sample.iam.forgeops.com/am/oauth2/authorize")!,
+                    tokenEndpoint: URL(string: "https://sample.iam.forgeops.com/am/oauth2/access_token")!
                 )
 
                 return configuration
@@ -746,7 +746,7 @@ We will build the app in a few implementation steps:
             /**
             OpenID Connect issuer URL, where the OpenID configuration can be obtained from.
             */
-            let issuerUrl: String = "https://login.sample.forgeops.com/oauth2"
+            let issuerUrl: String = "https://sample.iam.forgeops.com/am/oauth2"
 
             override func viewDidLoad() {
                 super.viewDidLoad()
@@ -1340,11 +1340,11 @@ We will build the app in a few implementation steps:
 
 The ForgeRock example is located under `/iOS-AppAuth/iOS-AppAuth-IDM`.
 
-In this example [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) serves as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS). The example assumes an instance of the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development) running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
+In this example [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) serves as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS). The example assumes an instance of the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development) running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development)
+0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development)
 
 ### Installing and running the application
 
@@ -1361,7 +1361,7 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
     * Option 1: API requests with cURL
 
         ```bash
-        curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/OAuth2Client/ios-appauth-idm' \
+        curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/realm-config/agents/OAuth2Client/ios-appauth-idm' \
         -X PUT \
         --data '{
             "clientType": "Public",
@@ -1384,7 +1384,7 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
         -H 'Content-Type: application/json' \
         -H 'Accept: application/json' \
         -H 'Cookie: iPlanetDirectoryPro='$( \
-            curl -k -s https://login.sample.forgeops.com/json/realms/root/authenticate \
+            curl -k -s https://sample.iam.forgeops.com/am/json/realms/root/authenticate \
             -X POST \
             -H 'X-OpenAm-Username:amadmin' \
             -H 'X-OpenAm-Password:password' \
@@ -1398,7 +1398,7 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
 
     * Option 2: Utilizing the platform sample UI
 
-        * Navigate to [AM Console](https://login.sample.forgeops.com/console)
+        * Navigate to [AM Console](https://sample.iam.forgeops.com/am/console)
         * Sign in with *`amadmin/password`*
         * Navigate to: *Top Level Realm* > *Applications* > *OAuth 2.0*
         * Add new client

@@ -22,7 +22,7 @@ def sessionHandler = SessionHandler.create(store)
 router.route().handler(sessionHandler)
 
 OAuth2ClientOptions opts = new OAuth2ClientOptions([
-    site:"https://login.sample.forgeops.com",
+    site:"https://sample.iam.forgeops.com/am",
     clientID: "vertxClient", // replace with your client id
     clientSecret: "vertxClientSecret", // replace with your client secret
     tokenPath:"/oauth2/access_token",
@@ -63,13 +63,13 @@ router.route("/protected")
         // We can use the access_token associated with the user to make
         // requests to any resource server endpoint which is expecting
         // tokens from AM. For example, these IDM endpoints:
-        user.fetch("https://rs.sample.forgeops.com/openidm/info/login", { infoResponse ->
+        user.fetch("https://sample.iam.forgeops.com/ig/openidm/info/login", { infoResponse ->
             if (infoResponse.failed()) {
                 routingContext.response().end("Unable to read info login")
             } else {
                 def infoDetails = infoResponse.result().jsonObject()
                 def userPath = "${infoDetails.authorization.component}/${infoDetails.authorization.id}"
-                user.fetch("https://rs.sample.forgeops.com/openidm/${userPath}", { userResponse ->
+                user.fetch("https://sample.iam.forgeops.com/ig/openidm/${userPath}", { userResponse ->
                     if (userResponse.failed()) {
                         routingContext.response().end("Unable to read user details")
                     } else {

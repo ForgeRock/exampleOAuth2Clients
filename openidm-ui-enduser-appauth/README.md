@@ -22,16 +22,16 @@ Within [index.html](./index.html) you'll see the main code uses the two librarie
 (function () {
     var commonSettings = {
         clientId: "appAuthClient",
-        authorizationEndpoint: "https://login.sample.forgeops.com/oauth2/authorize"
+        authorizationEndpoint: "https://sample.iam.forgeops.com/am/oauth2/authorize"
     };
 
     AppAuthHelper.init({
         clientId: commonSettings.clientId,
         authorizationEndpoint: commonSettings.authorizationEndpoint,
         scopes: "openid profile profile_update consent_read workflow_tasks notifications",
-        tokenEndpoint: "https://login.sample.forgeops.com/oauth2/access_token",
-        revocationEndpoint: "https://login.sample.forgeops.com/oauth2/token/revoke",
-        endSessionEndpoint: "https://login.sample.forgeops.com/oauth2/connect/endSession",
+        tokenEndpoint: "https://sample.iam.forgeops.com/am/oauth2/access_token",
+        revocationEndpoint: "https://sample.iam.forgeops.com/am/oauth2/token/revoke",
+        endSessionEndpoint: "https://sample.iam.forgeops.com/am/oauth2/connect/endSession",
         tokensAvailableHandler: function (claims) {
             // this function is called every time the tokens are either
             // originally obtained or renewed
@@ -121,12 +121,12 @@ This is the code that actually uses the stored `accessToken` value as part of th
 
 ### Prerequisites
 
-1. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2).
+1. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2).
 
 2. Register the *appAuthClient* application with AM as a new OAuth2 Client.
 
 ```bash
-curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/OAuth2Client/appAuthClient' \
+curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/realm-config/agents/OAuth2Client/appAuthClient' \
     -X PUT --data '{
         "coreOAuth2ClientConfig": {
             "redirectionUris": [
@@ -152,7 +152,7 @@ curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/
     }' \
     -H 'Content-Type: application/json' -H 'Accept: application/json' \
     -H 'Cookie: iPlanetDirectoryPro='$( \
-        curl -k 'https://login.sample.forgeops.com/json/realms/root/authenticate' \
+        curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/authenticate' \
         -X POST \
         -H 'X-OpenAM-Username:amadmin' \
         -H 'X-OpenAM-Password:password' \
@@ -167,7 +167,7 @@ The following extract shows some key fields:
 ```
 
 Alternatively you can add *appAuthClient* manually, using the platform UI.
-Browse to the [AM Console](https://login.sample.forgeops.com/console) and use these hints:
+Browse to the [AM Console](https://sample.iam.forgeops.com/am/console) and use these hints:
 
 * Sign in with *amadmin/password*
 * Navigate to *Top Level Realm* > *Applications* > *OAuth 2.0*
@@ -214,4 +214,4 @@ Authorization: Bearer d5MqRg-2TWzxzQq76r7fkDtd0M8
 
 This is the primary new functionality that this client provides.
 
-If you open a new window or tab, you can go to the AS directly, <https://login.sample.forgeops.com/>, and log out. You will notice that if you go back to the window running the example app, when you perform any further interaction the application will redirect you back to the AS to login.
+If you open a new window or tab, you can go to the AS directly, <https://sample.iam.forgeops.com/am/>, and log out. You will notice that if you go back to the window running the example app, when you perform any further interaction the application will redirect you back to the AS to login.

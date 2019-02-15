@@ -47,20 +47,20 @@ Each example client is self-contained, and fully described in its own README.
    * `helm` (<https://github.com/helm/helm#install>)
    * `skaffold` (<https://github.com/GoogleContainerTools/skaffold#installation>)
 1. Follow the README for the [Platform OAuth2 Sample](
-   https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development).
+   https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development).
 1. Follow the README for your chosen client in this repository.
 
 Your browser does not trust the server certificates used by default.
 The certificates are signed by a self-signed example CA certificate.
 You can either trust the CA&mdash;temporarily, because the example CA keys are published&mdash;or
 use a browser that you can run with an option to skip server certificate validation,
-such as `google-chrome --ignore-certificate-errors https://login.sample.forgeops.com/console`.
+such as `google-chrome --ignore-certificate-errors https://sample.iam.forgeops.com/am/console`.
 
 ## About the Software
 
 To use the example client applications as described in their README files,
 you must access or set up a running instance of the ForgeRock
-[Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development).
+[Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development).
 The Platform OAuth2 Sample deploys the ForgeRock Identity Platform
 into a Kubernetes environment such as `minikube` on a laptop,
 Amazon Elastic Container Service for Kubernetes (Amazon EKS), or
@@ -116,7 +116,7 @@ To set up the ForgeRock Platform in Kubernetes, rely on these `git` repositories
   and Cloud Deployment Model.<br>
   Use this repository to configure the deployment into Kubernetes.<br>
   For the example clients, apply the
-  [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development)
+  [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development)
   configuration.
 * [`exampleOAuth2Clients`](https://github.com/ForgeRock/exampleOAuth2Clients):<br>
   Example standards-based client applications.

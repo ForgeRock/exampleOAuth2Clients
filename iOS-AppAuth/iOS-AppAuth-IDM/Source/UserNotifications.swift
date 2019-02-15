@@ -28,7 +28,7 @@ struct UserNotifications {
         var notifications: [Notification] = []
     }
 
-    let url = "https://rs.sample.forgeops.com/openidm/endpoint/usernotifications/"
+    let url = "https://sample.iam.forgeops.com/ig/openidm/endpoint/usernotifications/"
 
     var data = Response()
 
