@@ -2,7 +2,7 @@
   Example: configuring a new passport-openidconnect (https://github.com/jaredhanson/passport-openidconnect) strategy 
   with the ForgeRock platform specific parameters, including the well-known enpoints, 
   which can be obtained from the OpenID Provider Configuration Document: 
-  https://login.sample.forgeops.com/oauth2/.well-known/openid-configuration
+  https://sample.iam.forgeops.com/am/oauth2/.well-known/openid-configuration
 */
 var OidcStrategy = require('passport-openidconnect').Strategy;
 var clientConfig = require('./client-config.js');
@@ -34,10 +34,10 @@ module.exports = new OidcStrategy({
       profile: profile,
       issuerInfo: {
         exampleUrls: [
-          'https://login.sample.forgeops.com/oauth2/userinfo',
-          'https://rs.sample.forgeops.com/openidm/config/ui/dashboard',
-          'https://rs.sample.forgeops.com/openidm/info/login',
-          'https://rs.sample.forgeops.com/openidm/managed/user/:authorization.id (from https://rs.sample.forgeops.com/openidm/info/login)'
+          'https://sample.iam.forgeops.com/am/oauth2/userinfo',
+          'https://sample.iam.forgeops.com/ig/openidm/config/ui/dashboard',
+          'https://sample.iam.forgeops.com/ig/openidm/info/login',
+          'https://sample.iam.forgeops.com/ig/openidm/managed/user/:authorization.id (from https://sample.iam.forgeops.com/ig/openidm/info/login)'
         ],
         /* 
           populating the "end_session_endpoint" value with the authorization server's logout endpoint,

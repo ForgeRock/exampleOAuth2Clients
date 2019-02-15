@@ -10,7 +10,7 @@
 
 define(["org/forgerock/commons/ui/common/util/Constants"], function (commonConstants) {
     commonConstants.context = "/openidm";
-    commonConstants.host = "https://rs.sample.forgeops.com";
+    commonConstants.host = "https://sample.iam.forgeops.com/ig";
 
     commonConstants.HEADER_PARAM_PASSWORD = "X-OpenIDM-Password";
     commonConstants.HEADER_PARAM_USERNAME = "X-OpenIDM-Username";

@@ -42,16 +42,16 @@
 (function () {
     var commonSettings = {
         clientId: "appAuthClient",
-        authorizationEndpoint: "https://login.sample.forgeops.com/oauth2/authorize"
+        authorizationEndpoint: "https://sample.iam.forgeops.com/am/oauth2/authorize"
     };
 
     AppAuthHelper.init({
         clientId: commonSettings.clientId,
         authorizationEndpoint: commonSettings.authorizationEndpoint,
         scopes: "openid profile profile_update consent_read workflow_tasks notifications",
-        tokenEndpoint: "https://login.sample.forgeops.com/oauth2/access_token",
-        revocationEndpoint: "https://login.sample.forgeops.com/oauth2/token/revoke",
-        endSessionEndpoint: "https://login.sample.forgeops.com/oauth2/connect/endSession",
+        tokenEndpoint: "https://sample.iam.forgeops.com/am/oauth2/access_token",
+        revocationEndpoint: "https://sample.iam.forgeops.com/am/oauth2/token/revoke",
+        endSessionEndpoint: "https://sample.iam.forgeops.com/am/oauth2/connect/endSession",
         tokensAvailableHandler: function (claims) {
             // this function is called every time the tokens are either
             // originally obtained or renewed
