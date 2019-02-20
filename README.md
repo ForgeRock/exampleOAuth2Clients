@@ -13,6 +13,10 @@ These example clients are provided:
 * [`basic-vertx`](./basic-vertx):<br>
   OAuth 2.0 client showing how to protect access
   to profiles with a Vert.x application.
+* [`iOS-AppAuth`](./iOS-AppAuth):<br>
+  iOS native OAuth 2.0/OpenID Connect clients using the authorization code grant.<br>
+  These are Swift applications using the AppAuth SDK for iOS,
+  protecting access to user profile information.
 * [`node-passport-openidconnect`](./node-passport-openidconnect):<br>
   OAuth 2.0/OpenID Connect client showing how to protect profiles
   with a choice of OpenID Provider.<br>
@@ -46,6 +50,7 @@ Each example client is self-contained, and fully described in its own README.
    * `kubectl` (<https://kubernetes.io/docs/tasks/tools/install-kubectl/>)
    * `helm` (<https://github.com/helm/helm#install>)
    * `skaffold` (<https://github.com/GoogleContainerTools/skaffold#installation>)
+1. (Optional) XCode on macOS for the iOS examples.
 1. Follow the README for the [Platform OAuth2 Sample](
    https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development).
 1. Follow the README for your chosen client in this repository.
