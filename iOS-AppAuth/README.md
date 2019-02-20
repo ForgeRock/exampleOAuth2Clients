@@ -66,7 +66,7 @@ The purpose of this exercise is to build from scratch (step-by-step, each of whi
 
 > The URIs and the private-use scheme used below serve demonstrational purposes; feel free to replace them with your own OP and RP specifics.
 
-> The completed Xcode project is a part of this repo, is located under `/iOS-AppAuth/iOS-AppAuth-Basic`, and could be used as a quick reference. A <a href="https://youtu.be/Hv0vzyf_QIM" target="_blank">short video</a> demonstrates the final result.
+> The completed Xcode project is a part of this repo, is located under `/iOS-AppAuth/iOS-AppAuth-Basic`, and could be used as a quick reference. A [short video](https://forgerock.wistia.com/medias/r7yn6bpfle) demonstrates the final result.
 
 We will build the app in a few implementation steps:
 
@@ -1371,7 +1371,7 @@ We will build the app in a few implementation steps:
 
 [Back to top](#top)
 
-The ForgeRock example is located under `/iOS-AppAuth/iOS-AppAuth-IDM`. A <a href="https://youtu.be/OqZwVNrQKA8" target="_blank">short video</a> demonstrates the app running on an iOS simulator.
+The ForgeRock example is located under `/iOS-AppAuth/iOS-AppAuth-IDM`. A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
 
 In this example [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) serves as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS). The example assumes an instance of the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development) running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
 
@@ -1387,7 +1387,7 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
 
     The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). To install on an iOS device simulator, for example, drag and drop the certificate file on a, preferably `Settings`, screen, follow the installation prompt, and, on a more recent version of iOS, enable the certificate in `General` > `About` > `Certificate Trust Settings`. It may take more than one attempt to engage the installation process. In that case don't get discouraged and keep trying; eventually the simulator will cooperate.
 
-    > A <a href="https://youtu.be/r6Cmtirjr8I" target="_blank">short video</a> shows the installation flow on an iOS 12.1 simulator.
+    > A [short video](https://forgerock.wistia.com/medias/1wft6023jm) shows the installation flow on an iOS 12.1 simulator.
 
     Refer to [Installing a CA’s Root Certificate on Your Test Device](https://developer.apple.com/library/archive/qa/qa1948/_index.html) for further details.
 
