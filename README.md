@@ -50,11 +50,20 @@ Each example client is self-contained, and fully described in its own README.
    https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development).
 1. Follow the README for your chosen client in this repository.
 
-Your browser does not trust the server certificates used by default.
-The certificates are signed by a self-signed example CA certificate.
-You can either trust the CA&mdash;temporarily, because the example CA keys are published&mdash;or
-use a browser that you can run with an option to skip server certificate validation,
-such as `google-chrome --ignore-certificate-errors https://sample.iam.forgeops.com/am/console`.
+**Important**
+
+*   Match the branch versions of the `forgeops` and `exampleOAuth2Clients` repositories.<br>
+    _Different branches are not compatible and not interoperable._
+    The `master` branch is under active development. Older branches are more stable.
+    For example, before trying the `exampleOAuth2Clients` [6.5 branch](https://github.com/ForgeRock/exampleOAuth2Clients/tree/6.5),
+    check out a branch tracking the appropriate `forgeops` branch:
+    `cd forgeops ; git checkout -b 6.5 -t origin/release/6.5.0`<br>
+    The `forgeops-init` repository uses versioned directories rather than branches.
+*   Your browser does not trust the server certificates used by default.
+    The certificates are signed by a self-signed example CA certificate.
+    You can either trust the CA&mdash;temporarily, because the example CA keys are published&mdash;or
+    use a browser that you can run with an option to skip server certificate validation,
+    such as `google-chrome --ignore-certificate-errors https://sample.iam.forgeops.com/am/console`
 
 ## About the Software
 
