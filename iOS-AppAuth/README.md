@@ -62,11 +62,11 @@ The included example iOS applications play the role of an [OpenID Connect](https
 
 [Back to top](#top)
 
-The purpose of this exercise is to build from scratch (step-by-step) the most basic app capable of performing HTTP requests to a resource protected with OAuth 2.0. Xcode 10 and Swift 4 environment and iOS 9-12 targets will be assumed. The AppAuth SDK for iOS will be employed to perform the authorization flow.
+The purpose of this exercise is to build from scratch (step-by-step, each of which will be commented on) the most basic app capable of performing HTTP requests to a resource protected with OAuth 2.0. Xcode 10 and Swift 4 environment and iOS 9-12 targets will be assumed. The AppAuth SDK for iOS will be employed to perform the authorization flow.
 
 > The URIs and the private-use scheme used below serve demonstrational purposes; feel free to replace them with your own OP and RP specifics.
 
-> The completed Xcode project is a part of this repo, is located under `/iOS-AppAuth/iOS-AppAuth-Basic`, and could be used as a reference.
+> The completed Xcode project is a part of this repo, is located under `/iOS-AppAuth/iOS-AppAuth-Basic`, and could be used as a quick reference. A <a href="https://youtu.be/Hv0vzyf_QIM" target="_blank">short video</a> demonstrates the final result.
 
 We will build the app in a few implementation steps:
 
@@ -81,7 +81,7 @@ We will build the app in a few implementation steps:
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
-    If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates you will need to accommodate this as described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
+    If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates you will need to accommodate that as described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
 
     > Installing a CA's root certificate on an iOS device is illustrated in [Enable TLS](#full-tls) section of the ForgeRock example below.
 
@@ -89,7 +89,7 @@ We will build the app in a few implementation steps:
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
-    The AppAuth SDK for iOS provides an option to specify location of the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) if it is supported by the OP. In this case, all necessary for the authorization flow endpoints could be obtained automatically by the SDK from a well-known OP's location.
+    The AppAuth SDK for iOS provides an option to specify location of the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) if it is supported by the OP. In this case, all endpoints necessary for the authorization flow could be obtained automatically by the SDK from the well-known location.
 
     > You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known endpoint in [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance/oauth2/.well-known/openid-configuration`.
 
@@ -111,7 +111,7 @@ We will build the app in a few implementation steps:
     * _redirect_uri_
     * _scope_: the scopes available for this client (to choose from when sending the authorization request)
 
-    Means to obtain the RP registration details are specific to the OP and not covered here. For example, you can consult with the [Registering OAuth 2.0 Clients With the Authorization Service](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) guide on creating and obtaining client credentials and scopes for an RP registered with ForgeRock Access Management.
+    Means to obtain the RP registration details are specific to the OP and not covered here. For example, you can consult the [Registering OAuth 2.0 Clients With the Authorization Service](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) guide on creating and obtaining client credentials and scopes for an RP registered with ForgeRock Access Management.
 
     > You could also refer to the [ForgeRock example](#full) section, where the process of registering a client is described in the context of a running ForgeRock platform sample.
 
@@ -149,7 +149,7 @@ We will build the app in a few implementation steps:
 
     0. Setting AppAuth as a project dependency
 
-        Navigate to the project root (i.e. where `your-project-name.xcodeproj` is located) and create a `Cartfile` file; add the following line:
+        Navigate to the project root (that is, where `your-project-name.xcodeproj` is located) and create a `Cartfile` file; add the following line:
 
         > github "openid/AppAuth-iOS" "master"
 
@@ -165,7 +165,7 @@ We will build the app in a few implementation steps:
         carthage bootstrap --platform ios
         ```
 
-        This will build the AppAuth framework in your project under `Carthage` directory for `iOS`, according to the dependency specified in `Cartfile` and to the provided `--platform` option.
+        This will build the AppAuth framework for `iOS` in your project under `Carthage` directory, according to the dependency specified in `Cartfile` and to the provided `--platform` option.
 
         > Not providing the platform option will result in building frameworks for all supported platforms, which won't hurt but may prove unnecessary.
 
@@ -176,6 +176,8 @@ We will build the app in a few implementation steps:
         In the Xcode project Navigator select the project and then the target under `TARGETS`. Under `General` tab, scroll down to `Linked Frameworks and Libraries` and add the AppAuth framework:
 
         Click on `+` and then on `Add Other...` , navigate to _`your-project-root`_ > `Carthage` > `Build` > `iOS`, and select `AppAuth.framework`; then, click `Open`.
+
+        ![Screenshot](README_files/xcode.target.general.frameworks.png)
 
         Next switch over to the target's `Build Phases` tab and add a new `Run Script` build phase:
 
@@ -191,13 +193,15 @@ We will build the app in a few implementation steps:
         $(SRCROOT)/Carthage/Build/iOS/AppAuth.framework
         ```
 
+        ![Screenshot](README_files/xcode.target.build-phases.run-script.png)
+
         > At any point of building the app, including this very point, you can change the iOS deployment target under `Building Settings`.
 
 0. <a name="simple-app"></a>Copy 'n' Paste
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
-    Copy-and-paste is all you need to do to get started, but we will also provide some supporting comments along the way. Organizing the code for this app will consist of several distinct steps; after each step you should be able to build and run the app:
+    Organizing the code for this app will consist of several distinct steps; after each step you should be able to build and run the app. Copy-and-paste is all you need to do to get started, but along the way we will also explain what the steps do:
 
     * [Handling OAuth 2.0 redirection](#simple-app-redirection)
     * [Making AppAuth available in the main controller](#simple-app-appauth)
@@ -215,7 +219,7 @@ We will build the app in a few implementation steps:
 
         [Back to Copy 'n' Paste](#simple-app)
 
-        In iOS 11-12 environment, AppAuth employs designated authentication classes serving as the "in-app browser tab" for making authorization requests:
+        In iOS 11-12 environment, AppAuth employs designated authentication classes serving as the "in-app browser tabs" for making authorization requests:
 
         * [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession) (iOS 12.0+)
         * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
@@ -226,7 +230,7 @@ We will build the app in a few implementation steps:
 
         In iOS 9-10, however, [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) is used to perform the authorization request. This view controller does not provide an option to be initialized with a private-use callback scheme; hence, one needs to be added to be the project's `Info.plist` in order for the app to be able to respond to the redirection URI.
 
-        > The same applies to iOS versions below 9, which utilize mobile Safari as the external user-agent.
+        > The same applies to iOS versions below 9, which use mobile Safari as the external user-agent.
 
         To specify the redirection URI scheme in `Info.plist`:
 
@@ -234,7 +238,9 @@ We will build the app in a few implementation steps:
         * Fully expand the key and populate it with a single `URL Schemes` (`CFBundleURLSchemes`) item.
         * Populate `URL Schemes` with a single item of the type `String` with the scheme of your redirection URI. The scheme is everything before the colon (`:`). For example, if the redirect URI is `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`, then the scheme would be `com.forgeops.ios-appauth-basic`.
 
-        With the URL scheme registered, the redirection URI will be delivered to the app. This brings it to the foreground and calls the AppDelegate's [application(_:open:options:)](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623112-application) method. (AppAuth will automatically close the external user agent instance.)
+        ![Screenshot](README_files/xcode.info.plist.url-scheme.png)
+
+        With the URL scheme registered, the redirection URI will be delivered to the app. This will bring it to the foreground and call the AppDelegate's [application(_:open:options:)](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623112-application) method. (AppAuth will automatically close the external user agent instance.)
 
         > Please see the conditions for invoking this method in its documentation referenced above.
 
@@ -299,7 +305,7 @@ We will build the app in a few implementation steps:
         Ultimately, the AppAuth library performs client authorization via an `OIDAuthorizationRequest` instance initiated with the following parameters:
 
         * _configuration_: an AppAuth's `OIDServiceConfiguration` instance
-        * _clientId_: the RP's client ID as it is been registered on the OP's authorization server
+        * _clientId_: the RP's client ID as it's been registered on the OP's authorization server
         * _clientSecret_ (optional): may be populated for dynamically registered clients
         * _scopes_: the (subset of) scopes provided in the RP registration
         * _redirectURL_: a redirection URI associated with the RP registration
@@ -788,7 +794,7 @@ We will build the app in a few implementation steps:
             - Parameter urlRequest: URLRequest optionally crafted with additional information, which may include access token.
             - Parameter completion: Escaping completion handler allowing the caller to process the response.
             */
-            func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse) -> Void) {
+            func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse, URLRequest) -> Void) {
                 let task = URLSession.shared.dataTask(with: urlRequest) {data, response, error in
                     DispatchQueue.main.async {
                         guard error == nil else {
@@ -805,7 +811,7 @@ We will build the app in a few implementation steps:
                             return
                         }
 
-                        completion(data, response)
+                        completion(data, response, urlRequest)
                     }
                 }
 
@@ -816,7 +822,7 @@ We will build the app in a few implementation steps:
         // . . .
         ```
 
-        > Alternatively, you can call the data task directly from wherever a request needs to be made and handle the response (or lack of it) there.
+        > Alternatively, you can call the data task directly from wherever a request needs to be made and handle the response (or lack of it) there. You can also pass the data task errors and non-HTTP responses from this method back to the original caller (via the completion handler) instead of making hard returns here. The latter approach is demonstrated in the more advanced [ForgeRock example](#full).
 
         Then add the API caller:
 
@@ -835,7 +841,7 @@ We will build the app in a few implementation steps:
             - Parameter urlRequest: URLRequest with pre-defined URL, method, etc.
             - Parameter completion: Escaping completion handler allowing the caller to process the response.
             */
-            func makeUrlRequestToProtectedResource(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse) -> Void) {
+            func makeUrlRequestToProtectedResource(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse, URLRequest) -> Void) {
                 let currentAccessToken: String? = self.authState?.lastTokenResponse?.accessToken
 
                 // Validating and refreshing tokens
@@ -867,7 +873,7 @@ We will build the app in a few implementation steps:
                     requestHeaders["Authorization"] = "Bearer \(accessToken)"
                     urlRequest.allHTTPHeaderFields = requestHeaders
 
-                    self.sendUrlRequest(urlRequest: urlRequest) {data, response in
+                    self.sendUrlRequest(urlRequest: urlRequest) {data, response, request in
                         guard let data = data, data.count > 0 else {
                             print("HTTP response data is empty.")
 
@@ -904,13 +910,13 @@ We will build the app in a few implementation steps:
                             }
                         }
 
-                        completion(data, response)
+                        completion(data, response, urlRequest)
                     }
                 }
             }
         }
         ```
-        > An error and/or a non-processable response could be detected and handled at any stage of this process and deferred (via escaping completion handlers) to the request maker where the information can be processed in a certain way. For example, an API request to a protected source expects some parsable data, even if an internal error occurs, but calling an RP-initiated logout endpoint may produce no data.
+        > An error and/or a non-processable response could be detected and handled at any stage of making a request and also deferred (via escaping completion handlers) to the request maker where the information can be processed in a certain way. For example, an API request to a protected source expects some parsable data, even if an internal error occurs, but calling an RP-initiated logout endpoint may produce no data to handle.
 
         Let's now prepare a call to the userinfo endpoint, the location for which we should be able to retrieve from the OIDC configuration document captured by AppAuth in the authorization state:
 
@@ -932,8 +938,32 @@ We will build the app in a few implementation steps:
 
                 let urlRequest = URLRequest(url: url)
 
-                makeUrlRequestToProtectedResource(urlRequest: urlRequest){data, response in
-                    print("User Info: \(String(describing: String(data: data!, encoding: .utf8)))")
+                makeUrlRequestToProtectedResource(urlRequest: urlRequest){data, response, request in
+                    var text = "User Info:\n"
+
+                    text += "\nREQUEST:\n"
+                    text += "URL: " + (request.url?.absoluteString ?? "") + "\n"
+
+                    text += "HEADERS: \n"
+                    request.allHTTPHeaderFields?.forEach({header in
+                        text += "\"\(header.key)\": \"\(header.value)\"\n"
+                    })
+
+                    print(request.description)
+                    text += "\nRESPONSE:\n"
+                    text += "Status Code: " + String(response.statusCode) + "\n"
+
+                    text += "HEADERS:\n"
+                    response.allHeaderFields.forEach({header in
+                        text += "\"\(header.key)\": \"\(header.value)\"\n"
+                    })
+
+                    text += "\nDATA:\n"
+                    if let data = data {
+                        text += String(bytes: data, encoding: .utf8)!
+                    }
+
+                    print(text)
                 }
             }
         }
@@ -1097,7 +1127,7 @@ We will build the app in a few implementation steps:
                     if let endSessionEndpointUrl = URL(string: issuerUrl + "/connect/endSession" + "?id_token_hint=" + idToken) {
                         let urlRequest = URLRequest(url: endSessionEndpointUrl)
 
-                        sendUrlRequest(urlRequest: urlRequest) {data, response in
+                        sendUrlRequest(urlRequest: urlRequest) {data, response, request in
                             if !(200...299).contains(response.statusCode) {
                                 // Handling server errors
                                 print("RP-initiated logout HTTP response code: \(response.statusCode)")
@@ -1287,8 +1317,11 @@ We will build the app in a few implementation steps:
             textView.insertText("\n" + output + "\n")
 
             let textViewBottom = NSMakeRange(textView.text.count - 1, 1)
-
             textView.scrollRangeToVisible(textViewBottom)
+
+            // Accommodating an iOS bug that may prevent scrolling under certain circumstances.
+            textView.isScrollEnabled = false
+            textView.isScrollEnabled = true
 
             Swift.print(output)
         }
@@ -1338,7 +1371,7 @@ We will build the app in a few implementation steps:
 
 [Back to top](#top)
 
-The ForgeRock example is located under `/iOS-AppAuth/iOS-AppAuth-IDM`.
+The ForgeRock example is located under `/iOS-AppAuth/iOS-AppAuth-IDM`. A <a href="https://youtu.be/OqZwVNrQKA8" target="_blank">short video</a> demonstrates the app running on an iOS simulator.
 
 In this example [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) serves as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS). The example assumes an instance of the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development) running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
 
@@ -1350,9 +1383,13 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
 
 0. <a name="full-tls"></a>Enable TLS
 
-    The platform instance provides access to the authorization and resource server only over HTTPS. Running within Minikube, it uses a self-sign certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including simulator) is installing the development Certificate Authority (CA) root certificate on the device (per [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html)).
+    The platform instance provides access to the authorization and resource server only over HTTPS. Running within Minikube, it uses a self-sign certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including a simulator) is installing the development Certificate Authority (CA) root certificate on the device (per [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html)).
 
-    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). To install on an iOS device simulator, for example, drag and drop the certificate file on a Settings screen, follow the installation prompt, and enable the certificate in `General` > `About` > `Certificate Trust Settings`. Refer to [Installing a CA’s Root Certificate on Your Test Device](https://developer.apple.com/library/archive/qa/qa1948/_index.html) for further details.
+    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). To install on an iOS device simulator, for example, drag and drop the certificate file on a, preferably `Settings`, screen, follow the installation prompt, and, on a more recent version of iOS, enable the certificate in `General` > `About` > `Certificate Trust Settings`. It may take more than one attempt to engage the installation process. In that case don't get discouraged and keep trying; eventually the simulator will cooperate.
+
+    > A <a href="https://youtu.be/r6Cmtirjr8I" target="_blank">short video</a> shows the installation flow on an iOS 12.1 simulator.
+
+    Refer to [Installing a CA’s Root Certificate on Your Test Device](https://developer.apple.com/library/archive/qa/qa1948/_index.html) for further details.
 
 0. Register the application as an OAuth 2.0 Client in AM
 
