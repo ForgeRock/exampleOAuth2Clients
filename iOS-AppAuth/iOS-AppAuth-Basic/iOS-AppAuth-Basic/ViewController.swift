@@ -24,11 +24,14 @@ func print(_ items: Any..., separator: String = " ", terminator: String = "\n") 
     output = date + " " + output
 
     // Displaying logs in the UI
-    textView.insertText("\n" + output + "\n")
+    textView.text += "\n" + output + "\n"
 
     let textViewBottom = NSMakeRange(textView.text.count - 1, 1)
-
     textView.scrollRangeToVisible(textViewBottom)
+
+    // Accommodating an iOS bug that may prevent scrolling under certain circumstances.
+    textView.isScrollEnabled = false
+    textView.isScrollEnabled = true
 
     Swift.print(output)
 }
@@ -102,8 +105,32 @@ class ViewController: UIViewController {
 
         let urlRequest = URLRequest(url: url)
 
-        makeUrlRequestToProtectedResource(urlRequest: urlRequest){data, response in
-            print("User Info: \(String(describing: String(data: data!, encoding: .utf8)))")
+        makeUrlRequestToProtectedResource(urlRequest: urlRequest){data, response, request in
+            var text = "User Info:\n"
+
+            text += "\nREQUEST:\n"
+            text += "URL: " + (request.url?.absoluteString ?? "") + "\n"
+
+            text += "HEADERS: \n"
+            request.allHTTPHeaderFields?.forEach({header in
+                text += "\"\(header.key)\": \"\(header.value)\"\n"
+            })
+
+            print(request.description)
+            text += "\nRESPONSE:\n"
+            text += "Status Code: " + String(response.statusCode) + "\n"
+
+            text += "HEADERS:\n"
+            response.allHeaderFields.forEach({header in
+                text += "\"\(header.key)\": \"\(header.value)\"\n"
+            })
+
+            text += "\nDATA:\n"
+            if let data = data {
+                text += String(bytes: data, encoding: .utf8)!
+            }
+
+            print(text)
         }
     }
 }
@@ -355,7 +382,7 @@ extension ViewController: OIDAuthStateChangeDelegate {
      */
     func didChange(_ state: OIDAuthState) {
         print("Authorization state change event.")
-        
+
         self.stateChanged()
     }
 }
@@ -379,7 +406,7 @@ extension ViewController {
      - Parameter urlRequest: URLRequest optionally crafted with additional information, which may include access token.
      - Parameter completion: Escaping completion handler allowing the caller to process the response.
      */
-    func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse) -> Void) {
+    func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse, URLRequest) -> Void) {
         let task = URLSession.shared.dataTask(with: urlRequest) {data, response, error in
             DispatchQueue.main.async {
                 guard error == nil else {
@@ -396,7 +423,7 @@ extension ViewController {
                     return
                 }
 
-                completion(data, response)
+                completion(data, response, urlRequest)
             }
         }
 
@@ -409,7 +436,7 @@ extension ViewController {
      - Parameter urlRequest: URLRequest with pre-defined URL, method, etc.
      - Parameter completion: Escaping completion handler allowing the caller to process the response.
      */
-    func makeUrlRequestToProtectedResource(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse) -> Void) {
+    func makeUrlRequestToProtectedResource(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse, URLRequest) -> Void) {
         let currentAccessToken: String? = self.authState?.lastTokenResponse?.accessToken
 
         // Validating and refreshing tokens
@@ -441,7 +468,7 @@ extension ViewController {
             requestHeaders["Authorization"] = "Bearer \(accessToken)"
             urlRequest.allHTTPHeaderFields = requestHeaders
 
-            self.sendUrlRequest(urlRequest: urlRequest) {data, response in
+            self.sendUrlRequest(urlRequest: urlRequest) {data, response, request in
                 guard let data = data, data.count > 0 else {
                     print("HTTP response data is empty.")
 
@@ -478,7 +505,7 @@ extension ViewController {
                     }
                 }
 
-                completion(data, response)
+                completion(data, response, urlRequest)
             }
         }
     }
@@ -540,7 +567,7 @@ extension ViewController {
             if let endSessionEndpointUrl = URL(string: issuerUrl + "/connect/endSession" + "?id_token_hint=" + idToken) {
                 let urlRequest = URLRequest(url: endSessionEndpointUrl)
 
-                sendUrlRequest(urlRequest: urlRequest) {data, response in
+                sendUrlRequest(urlRequest: urlRequest) {data, response, request in
                     if !(200...299).contains(response.statusCode) {
                         // Handling server errors
                         print("RP-initiated logout HTTP response code: \(response.statusCode)")
