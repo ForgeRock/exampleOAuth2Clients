@@ -1,12 +1,41 @@
 # <a name="top"></a>OAuth 2.0 Authorization Code Grant protected by PKCE for an iOS App with the AppAuth SDK
 
-The language used in this document leverages terminology defined in the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) extension for the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) protocol.
+## Contents
 
-* [Intro](#intro)
+* [Preface](#preface)
+* [Introduction](#intro)
 * [Building a simple app with Swift and AppAuth](#simple)
 * [ForgeRock example](#full)
 
-## <a name="intro"></a> Intro
+## <a name="preface"></a> Preface: a word about standards
+
+_"The   analysis   found   a   positive   and   significant   contribution   of   standards   to   productivity – supporting  37.4%  of  annual  labour  productivity  growth  in  the  UK  economy  over  the  period  1921  to  2013,  which  translates  into  approximately  28.4%  of  annual  GDP  growth –  a  similar  finding to that of other recent national level studies in France and Germany."_
+
+_"One of the first [standards] to be introduced in the UK – the standardization of the number of tram gauge specifications . . . – was put in place to ensure quality of manufacture while removing the unnecessary variety that existed in the tram rail market, which restricted the interoperability of tram networks and resulted in longer lead times for tram rails."_
+
+British Standards Institution, 2015
+
+_"If you want to be more creative, be less productive."_
+
+Neil deGrasse Tyson, 2017
+
+_"And the Lord said, Behold, the people is one, and they have all one language; and this they begin to do: and now nothing will be restrained from them, which they have imagined to do."_
+
+Genesis 11:6
+
+It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers) because it puts everyone on the same page in terms of direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area - after all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _[trolley problem](https://en.wikipedia.org/wiki/Trolley_problem)_.)
+
+Similarly, on the way of delivering a software solution there seem to be a certain balance between creativity and productivity required at every stage. In the process of inventing computer, defining network protocols and programming languages, creating operating systems, libraries, services, and applications number of participants increases with each level of abstraction. Thus, on the way up in this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound, while the original research _should_ play less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted the more support it will receive from the community and the more efficiently it may be exploited. And efficiency allows for productivity, that is, more volume and/or less efforts in producing a business solution, which is important because the amount of efforts is multiplied by the number of participants.
+
+Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then (follow me closely here) that standard should be employed. The least amount of creativity should be required from its consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, there is yet developer's pride (or more pragmatic concerns) and resulting from it competing standards, which complicate things...
+
+![how standards proliferate](README_files/standards.more.better.png)
+
+In the context of delegated authorization, however, there seems to be a clear leader: the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) protocol with extensions galore*. In this document we will leverage terminology defined in the protocol and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html).
+
+> \* All of which reminds a bit a relatively long leaving branch in evolution tree that was not trimmed down by natural selection yet. The time will tell whether it will stay, produce a new genus, or be surpassed by a competitor and extinct, leaving us only fossils at tools.ietf.org...
+
+## <a name="intro"></a> Introduction
 
 [Back to top](#top)
 
@@ -40,7 +69,7 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
    > We noticed an issue in your app that contributes to a lower quality user experience than Apple users expect . . . Upon launching the app, a web page in mobile Safari opens for logging in . . . , then returns the user to the app. The user should be able to log in without opening Safari first.
 
-   This means one is to use designated "in-app browser tab" classes for visiting the authorization server endpoint:
+   This means (bear with me, I am getting to the point) one is to use designated "in-app browser tab" classes for visiting the authorization server endpoint:
 
    * [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession) (iOS 12.0+)
    * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
