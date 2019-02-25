@@ -1,4 +1,4 @@
-# <a name="top"></a>OAuth 2.0 Authorization Code Grant protected by PKCE for an iOS App with the AppAuth SDK
+# <a id="top"></a>OAuth 2.0 Authorization Code Grant protected by PKCE for an iOS App with the AppAuth SDK
 
 ## Contents
 
@@ -6,8 +6,9 @@
 * [Introduction](#intro)
 * [Building a simple app with Swift and AppAuth](#simple)
 * [ForgeRock example](#full)
+* [Conclusion](#conclusion)
 
-## <a name="preface"></a> Preface: a word about standards
+## <a id="preface"></a> Preface: a word about standards
 
 _"The   analysis   found   a   positive   and   significant   contribution   of   standards   to   productivity – supporting  37.4%  of  annual  labour  productivity  growth  in  the  UK  economy  over  the  period  1921  to  2013,  which  translates  into  approximately  28.4%  of  annual  GDP  growth –  a  similar  finding to that of other recent national level studies in France and Germany."_
 
@@ -25,17 +26,17 @@ Genesis 11:6
 
 It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers) because all interested parties are in agreement on direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area - after all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _[trolley problem](https://en.wikipedia.org/wiki/Trolley_problem)_.)
 
-Similarly, on the way to delivering a software solution the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, creating operating systems, libraries, services, and applications number of participants increases with each level of abstraction. Consequently, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound, while the original research _should_ play less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted the more support it will receive from the community and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important because the gains in effort are multiplied by the number of participants.
+Similarly, on the way to delivering a software solution the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, creating operating systems, libraries, services, and applications the number of participants increases with each level of abstraction. Consequently, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound, while the original research _should_ play a less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted the more support it will receive from the community and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important because the gains in effort are multiplied by the number of participants.
 
 Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then (follow me closely here) that standard should be employed. The least amount of creativity should be _required_ from the consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, there is developer pride and other more pragmatic concerns that lead to competing standards, which complicate things:
 
 ![how standards proliferate](README_files/standards.more.better.png)
 
-In the context of delegated authorization, however, there seems to be a clear leader: the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) protocol with extensions galore*. In this document we will leverage terminology defined in the protocol and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html).
+In the context of REST API protection, however, there seems to be a clear leader: the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) authorization framework with extensions galore*. In this document we will leverage terminology defined in OAuth 2.0 protocol and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the current best practices for building native OAuth 2.0 clients, that is, applications running on the end-user's (mobile) device.
 
 > \* The number of OAuth 2.0 extensions resembles a relatively long branch in the evolutionary tree that has not been trimmed by natural selection. Time will tell whether it remains, produces a new genus, or is surpassed by a competitor and goes extinct, leaving only fossils at tools.ietf.org...
 
-## <a name="intro"></a> Introduction
+## <a id="intro"></a> Introduction
 
 [Back to top](#top)
 
@@ -87,7 +88,7 @@ The included example iOS applications play the role of an [OpenID Connect](https
 
 ***
 
-## <a name="simple"></a>Building a simple app with Swift and AppAuth
+## <a id="simple"></a>Building a simple app with Swift and AppAuth
 
 [Back to top](#top)
 
@@ -104,17 +105,19 @@ We will build the app in a few implementation steps:
 * [Collecting information about the RP](#simple-rp)
 * [Setting up Xcode project and adding the AppAuth SDK](#simple-xcode)
 * [Copy 'n' Paste](#simple-app)
-* [Conclusion](#simple-conclusion)
+* [In fine](#simple-conclusion)
 
-0. <a name="simple-https"></a>Enabling TLS in development environment
+0. <a id="simple-https"></a>Enabling TLS in development environment
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
     If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates you will need to accommodate that as described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
 
-    > Installing a CA's root certificate on an iOS device is illustrated in [Enable TLS](#full-tls) section of the ForgeRock example below.
+    To install a CA root certificate on an iOS device simulator, for example, drag and drop the certificate file on a, preferably `Settings`, screen, follow the installation prompt, and, on a more recent version of iOS, enable the certificate in `General` > `About` > `Certificate Trust Settings`. It may take more than one attempt to engage the installation process. In that case don't get discouraged and keep trying; eventually the simulator will cooperate.
 
-0. <a name="simple-op"></a>Collecting information about the OP
+    > A [short video](https://forgerock.wistia.com/medias/1wft6023jm) shows the installation flow on an iOS 12.1 simulator.
+
+0. <a id="simple-op"></a>Collecting information about the OP
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
@@ -130,7 +133,7 @@ We will build the app in a few implementation steps:
     * (optional) _userinfo_endpoint_
     * (optional) _end_session_endpoint_
 
-0. <a name="simple-rp"></a>Collecting information about the RP
+0. <a id="simple-rp"></a>Collecting information about the RP
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
@@ -150,7 +153,7 @@ We will build the app in a few implementation steps:
 
     Note, that the full and exact redirection URI MUST be registered for the RP with the OP.
 
-0. <a name="simple-xcode"></a>Setting up [Xcode](https://developer.apple.com/xcode/) project and adding the AppAuth SDK
+0. <a id="simple-xcode"></a>Setting up [Xcode](https://developer.apple.com/xcode/) project and adding the AppAuth SDK
 
     For the purposes of this example, we will assume Xcode 10 environment, Swift 4.2, and the sample application built down to iOS 9.0 - to demonstrate some important differences in versions below iOS 11.
 
@@ -226,7 +229,7 @@ We will build the app in a few implementation steps:
 
         > At any point of building the app, including this very point, you can change the iOS deployment target under `Building Settings`.
 
-0. <a name="simple-app"></a>Copy 'n' Paste
+0. <a id="simple-app"></a>Copy 'n' Paste
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
@@ -244,7 +247,7 @@ We will build the app in a few implementation steps:
     * [Optional](#simple-app-ui)
     * [Completely Optional](#simple-app-ui-extra)
 
-    1. <a name="simple-app-redirection"></a>Handling OAuth 2.0 redirection
+    1. <a id="simple-app-redirection"></a>Handling OAuth 2.0 redirection
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -314,7 +317,7 @@ We will build the app in a few implementation steps:
 
         > Don't worry about lack of indentation in the comments, when pasted in Xcode  they will be aligned according to the convention in place.
 
-    0. <a name="simple-app-appauth"></a>Making AppAuth available in the main controller
+    0. <a id="simple-app-appauth"></a>Making AppAuth available in the main controller
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -327,7 +330,7 @@ We will build the app in a few implementation steps:
         import AppAuth
         ```
 
-    0. <a name="simple-app-op"></a>Providing OP configuration to the authorization services
+    0. <a id="simple-app-op"></a>Providing OP configuration to the authorization services
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -408,7 +411,7 @@ We will build the app in a few implementation steps:
 
         > Both methods could be implemented to accommodate different OIDC Providers.
 
-    0. <a name="simple-app-rp"></a>Providing RP configuration to the authorization services
+    0. <a id="simple-app-rp"></a>Providing RP configuration to the authorization services
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -446,7 +449,7 @@ We will build the app in a few implementation steps:
 
         > The OP and RP properties can also be made available as global variables or in other ways. It seems reasonable to assume that an app represents a single OAuth 2.0 Client or OIDC Relying Party.
 
-    0. <a name="simple-app-request"></a>Making authorization request
+    0. <a id="simple-app-request"></a>Making authorization request
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -511,7 +514,7 @@ We will build the app in a few implementation steps:
 
         > In theory, an RP may be authorized with multiple providers; hence, it may be beneficial to allow the caller of the authorization method to handle the authorization response (differently for different OPs) via the completion handler.
 
-    0. <a name="simple-app-state"></a>Maintaining authorization state
+    0. <a id="simple-app-state"></a>Maintaining authorization state
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -690,7 +693,7 @@ We will build the app in a few implementation steps:
         }
         ```
 
-    0. <a name="simple-app-auth"></a>Authorizing the RP
+    0. <a id="simple-app-auth"></a>Authorizing the RP
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -800,7 +803,7 @@ We will build the app in a few implementation steps:
 
         Build and run the application. It should prompt you to sign in at the OP's authentication endpoint and provide a means for authorizing the application. In your Xcode project logs you should see access and ID tokens obtained from the OP that could be further used in the application for making calls to the OIDC Provider and a Resource Server endpoints.
 
-    0. <a name="simple-app-api"></a>Making API requests
+    0. <a id="simple-app-api"></a>Making API requests
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -1026,7 +1029,7 @@ We will build the app in a few implementation steps:
         // . . .
         ```
 
-    0. <a name="simple-app-id"></a>Decoding ID Token
+    0. <a id="simple-app-id"></a>Decoding ID Token
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -1096,7 +1099,7 @@ We will build the app in a few implementation steps:
 
         Build and run the app. You should be able to see the user information in the logs. The white screen you see on the device simulator is the canvas to fill with functionality relying on OAuth 2.0 authorization.
 
-    0. <a name="simple-app-ui"></a>Optional
+    0. <a id="simple-app-ui"></a>Optional
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -1242,7 +1245,7 @@ We will build the app in a few implementation steps:
 
         Now the app provides controls for signing in and out and initiating a call to the userinfo endpoint. Terminating the app without signing out should preserve the authorization state and not trigger the authorization flow on re-launching. Signing out will require the resource owner (i.e. the user) to re-authorize the app in order to be able to retrieve the user info.
 
-    0. <a name="simple-app-ui-extra"></a>Completely optional
+    0. <a id="simple-app-ui-extra"></a>Completely optional
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -1388,7 +1391,7 @@ We will build the app in a few implementation steps:
 
         Build and run the app.
 
-0. <a name="simple-conclusion"></a>Conclusion
+0. <a id="simple-conclusion"></a>In fine
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
@@ -1396,103 +1399,18 @@ We will build the app in a few implementation steps:
 
 ***
 
-## <a name="full"></a>ForgeRock example
+## <a id="full"></a>ForgeRock example
 
 [Back to top](#top)
 
-The ForgeRock example is located on [GitHub](https://github.com/ForgeRock/exampleOAuth2Clients/) under `/iOS-AppAuth/iOS-AppAuth-IDM`. A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
+The ForgeRock platform provides server ingredients for setting up OAuth 2.0 flows: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) and [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) may serve as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1). The easiest way to see it in action is setting up and running the [ForgeRock platform sample tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development).
 
-In this example [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) serves as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS). The example assumes an instance of the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development) running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
+With this environment in place, you will be able to evaluate a more advanced iOS OAuth 2.0 client built following the same principles as the basic application described above and, in fact, having the latter used as the starting point. A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
 
-### Prerequisites
+The application code can be found in the [Example OAuth2 Clients](https://github.com/ForgeRock/exampleOAuth2Clients/) project on GitHub under `/iOS-AppAuth/iOS-AppAuth-IDM`. Consult the [ForgeRock example README](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth#full) for more information.
 
-0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development)
+***
 
-### Installing and running the application
+## <a id="conclusion"></a>Conclusion
 
-0. <a name="full-tls"></a>Enable TLS
-
-    The platform instance provides access to the authorization and resource server only over HTTPS. Running within Minikube, it uses a self-sign certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including a simulator) is installing the development Certificate Authority (CA) root certificate on the device (per [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html)).
-
-    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). To install on an iOS device simulator, for example, drag and drop the certificate file on a, preferably `Settings`, screen, follow the installation prompt, and, on a more recent version of iOS, enable the certificate in `General` > `About` > `Certificate Trust Settings`. It may take more than one attempt to engage the installation process. In that case don't get discouraged and keep trying; eventually the simulator will cooperate.
-
-    > A [short video](https://forgerock.wistia.com/medias/1wft6023jm) shows the installation flow on an iOS 12.1 simulator.
-
-    Refer to [Installing a CA’s Root Certificate on Your Test Device](https://developer.apple.com/library/archive/qa/qa1948/_index.html) for further details.
-
-0. Register the application as an OAuth 2.0 Client in AM
-
-    The application needs to be registered with AM, which plays the role of an OP in the running platform sample. Create the OAuth 2.0 client with one of the following options:
-
-    * Option 1: API requests with cURL
-
-        ```bash
-        curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/realm-config/agents/OAuth2Client/ios-appauth-idm' \
-        -X PUT \
-        --data '{
-            "clientType": "Public",
-            "redirectionUris": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"],
-            "scopes": [
-                "openid",
-                "profile",
-                "profile_update",
-                "consent_read",
-                "workflow_tasks",
-                "notifications"
-            ],
-            "tokenEndpointAuthMethod": "client_secret_post",
-            "isConsentImplied": true,
-            "postLogoutRedirectUri": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"],
-            "grantTypes": [
-                "authorization_code"
-            ]
-        }' \
-        -H 'Content-Type: application/json' \
-        -H 'Accept: application/json' \
-        -H 'Cookie: iPlanetDirectoryPro='$( \
-            curl -k -s https://sample.iam.forgeops.com/am/json/realms/root/authenticate \
-            -X POST \
-            -H 'X-OpenAm-Username:amadmin' \
-            -H 'X-OpenAm-Password:password' \
-            | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/' \
-        )
-        ```
-
-        The newly created client information will be displayed in the results:
-
-        >{"_id":"ios-appauth-idm", . . . }
-
-    * Option 2: Utilizing the platform sample UI
-
-        * Navigate to [AM Console](https://sample.iam.forgeops.com/am/console)
-        * Sign in with *`amadmin/password`*
-        * Navigate to: *Top Level Realm* > *Applications* > *OAuth 2.0*
-        * Add new client
-            * "Client ID": "ios-appauth-idm"
-            * "Redirection URIs": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"]
-            * "Scope(s)": ["openid","profile","profile_update","consent_read","workflow_tasks","notifications"]
-        * Update the new client
-            * *Core* > "Client type": "Public"
-            * *Advanced* > "Implied consent": "enabled"
-            * *Advanced* > "Grant Types": ["authorization_code"]
-            * *Advanced* > "Token Endpoint Authentication Method": "client_secret_post"
-            * *OpenID Connect* > "Post Logout Redirect URIs": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"]
-            * Save Changes
-
-0. Install [Carthage](https://github.com/Carthage/Carthage).
-
-0. In Terminal, navigate to the project root, where `Cartfile` is located, and run:
-
-    ```bash
-    carthage bootstrap
-    ```
-
-    This will add the AppAuth-iOS SDK content to the project.
-
-0. Open `iOS-AppAuth.xcodeproj` in Xcode, then build and run the product for selected device simulator. The github project does not have a development team and cannot be run on an actual device by default.
-
-The OP and RP configuration is specified in `ViewController.swift` template. The data structures, defined in `User...swift` files, expect certain responses from the API calls. This means that if you replace these with your own, the UI may not be populated as a result. However, after authenticating the end-user and authorizing the app, you should still be able to make arbitrary GET requests crafted with the OP's access token by navigating to `Make a Request to a Protected Resource` screen.
-
-When exploring the code base, please keep in mind that most of the visible layout and navigation is defined in `Main.storyboard`.
-
-For a newly created platform user, the notifications data  will not be populated by default. You can create notifications by updating `PERSONAL INFO` fields under the `Account` tab.
+Both example apps referred here follow the best practices described in RFC8252 and rely on their implementation in the AppAuth SDK. The RFC is concerned with security issues existing in "third-party" applications that cannot be trusted by the end-user. Addressing these concerns comes with limitations in the iOS environment: a mandatory end-user consent dialog and extra steps that may be required for implementing a single sign on experience. Nevertheless, with the AppAuth SDK we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API.
