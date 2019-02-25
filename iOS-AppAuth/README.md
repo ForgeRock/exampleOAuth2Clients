@@ -23,11 +23,11 @@ _"And the Lord said, Behold, the people is one, and they have all one language; 
 
 Genesis 11:6
 
-It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers) because it puts everyone on the same page in terms of direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area - after all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _[trolley problem](https://en.wikipedia.org/wiki/Trolley_problem)_.)
+It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers) because all interested parties are in agreement on direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area - after all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _[trolley problem](https://en.wikipedia.org/wiki/Trolley_problem)_.)
 
-Similarly, on the way to delivering a software solution the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, creating operating systems, libraries, services, and applications number of participants increases with each level of abstraction. Thus, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound, while the original research _should_ play less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted the more support it will receive from the community and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important because the gains in effort are multiplied by the number of participants.
+Similarly, on the way to delivering a software solution the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, creating operating systems, libraries, services, and applications number of participants increases with each level of abstraction. Consequently, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound, while the original research _should_ play less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted the more support it will receive from the community and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important because the gains in effort are multiplied by the number of participants.
 
-Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then (follow me closely here) that standard should be employed. The least amount of creativity should be _required_ from the consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, there is developer pride and other more pragmatic concerns that lead to competing standards, which complicate things...
+Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then (follow me closely here) that standard should be employed. The least amount of creativity should be _required_ from the consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, there is developer pride and other more pragmatic concerns that lead to competing standards, which complicate things:
 
 ![how standards proliferate](README_files/standards.more.better.png)
 
@@ -95,7 +95,7 @@ The purpose of this exercise is to build from scratch (step-by-step, each of whi
 
 > The URIs and the private-use scheme used below serve demonstrational purposes; feel free to replace them with your own OP and RP specifics.
 
-> The completed Xcode project is a part of this repo, is located under `/iOS-AppAuth/iOS-AppAuth-Basic`, and could be used as a quick reference. A [short video](https://forgerock.wistia.com/medias/r7yn6bpfle) demonstrates the final result.
+> The completed Xcode project is located on [GitHub](https://github.com/ForgeRock/exampleOAuth2Clients/) under `/iOS-AppAuth/iOS-AppAuth-Basic` and could be used as a quick reference. A [short video](https://forgerock.wistia.com/medias/r7yn6bpfle) demonstrates the final result.
 
 We will build the app in a few implementation steps:
 
@@ -1400,7 +1400,7 @@ We will build the app in a few implementation steps:
 
 [Back to top](#top)
 
-The ForgeRock example is located under `/iOS-AppAuth/iOS-AppAuth-IDM`. A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
+The ForgeRock example is located on [GitHub](https://github.com/ForgeRock/exampleOAuth2Clients/) under `/iOS-AppAuth/iOS-AppAuth-IDM`. A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
 
 In this example [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) serves as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS). The example assumes an instance of the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development) running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
 
