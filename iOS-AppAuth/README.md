@@ -60,7 +60,7 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
    Using PKCE by itself does not cover a peculiar case of a malicious client _initiating_ the authorization code grant with its own `code_challenge` from the same device where a legitimate app exists and the resource owner is already authenticated, [impersonating](https://tools.ietf.org/html/rfc8252#section-8.6) the legitimate app.
 
-   In this case the end-user should be called for interaction prior to completing the authorization request. This can be achieved by requiring a consent screen, e.g. asking the user to authorize certain scopes the client is trying to access.
+   In this case the end-user should be called for interaction prior to completing the authorization request. This can be achieved by requiring a consent screen. For example, the authorization server may ask the user to authorize the client for accessing certain predefined `scopes` associated with the client's account.
 
    ### The "first-party" apps
 
@@ -70,19 +70,19 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
    > We noticed an issue in your app that contributes to a lower quality user experience than Apple users expect . . . Upon launching the app, a web page in mobile Safari opens for logging in . . . , then returns the user to the app. The user should be able to log in without opening Safari first.
 
-   This means (bear with me, I am getting to the point) one is to use designated "in-app browser tab" classes for visiting the authorization server endpoint:
+   This means that in iOS (bear with me, I am getting to the point) one is to use designated "in-app browser tab" classes for visiting the authorization server endpoints:
 
    * [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession) (iOS 12.0+)
    * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
    * [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) (iOS 9.0+)
 
-    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, will automatically present a dialog asking the end-user to give explicit consent to access the website’s data (and the existing login information) in Safari every time the authentication endpoint is visited. This makes the consent screen unavoidable in the current implementation of the authentication classes. On the other hand, this provides consistent user experience when consent is needed, e.g. for preventing client impersonation when a private-use URI scheme is employed.
+    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, will _automatically_ present a dialog asking the end-user to give explicit consent to access the website’s data (and the existing login information) in Safari every time the authentication endpoint is visited. This makes the consent screen unavoidable in the current implementation of the authentication classes. On the other hand, this provides consistent user experience when consent is needed, for example, to prevent client impersonation when a private-use URI scheme is employed.
 
     > [According to Apple](https://developer.apple.com/support/app-store/), less than ten percent of all devices are using iOS below version 11.
 
     ### The single sign on (SSO) experience
 
-    In addition, none of the authentication classes seem to share session (i.e. transient) cookies with their instances or mobile Safari. In turn, this means one needs to use persistent cookies in order to implement SSO in iOS in a compliant with `RFC8252` way. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars. On the other hand, if no SSO is needed this seems to be covering the client impersonation case as well.
+    In addition, none of the authentication classes seem to share session (i.e. transient) cookies with their other instances or mobile Safari. In turn, this means one needs to use persistent cookies in order to implement SSO in iOS in a compliant with `RFC8252` way. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars. On the other hand, if no SSO is needed this sharing cookies policy seems to be covering the client impersonation case when session cookies are used for the end-user authentication.
 
 The included example iOS applications play the role of an [OpenID Connect](https://openid.net/connect/) (OIDC) [Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) and use the [AppAuth-iOS SDK](https://github.com/openid/AppAuth-iOS) for authorizing the RP against an [OIDC Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The AppAuth SDK follows the best practices described in `RFC8252` by extending the OAuth 2.0 protocol with PKCE and employing an external user agent for visiting the OP's authentication and authorization endpoints. Access tokens obtained during the authorization process are then included as [Bearer Token](https://tools.ietf.org/html/rfc6750) value of the `Authorization` header in requests made to protected endpoints on a [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
 
