@@ -23,7 +23,7 @@ def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
 
 router.route().handler(UserSessionHandler.create(authProvider))
 
-def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:8888")
+def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:18888")
 oauth2Handler.setupCallback(router.get("/callback"))
 
 // scopes we want to request during login
@@ -87,7 +87,7 @@ curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/
 -X PUT \
 --data '{
     "userpassword": "vertxClientSecret",
-    "redirectionUris": ["http://localhost:8888/callback"],
+    "redirectionUris": ["http://localhost:18888/callback"],
     "scopes": ["openid","profile"],
     "tokenEndpointAuthMethod": "client_secret_post"
 }' \
@@ -115,7 +115,7 @@ Browse to the [AM Console](https://login.sample.forgeops.com/console) and use th
 * Add new client:
     * "Client ID": "vertxClient"
     * "Client Secret": "vertxClientSecret"
-    * "Redirection URIs": ["http://localhost:8888/callback"]
+    * "Redirection URIs": ["http://localhost:18888/callback"]
     * "Scope(s)": ["openid", "profile"]
 * Click Save, then go to "Advanced"
     * "Token Endpoint Authentication Method": "client_secret_post"
@@ -127,7 +127,7 @@ The easiest way to execute this sample is by using Docker. This will automate th
 
 ```bash
 docker build -t basicvertxclient:latest .
-docker run -d -p 8888:8888 -p 5005:5005 basicvertxclient:latest
+docker run -d -p 18888:18888 -p 5005:5005 basicvertxclient:latest
 ```
 
 On Linux, you need to provide a separate flag (*--network host*) to get local host name resolution to work properly:
@@ -136,4 +136,4 @@ On Linux, you need to provide a separate flag (*--network host*) to get local ho
 docker run -d --network host basicvertxclient:latest
 ```
 
-Now you can access the application at <http://localhost:8888>.
+Now you can access the application at <http://localhost:18888>.

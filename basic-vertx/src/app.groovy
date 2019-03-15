@@ -37,7 +37,7 @@ def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, opts)
 
 router.route().handler(UserSessionHandler.create(authProvider))
 
-def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:8888")
+def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:18888")
 oauth2Handler.setupCallback(router.get("/callback"))
 
 // scopes we want to request during login
@@ -86,4 +86,4 @@ def templateHandler = TemplateHandler.create(engine)
 router.get("/*").handler(templateHandler)
 
 def server  = vertx.createHttpServer()
-server.requestHandler( router .&'accept').listen(8888)
+server.requestHandler( router .&'accept').listen(18888)
