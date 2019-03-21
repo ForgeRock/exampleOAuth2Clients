@@ -8,33 +8,29 @@
 * [ForgeRock example](#full)
 * [Conclusion](#conclusion)
 
-## <a id="preface"></a> Preface: a word about standards
+## <a id="preface"></a> Preface: A note about standards
 
 _"The   analysis   found   a   positive   and   significant   contribution   of   standards   to   productivity – supporting  37.4%  of  annual  labour  productivity  growth  in  the  UK  economy  over  the  period  1921  to  2013,  which  translates  into  approximately  28.4%  of  annual  GDP  growth –  a  similar  finding to that of other recent national level studies in France and Germany."_
 
-_"One of the first [standards] to be introduced in the UK – the standardization of the number of tram gauge specifications . . . – was put in place to ensure quality of manufacture while removing the unnecessary variety that existed in the tram rail market, which restricted the interoperability of tram networks and resulted in longer lead times for tram rails."_
+_"One of the first [standards] to be introduced in the UK [was] the standardization of the number of tram gauge specifications . . . "_
 
 British Standards Institution, 2015
-
-_"If you want to be more creative, be less productive."_
-
-Neil deGrasse Tyson, 2017
 
 _"And the Lord said, Behold, the people is one, and they have all one language; and this they begin to do: and now nothing will be restrained from them, which they have imagined to do."_
 
 Genesis 11:6
 
-It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers) because all interested parties are in agreement on direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area - after all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _[trolley problem](https://en.wikipedia.org/wiki/Trolley_problem)_.)
+It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers), because all interested parties are in agreement on direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area. After all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _[trolley problem](https://en.wikipedia.org/wiki/Trolley_problem)_.)
 
-Similarly, on the way to delivering a software solution the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, and creating operating systems, libraries, services, and applications the number of participants increases with each level of abstraction. Consequently, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound, while the original research _should_ play a less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted the more support it will receive from the community and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important because the gains in effort are multiplied by the number of participants.
+Neil deGrasse Tyson said once, "If you want to be more creative, be less productive." On the way to delivering a software solution, the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, and creating operating systems, libraries, services, and applications, the number of participants increases with each level of abstraction. Consequently, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound. At the same time, the original research _should_ play a less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted, the more support it will receive from the community, and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important, because the gains in effort are multiplied by the number of participants.
 
-Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then (follow me closely here) that standard should be employed. The least amount of creativity should be _required_ from the consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, there is developer pride and other more pragmatic concerns that lead to competing standards, which complicate things:
+Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then, that standard should be employed. The least amount of creativity should be _required_ from the consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, there is developer pride and other more pragmatic concerns that may lead to competing standards:
 
 ![how standards proliferate](README_files/standards.more.better.png)
 
-In the context of REST API protection, however, there seems to be a clear leader: the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) authorization framework with extensions galore*. In this document we will leverage terminology defined in OAuth 2.0 protocol and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the current best practices for building native OAuth 2.0 clients, that is, applications running on the end-user's (mobile) device.
+In the context of REST API protection, however, there seems to be a clear leader&mdash;the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) authorization framework with extensions galore*. In this document we will leverage terminology defined in OAuth 2.0 protocol and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the current best practices for building native OAuth 2.0 clients; that is, applications running on the end-user's (mobile) device.
 
-> \* The number of OAuth 2.0 extensions resembles a relatively long branch in the evolutionary tree that has not been trimmed by natural selection. Time will tell whether it remains, produces a new genus, or is surpassed by a competitor and goes extinct, leaving only fossils at tools.ietf.org...
+> \* The number of OAuth 2.0 extensions resembles a relatively long branch in the evolutionary tree that has not been trimmed by natural selection. Time will tell whether it remains, produces a new genus, or is surpassed by a competitor and goes extinct, leaving only fossils at tools.ietf.org.
 
 ## <a id="intro"></a> Introduction
 
