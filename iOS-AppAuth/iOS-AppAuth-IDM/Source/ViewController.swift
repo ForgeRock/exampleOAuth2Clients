@@ -48,7 +48,7 @@ class ViewController: UIViewController {
     /**
      OpenID Connect issuer URL, where the OpenID configuration can be obtained from.
      */
-    let issuerUrl: String = "https://login.sample.forgeops.com/oauth2"
+    let issuerUrl: String = "https://default.iam.example.com/am/oauth2"
 
     // Activity indicator for the splash screen.
     private let activityIndicatorView = UIActivityIndicatorView(style: .whiteLarge)
@@ -114,8 +114,8 @@ extension ViewController {
      */
     func getOIDCProviderConfiguration() -> OIDServiceConfiguration {
         let configuration = OIDServiceConfiguration.init(
-            authorizationEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/authorize")!,
-            tokenEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/access_token")!
+            authorizationEndpoint: URL(string: "https://default.iam.example.com/am/oauth2/authorize")!,
+            tokenEndpoint: URL(string: "https://default.iam.example.com/am/oauth2/access_token")!
         )
 
         return configuration
@@ -225,10 +225,9 @@ extension ViewController {
                 scopes: [
                     OIDScopeOpenID,
                     OIDScopeProfile,
-                    "profile_update",
-                    "consent_read",
-                    "workflow_tasks",
-                    "notifications"
+                    "fr:idm:profile_update",
+                    "fr:idm:consent_read",
+                    "fr:idm:notifications"
                 ]
             ) {
                 authState, error in

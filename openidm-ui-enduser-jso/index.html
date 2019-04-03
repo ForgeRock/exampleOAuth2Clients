@@ -38,8 +38,8 @@
 
 <script>
     var JSO_CLIENT;
-    
-    /* JSO: 
+
+    /* JSO:
         configuring the JSO object for an OpenID Provider (OP) and a Relying Party (RP) and
         saving it in a global variable, accessible throughout the Single-page application
         (ForgeRock Access Management (AM) is the OP and a client registered with AM is the RP);
@@ -49,29 +49,28 @@
         providerID: "forgerock",
         client_id: "openidm-ui-enduser-jso",
         redirect_uri: window.location.origin,
-        authorization: "https://sample.iam.forgeops.com/am/oauth2/authorize",
-        scopes: { 
+        authorization: "https://default.iam.example.com/am/oauth2/authorize",
+        scopes: {
             request: [
                 "openid",
-                "profile",
-                "profile_update",
-                "consent_read",
-                "workflow_tasks",
-                "notifications"
+                "fr:idm:profile",
+                "fr:idm:profile_update",
+                "fr:idm:consent_read",
+                "fr:idm:notifications"
             ]
         },
         debug: true
     });
 
     try {
-        /* JSO: 
+        /* JSO:
             processing response from the OP and,
             if the authentication and the authorization were successful,
             saving the token response in the browser's localStorage
         */
         JSO_CLIENT.callback();
     } catch (e) {
-        /* JSO: 
+        /* JSO:
             handling error returned from the callback function and, optionally, redirecting to an appropriate screen,
             for example: if the resource owner denies access to its resources, the error may look like:
             {

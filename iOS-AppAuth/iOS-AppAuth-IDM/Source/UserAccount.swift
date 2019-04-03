@@ -29,5 +29,5 @@ struct UserAccount {
         let postalCode: String?
     }
 
-    let url = "https://rs.sample.forgeops.com/openidm/managed/user/"
+    let url = "https://default.iam.example.com/openidm/managed/user/"
 }

@@ -4,12 +4,12 @@ var config = {
     client_id: 'node-passport-openidconnect',
     client_secret: 'password',
     callbackURL: '/forgerock/redirect',
-    scope: 'openid profile consent_read workflow_tasks notifications'
+    scope: 'openid fr:idm:profile fr:idm:consent_read fr:idm:notifications'
   }
 };
 
-/* 
-  potentially sensitive values can be overwritten by counterparts from ./client-config.js.ignore, 
+/*
+  potentially sensitive values can be overwritten by counterparts from ./client-config.js.ignore,
   which is not tracked by the repository and can be kept confidential
 */
 var fs = require('fs');

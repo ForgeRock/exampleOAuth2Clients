@@ -478,7 +478,7 @@ This web application was started with the [Express application generator](https:
 
 ### Prerequisites
 
-0. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2).
+0. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops/tree/master/dev).
 
 ### Installing and Running the Application
 
@@ -493,13 +493,13 @@ This web application was started with the [Express application generator](https:
     * Option 1: API requests with cURL
 
       ```bash
-      curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/realm-config/agents/OAuth2Client/node-passport-openidconnect' \
+      curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents/OAuth2Client/node-passport-openidconnect' \
       -X PUT \
       --data '{
           "userpassword": "password",
           "clientType": "Confidential",
           "redirectionUris": ["http://localhost:3000/forgerock/redirect"],
-          "scopes": ["openid", "profile", "consent_read", "workflow_tasks", "notifications"],
+          "scopes": ["openid", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"],
           "responseTypes": ["code"],
           "tokenEndpointAuthMethod": "client_secret_post",
           "isConsentImplied": false,
@@ -508,7 +508,7 @@ This web application was started with the [Express application generator](https:
       -H 'Content-Type: application/json' \
       -H 'Accept: application/json' \
       -H 'Cookie: iPlanetDirectoryPro='$( \
-        curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/authenticate' \
+        curl -k 'https://default.iam.example.com/am/json/realms/root/authenticate' \
         -X POST \
         -H 'X-OpenAM-Username:amadmin' \
         -H 'X-OpenAM-Password:password' \
@@ -525,14 +525,14 @@ This web application was started with the [Express application generator](https:
 
     * Option 2: Use the platform UI
 
-      * Navigate to [AM Console](https://sample.iam.forgeops.com/am/console)
+      * Navigate to [AM Console](https://default.iam.example.com/am/console)
       * Sign in with _`amadmin/password`_
       * Navigate to: _Top Level Realm_ > _Applications_ > _OAuth 2.0_
       * Add new client:
           * "Client ID": "node-passport-openidconnect"
           * "Client secret": "password"
           * "Redirection URIs": ["http://localhost:3000/forgerock/redirect"]
-          * "Scope(s)": ["openid", "profile", "consent_read", "workflow_tasks", "notifications"]
+          * "Scope(s)": ["openid", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"]
       * Update the new client
           * _Core_ > "Client type": "Confidential"
           * _Advanced_ > "Response Types": ["code"]
@@ -553,7 +553,7 @@ This web application was started with the [Express application generator](https:
         client_id: 'node-passport-openidconnect',
         client_secret: 'password',
         callbackURL: '/forgerock/redirect',
-        scope: 'openid profile consent_read workflow_tasks notifications'
+        scope: 'openid fr:idm:profile fr:idm:consent_read fr:idm:notifications'
       }
     };
 
@@ -666,7 +666,7 @@ This web application was started with the [Express application generator](https:
 
     The strategies in this example are populated with hard-coded values. Clients' properties are exported from `client-config.js` files, while the endpoints for each OP are saved in `discovery.json` files. When [supported](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery) by an OP, the discovery content could be obtained dynamically from the [OpenID Provider Configuration Documents](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig), which for the two OPs could be found at:
 
-    * [ForgeRock AM](https://sample.iam.forgeops.com/am/oauth2/.well-known/openid-configuration)
+    * [ForgeRock AM](https://default.iam.example.com/am/oauth2/.well-known/openid-configuration)
     * [Google](https://accounts.google.com/.well-known/openid-configuration)
 
     To implement an additional OP, a separate, similarly organized sub-directory may be introduced in the code base.
