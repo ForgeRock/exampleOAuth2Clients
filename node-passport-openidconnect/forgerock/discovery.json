@@ -1,7 +1,7 @@
 {
-  "issuer": "https://sample.iam.forgeops.com/am/oauth2",
-  "authorization_endpoint": "https://sample.iam.forgeops.com/am/oauth2/authorize",
-  "token_endpoint": "https://sample.iam.forgeops.com/am/oauth2/access_token",
-  "userinfo_endpoint": "https://sample.iam.forgeops.com/am/oauth2/userinfo",
-  "end_session_endpoint": "https://sample.iam.forgeops.com/am/oauth2/connect/endSession"
+  "issuer": "https://default.iam.example.com/am/oauth2",
+  "authorization_endpoint": "https://default.iam.example.com/am/oauth2/authorize",
+  "token_endpoint": "https://default.iam.example.com/am/oauth2/access_token",
+  "userinfo_endpoint": "https://default.iam.example.com/am/oauth2/userinfo",
+  "end_session_endpoint": "https://default.iam.example.com/am/oauth2/connect/endSession"
 }

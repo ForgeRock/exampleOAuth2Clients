@@ -22,7 +22,7 @@ def sessionHandler = SessionHandler.create(store)
 router.route().handler(sessionHandler)
 
 OAuth2ClientOptions opts = new OAuth2ClientOptions([
-    site:"https://sample.iam.forgeops.com/am",
+    site:"https://default.iam.example.com/am",
     clientID: "vertxClient", // replace with your client id
     clientSecret: "vertxClientSecret", // replace with your client secret
     tokenPath:"/oauth2/access_token",
@@ -41,7 +41,7 @@ def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:888
 oauth2Handler.setupCallback(router.get("/callback"))
 
 // scopes we want to request during login
-oauth2Handler.addAuthority("profile")
+oauth2Handler.addAuthority("fr:idm:profile")
 oauth2Handler.addAuthority("openid")
 
 router.route("/protected")
@@ -63,13 +63,13 @@ router.route("/protected")
         // We can use the access_token associated with the user to make
         // requests to any resource server endpoint which is expecting
         // tokens from AM. For example, these IDM endpoints:
-        user.fetch("https://sample.iam.forgeops.com/ig/openidm/info/login", { infoResponse ->
+        user.fetch("https://default.iam.example.com/openidm/info/login", { infoResponse ->
             if (infoResponse.failed()) {
                 routingContext.response().end("Unable to read info login")
             } else {
                 def infoDetails = infoResponse.result().jsonObject()
                 def userPath = "${infoDetails.authorization.component}/${infoDetails.authorization.id}"
-                user.fetch("https://sample.iam.forgeops.com/ig/openidm/${userPath}", { userResponse ->
+                user.fetch("https://default.iam.example.com/openidm/${userPath}", { userResponse ->
                     if (userResponse.failed()) {
                         routingContext.response().end("Unable to read user details")
                     } else {

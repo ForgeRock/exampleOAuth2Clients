@@ -364,8 +364,8 @@ We will build the app in a few implementation steps:
             */
             func getOIDCProviderConfiguration() -> OIDServiceConfiguration {
                 let configuration = OIDServiceConfiguration.init(
-                    authorizationEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/authorize")!,
-                    tokenEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/access_token")!
+                    authorizationEndpoint: URL(string: "https://default.iam.example.com/am/oauth2/authorize")!,
+                    tokenEndpoint: URL(string: "https://default.iam.example.com/am/oauth2/access_token")!
                 )
 
                 return configuration
@@ -796,7 +796,7 @@ We will build the app in a few implementation steps:
             /**
             OpenID Connect issuer URL, where the OpenID configuration can be obtained from.
             */
-            let issuerUrl: String = "https://login.sample.forgeops.com/oauth2"
+            let issuerUrl: String = "https://default.iam.example.com/am/oauth2"
 
             override func viewDidLoad() {
                 super.viewDidLoad()
@@ -1438,15 +1438,11 @@ We will build the app in a few implementation steps:
 
 [Back to top](#top)
 
-The ForgeRock platform provides server ingredients for setting up OAuth 2.0 flows: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) and [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) may serve as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1). The easiest way to see it in action is setting up and running the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development). With this environment in place, you will be able to evaluate a more advanced OAuth 2.0 client for iOS built by following the same principles as the basic application described above and, in fact, having the latter used as the starting point. The complete example could be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM). A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
-
-This example assumes an instance of the ForgeRock platform running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
-
-> Currently, all references are given to the [6.5](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development) release of the ForgeRock platform and the sample code expects the 6.5 version as well.
+The ForgeRock platform provides server ingredients for setting up OAuth 2.0 flows: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) and [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) may serve as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1). The easiest way to see it in action is setting up and running the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops/tree/master/dev). With this environment in place, you will be able to evaluate a more advanced OAuth 2.0 client for iOS built by following the same principles as the basic application described above and, in fact, having the latter used as the starting point. The complete example could be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM). A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development)
+0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops/tree/master/dev)
 
 ### Installing and running the application
 
@@ -1454,7 +1450,7 @@ This example assumes an instance of the ForgeRock platform running locally (i.e.
 
     The platform instance provides access to the authorization and the resource servers only over HTTPS. Running within Minikube, it uses a self-sign certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including a simulator) is installing the development Certificate Authority (CA) root certificate on the device.
 
-    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/release/6.5.1/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). In order to install it, follow the [Enabling TLS in development environment](#simple-https) instructions for the simple app.
+    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). In order to install it, follow the [Enabling TLS in development environment](#simple-https) instructions for the simple app.
 
 0. Register the application as an OAuth 2.0 Client in AM
 
@@ -1463,18 +1459,17 @@ This example assumes an instance of the ForgeRock platform running locally (i.e.
     * Option 1: API requests with cURL
 
         ```bash
-        curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/OAuth2Client/ios-appauth-idm' \
+        curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents/OAuth2Client/ios-appauth-idm' \
         -X PUT \
         --data '{
             "clientType": "Public",
             "redirectionUris": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"],
             "scopes": [
                 "openid",
-                "profile",
-                "profile_update",
-                "consent_read",
-                "workflow_tasks",
-                "notifications"
+                "fr:idm:profile",
+                "fr:idm:profile_update",
+                "fr:idm:consent_read",
+                "fr:idm:notifications"
             ],
             "tokenEndpointAuthMethod": "client_secret_post",
             "isConsentImplied": true,
@@ -1486,7 +1481,7 @@ This example assumes an instance of the ForgeRock platform running locally (i.e.
         -H 'Content-Type: application/json' \
         -H 'Accept: application/json' \
         -H 'Cookie: iPlanetDirectoryPro='$( \
-            curl -k -s https://login.sample.forgeops.com/json/realms/root/authenticate \
+            curl -k -s https://default.iam.example.com/am/json/realms/root/authenticate \
             -X POST \
             -H 'X-OpenAm-Username:amadmin' \
             -H 'X-OpenAm-Password:password' \
@@ -1500,13 +1495,13 @@ This example assumes an instance of the ForgeRock platform running locally (i.e.
 
     * Option 2: Utilizing the platform sample UI
 
-        * Navigate to [AM Console](https://login.sample.forgeops.com/console)
+        * Navigate to [AM Console](https://default.iam.example.com/am/console)
         * Sign in with *`amadmin/password`*
         * Navigate to: *Top Level Realm* > *Applications* > *OAuth 2.0*
         * Add new client
             * "Client ID": "ios-appauth-idm"
             * "Redirection URIs": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"]
-            * "Scope(s)": ["openid","profile","profile_update","consent_read","workflow_tasks","notifications"]
+            * "Scope(s)": ["openid","fr:idm:profile","fr:idm:profile_update","fr:idm:consent_read","fr:idm:notifications"]
         * Update the new client
             * *Core* > "Client type": "Public"
             * *Advanced* > "Implied consent": "enabled"

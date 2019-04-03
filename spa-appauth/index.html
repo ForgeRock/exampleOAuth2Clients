@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AppAuth Client</title>
+    <style>
+    #userDetails {
+        display:block;
+        width:600px;
+        height:400px;
+        background-color:lightgray;
+        font-family: monospace;
+        white-space: pre;
+        padding: 10px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="userDetails"></div>
+    <a href='#' onclick='AppAuthHelper.logout().then(() => location.reload())'>Logout</a>
+</body>
+
+<script src="node_modules/oidcsessioncheck/sessionCheckGlobal.js"></script>
+<script src="node_modules/appauthhelper/appAuthHelperBundle.js"></script>
+
+<script>
+(function () {
+    var commonSettings = {
+        clientId: "appAuthClient",
+        authorizationEndpoint: "https://default.iam.example.com/am/oauth2/authorize"
+    };
+
+    var sessionCheck = null;
+
+    AppAuthHelper.init({
+        clientId: commonSettings.clientId,
+        authorizationEndpoint: commonSettings.authorizationEndpoint,
+        tokenEndpoint: "https://default.iam.example.com/am/oauth2/access_token",
+        revocationEndpoint: "https://default.iam.example.com/am/oauth2/token/revoke",
+        endSessionEndpoint: "https://default.iam.example.com/am/oauth2/connect/endSession",
+        resourceServers: {
+            "https://default.iam.example.com/am/oauth2/userinfo": "profile",
+            "https://default.iam.example.com/openidm": "openid"
+        },
+        tokensAvailableHandler: function (claims) {
+            // this function is called every time the tokens are either
+            // originally obtained or renewed
+            if (!sessionCheck) {
+                sessionCheck = new SessionCheck({
+                    clientId: commonSettings.clientId,
+                    opUrl: commonSettings.authorizationEndpoint,
+                    subject: claims.sub,
+                    invalidSessionHandler: function () {
+                        AppAuthHelper.logout().then(function () {
+                            window.location.href = "";
+                        });
+                    },
+                    cooldownPeriod: 5
+                });
+                // check the validity of the session immediately
+                sessionCheck.triggerSessionCheck();
+
+                // check every minute
+                setInterval(function () {
+                    sessionCheck.triggerSessionCheck();
+                }, 60000);
+                // check with every captured event
+                document.addEventListener("click", function () {
+                    sessionCheck.triggerSessionCheck();
+                });
+                document.addEventListener("keypress", function () {
+                    sessionCheck.triggerSessionCheck();
+                });
+
+                // load the main SPA app
+                var mainScript = document.createElement("script");
+                mainScript.setAttribute("src", "app.js");
+                document.getElementsByTagName("body")[0].appendChild(mainScript);
+            }
+        }
+    });
+    // In this application, we want tokens immediately, before any user interaction is attempted
+    AppAuthHelper.getTokens();
+}());
+</script>
+</html>

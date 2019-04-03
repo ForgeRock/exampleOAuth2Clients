@@ -154,7 +154,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
 ### Prerequisites
 
-0. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2)
+0. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops/tree/master/dev)
 
 ### Installing and Running the Application
 
@@ -169,18 +169,17 @@ The following illustrates how an SPA application can employ the Implicit flow ag
     * Option 1: API requests with cURL
 
         ```bash
-        curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/realm-config/agents/OAuth2Client/openidm-ui-enduser-jso' \
+        curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents/OAuth2Client/openidm-ui-enduser-jso' \
         -X PUT \
         --data '{
             "clientType": "Public",
             "redirectionUris": ["http://localhost:8888"],
             "scopes": [
                 "openid",
-                "profile",
-                "profile_update",
-                "consent_read",
-                "workflow_tasks",
-                "notifications"
+                "fr:idm:profile",
+                "fr:idm:profile_update",
+                "fr:idm:consent_read",
+                "fr:idm:notifications"
             ],
             "isConsentImplied": false,
             "postLogoutRedirectUri": ["http://localhost:8888"],
@@ -189,7 +188,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             -H 'Content-Type: application/json' \
             -H 'Accept: application/json' \
             -H 'Cookie: iPlanetDirectoryPro='$( \
-                curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/authenticate' \
+                curl -k 'https://default.iam.example.com/am/json/realms/root/authenticate' \
                 -X POST \
                 -H 'X-OpenAM-Username:amadmin' \
                 -H 'X-OpenAM-Password:password' | sed -e 's/^.*"tokenId":"\([^"]*\).*$/\1/' \
@@ -205,13 +204,13 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
     * Option 2: Using the platform UI
 
-        * Navigate to [AM Console](https://sample.iam.forgeops.com/am/console)
+        * Navigate to [AM Console](https://default.iam.example.com/am/console)
         * Sign in with *`amadmin/password`*
         * Navigate to: *Top Level Realm* > *Applications* > *OAuth 2.0*
         * Add new client
             * "Client ID": "openidm-ui-enduser-jso"
             * "Redirection URIs": ["http://localhost:8888"]
-            * "Scope(s)": ["openid", "profile", "profile_update", "consent_read", "workflow_tasks", "notifications"]
+            * "Scope(s)": ["openid", "fr:idm:profile", "fr:idm:profile_update", "fr:idm:consent_read", "fr:idm:notifications"]
         * Update the new client
             * *Core* > "Client type": "Public"
             * *Advanced* > "Implied consent": "disabled"
@@ -247,7 +246,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
     You should be able now to visit the sample application at [http://localhost:8888](http://localhost:8888). The home page will attempt to initiate the implicit flow with AM.
 
-    Note that you may need to respond to the invalid certificate warning on AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. You may also need to visit the resource server site, currently at `https://sample.iam.forgeops.com/ig`, and proceed to accept another untrusted certificate - to enable XHRs perfromed by the UI. If the latter URL is not reachable, find one glowing red in the browser's network traffic after signing in the application.
+    Note that you may need to respond to the invalid certificate warning on AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. You may also need to visit the resource server site, currently at `https://default.iam.example.com`, and proceed to accept another untrusted certificate - to enable XHRs perfromed by the UI. If the latter URL is not reachable, find one glowing red in the browser's network traffic after signing in the application.
 
     [index.html](index.html)
     ```html
@@ -272,15 +271,14 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             providerID: "forgerock",
             client_id: "openidm-ui-enduser-jso",
             redirect_uri: window.location.origin,
-            authorization: "https://sample.iam.forgeops.com/am/oauth2/authorize",
+            authorization: "https://default.iam.example.com/am/oauth2/authorize",
             scopes: {
                 request: [
                     "openid",
-                    "profile",
-                    "profile_update",
-                    "consent_read",
-                    "workflow_tasks",
-                    "notifications"
+                    "fr:idm:profile",
+                    "fr:idm:profile_update",
+                    "fr:idm:consent_read",
+                    "fr:idm:notifications"
                 ]
             },
             debug: true
@@ -363,7 +361,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
             jso_client = new jso.JSO({
                 providerID: "forgerock",
                 client_id: "openidm-ui-enduser-jso",
-                authorization: "https://sample.iam.forgeops.com/am/oauth2/authorize",
+                authorization: "https://default.iam.example.com/am/oauth2/authorize",
                 debug: true
             });
 
@@ -381,7 +379,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
                     thus ending the user's session in AM and returning to the redirection URI
                 */
 
-                end_session_endpoint = 'https://sample.iam.forgeops.com/am/oauth2/connect/endSession'
+                end_session_endpoint = 'https://default.iam.example.com/am/oauth2/connect/endSession'
                 + '?post_logout_redirect_uri=' + end_session_endpoint
                 + '&id_token_hint=' + jso_token.id_token;
             }

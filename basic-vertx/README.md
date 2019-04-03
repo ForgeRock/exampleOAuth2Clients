@@ -12,7 +12,7 @@ This is the core configuration that you will need to specify to match your use:
 
 ```groovy
 def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.AUTH_CODE, [
-    site:"https://sample.iam.forgeops.com/am",
+    site:"https://default.iam.example.com/am",
     clientID: "vertxClient", // replace with your client id
     clientSecret: "vertxClientSecret", // replace with your client secret
     tokenPath:"/oauth2/access_token",
@@ -27,7 +27,7 @@ def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:888
 oauth2Handler.setupCallback(router.get("/callback"))
 
 // scopes we want to request during login
-oauth2Handler.addAuthority("profile")
+oauth2Handler.addAuthority("fr:idm:profile")
 oauth2Handler.addAuthority("openid")
 ```
 
@@ -53,13 +53,13 @@ router.route("/protected")
         // We can use the access_token associated with the user to make
         // requests to any resource server endpoint which is expecting
         // tokens from AM. For example, these IDM endpoints:
-        user.fetch("https://sample.iam.forgeops.com/ig/openidm/info/login", { infoResponse ->
+        user.fetch("`https://default.iam.example.com`/openidm/info/login", { infoResponse ->
             if (infoResponse.failed()) {
                 routingContext.response().end("Unable to read info login")
             } else {
                 def infoDetails = infoResponse.result().jsonObject()
                 def userPath = "${infoDetails.authorization.component}/${infoDetails.authorization.id}"
-                user.fetch("https://sample.iam.forgeops.com/ig/openidm/${userPath}", { userResponse ->
+                user.fetch("https://default.iam.example.com/openidm/${userPath}", { userResponse ->
                     if (userResponse.failed()) {
                         routingContext.response().end("Unable to read user details")
                     } else {
@@ -78,23 +78,23 @@ The [app.groovy](src/app.groovy) code has the full context of these two snippets
 
 ### Prerequisites
 
-1. Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2).
+1. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops/tree/master/dev).
 
 2. Register *vertxClient* application with AM as a new OAuth2 Client:
 
 ```bash
-curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/realm-config/agents/OAuth2Client/vertxClient' \
+curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents/OAuth2Client/vertxClient' \
 -X PUT \
 --data '{
     "userpassword": "vertxClientSecret",
     "redirectionUris": ["http://localhost:8888/callback"],
-    "scopes": ["openid","profile"],
+    "scopes": ["openid","fr:idm:profile"],
     "tokenEndpointAuthMethod": "client_secret_post"
 }' \
 -H 'Content-Type: application/json' \
 -H 'Accept: application/json' \
 -H 'Cookie: iPlanetDirectoryPro='$( \
-    curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/authenticate' \
+    curl -k 'https://default.iam.example.com/am/json/realms/root/authenticate' \
     -X POST \
     -H 'X-OpenAM-Username:amadmin' \
     -H 'X-OpenAM-Password:password' \
@@ -108,7 +108,7 @@ The following extract shows some key fields:
 ```
 
 Alternatively you can add *vertxClient* manually, using the platform UI.
-Browse to the [AM Console](https://sample.iam.forgeops.com/am/console) and use these hints:
+Browse to the [AM Console](https://default.iam.example.com/am/console) and use these hints:
 
 * Sign in with *amadmin/password*
 * Navigate to *Top Level Realm* > *Applications* > *OAuth 2.0*
