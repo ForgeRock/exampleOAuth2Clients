@@ -24,5 +24,5 @@ struct UserLogin {
         let authorization: Authorization?
     }
 
-    let url = "https://sample.iam.forgeops.com/ig/openidm/info/login"
+    let url = "https://rs.sample.forgeops.com/openidm/info/login"
 }

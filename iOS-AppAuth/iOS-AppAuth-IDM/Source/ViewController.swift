@@ -48,7 +48,7 @@ class ViewController: UIViewController {
     /**
      OpenID Connect issuer URL, where the OpenID configuration can be obtained from.
      */
-    let issuerUrl: String = "https://sample.iam.forgeops.com/am/oauth2"
+    let issuerUrl: String = "https://login.sample.forgeops.com/oauth2"
 
     // Activity indicator for the splash screen.
     private let activityIndicatorView = UIActivityIndicatorView(style: .whiteLarge)
@@ -114,8 +114,8 @@ extension ViewController {
      */
     func getOIDCProviderConfiguration() -> OIDServiceConfiguration {
         let configuration = OIDServiceConfiguration.init(
-            authorizationEndpoint: URL(string: "https://sample.iam.forgeops.com/am/oauth2/authorize")!,
-            tokenEndpoint: URL(string: "https://sample.iam.forgeops.com/am/oauth2/access_token")!
+            authorizationEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/authorize")!,
+            tokenEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/access_token")!
         )
 
         return configuration
@@ -627,8 +627,8 @@ extension ViewController {
             if let sampleUrl = self.authState?.lastAuthorizationResponse.request.configuration.discoveryDocument?.userinfoEndpoint?.absoluteString {
                 sampleUrls.append(sampleUrl)
             }
-            sampleUrls.append("https://sample.iam.forgeops.com/ig/openidm/config/ui/dashboard")
-            sampleUrls.append("https://sample.iam.forgeops.com/ig/openidm/info/login")
+            sampleUrls.append("https://rs.sample.forgeops.com/openidm/config/ui/dashboard")
+            sampleUrls.append("https://rs.sample.forgeops.com/openidm/info/login")
 
             tabBarController.viewControllers?.forEach {navigationController in
                 let nv = navigationController as? UINavigationController

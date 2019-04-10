@@ -1,19 +1,44 @@
-# <a id="top"></a>OAuth 2.0 Authorization Code Grant protected by PKCE for an iOS App with the AppAuth SDK
-
-The language used in this document leverages terminology defined in the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) extension for the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) authorization framework.
+# <a id="top"></a>Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK in iOS apps
 
 ## Contents
 
+* [Preface](#preface)
 * [Introduction](#intro)
 * [Building a simple app with Swift and AppAuth](#simple)
 * [ForgeRock example](#full)
 * [Conclusion](#conclusion)
 
+## <a id="preface"></a> Preface: A note about standards
+
+[Back to top](#top)
+
+_"The   analysis   found   a   positive   and   significant   contribution   of   standards   to   productivity – supporting  37.4%  of  annual  labour  productivity  growth  in  the  UK  economy  over  the  period  1921  to  2013,  which  translates  into  approximately  28.4%  of  annual  GDP  growth –  a  similar  finding to that of other recent national level studies in France and Germany."_
+
+_"One of the first [standards] to be introduced in the UK [was] the standardization of the number of tram gauge specifications . . . "_
+
+British Standards Institution, 2015
+
+_"And the Lord said, Behold, the people is one, and they have all one language; and this they begin to do: and now nothing will be restrained from them, which they have imagined to do."_
+
+Genesis 11:6 (KJV)
+
+It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers), because all interested parties are in agreement on direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area. After all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _trolley problem_.)
+
+Neil deGrasse Tyson said once, "If you want to be more creative, be less productive." On the way to delivering a software solution, the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, and creating operating systems, libraries, services, and applications, the number of participants increases with each level of abstraction. Consequently, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound. At the same time, the original research _should_ play a less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted, the more support it will receive from the community, and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important, because the gains in effort are multiplied by the number of participants.
+
+Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then, that standard should be employed. The least amount of creativity should be _required_ from the consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, there is developer pride and other more pragmatic concerns that may lead to competing standards:
+
+![how standards proliferate](https://imgs.xkcd.com/comics/standards.png)
+
+In the context of REST API protection, however, there seems to be a clear leader: the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) authorization framework with extensions galore*. In this document we will leverage terminology defined in OAuth 2.0 and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the current best practices for building native OAuth 2.0 clients—that is, applications running on the end-user's (mobile) device.
+
+> \* The ever-present OAuth 2.0 implementations resemble a branch in the evolutionary tree, with the protocol extensions forming homologous structures on top of the common ancestor—RFC 6749. Time will tell whether the whole family lives or is surpassed by a competitor and goes extinct, leaving only fossils at tools.ietf.org.
+
 ## <a id="intro"></a> Introduction
 
 [Back to top](#top)
 
-Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [RFC8252](https://tools.ietf.org/html/rfc8252) and provide following key points:
+Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [RFC 8252](https://tools.ietf.org/html/rfc8252) and provide following key points:
 
 1. OAuth 2.0 authorization requests from native apps should only be made through external user-agents (as opposed to embedded user-agents, like "web views"), typically the system browser or its programmatic instantiation called the "in-app browser tab".
 
@@ -33,17 +58,17 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
    Using PKCE by itself does not cover a peculiar case of a malicious client _initiating_ the authorization code grant with its own `code_challenge` from the same device where a legitimate app exists and the resource owner is already authenticated, [impersonating](https://tools.ietf.org/html/rfc8252#section-8.6) the legitimate app.
 
-   In this case the end-user should be called for interaction prior to completing the authorization request. This can be achieved by requiring a consent screen. For example, the authorization server may ask the user to authorize the client for accessing certain predefined `scopes` associated with the client's account.
+   In this case the end-user should be called for interaction prior to completing the authorization request. This can be achieved by requiring a consent screen. For example, the authorization server may ask the user to authorize the client for accessing certain predefined [scopes](https://tools.ietf.org/html/rfc6749#section-3.3) associated with the client's account.
 
    ### The "first-party" apps
 
-   Often, mobile applications are developed by the same business entity as the one they consume resources from. These apps may be described as "first-party" clients. In the context of a "first-party" application the consent screen may seem redundant and distracting. One way to make it unnecessary is authenticating the client to the authorization server. A client _may_ be identified by employing the [Claimed "https" Scheme URI Redirection](https://tools.ietf.org/html/rfc8252#section-7.2), which in Apple's case is called [Universal Links](https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/enabling_universal_links). With the client identity confirmed no explicit consent dialog may be required from the authorization server.
+   Often, mobile applications are developed by the same business entity as the one they consume resources from. These apps may be described as first-party clients. In the context of a first-party application the consent screen may seem redundant and distracting. One way to make it unnecessary is authenticating the client to the authorization server. A client _may_ be identified by employing the [Claimed "https" Scheme URI Redirection](https://tools.ietf.org/html/rfc8252#section-7.2), which in Apple's case is called [Universal Links](https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/enabling_universal_links). With the client identity confirmed no explicit consent dialog may be required from the authorization server.
 
    Apple, however, does not seem to allow switching between apps without user consent. As a result, an external browser cannot be used by an application without user interaction. In addition, there are currently reports ([example](http://www.openradar.appspot.com/19944416)) that App Store rejects apps using mobile Safari for redirection flows:
 
    > We noticed an issue in your app that contributes to a lower quality user experience than Apple users expect . . . Upon launching the app, a web page in mobile Safari opens for logging in . . . , then returns the user to the app. The user should be able to log in without opening Safari first.
 
-   This means that in iOS one is to use designated "in-app browser tab" classes for visiting the authorization server endpoints:
+   This means that one is to use designated "in-app browser tab" classes for visiting the authorization server endpoints in iOS:
 
    * [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession) (iOS 12.0+)
    * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
@@ -51,15 +76,15 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
     The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, will _automatically_ present a dialog asking the end-user to give explicit consent to access the website’s data (and the existing login information) in Safari every time the authentication endpoint is visited. This makes the consent screen unavoidable in the current implementation of the authentication classes. On the other hand, this provides consistent user experience when consent is needed, for example, to prevent client impersonation when a private-use URI scheme is employed.
 
-    `SFSafariViewController` can be used in iOS 9.0 and above and does not ask for user consent. It shares cookies and other website data with Safari in iOS 9 and 10, thus allowing for client impersonation in those environments if no custom consent screen is present.
+    `SFSafariViewController` can be used in iOS 9.0 and above and does not ask for user consent. It shares cookies and other website data with Safari in iOS 9 and 10, thus allowing for client impersonation in those environments if no consent screen is presented by the authorization server.
 
     > [According to Apple](https://developer.apple.com/support/app-store/), less than ten percent of all devices are using iOS below version 11.
 
     #### The single sign on (SSO) experience
 
-    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12 do not share session (i.e. transient) cookies with their other instances or mobile Safari. In that case, one needs to use persistent cookies in order to implement SSO with the classes in a compliant with `RFC8252` way. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars. On the other hand, if no SSO is needed this sharing cookies policy seems to be covering the client impersonation case when session cookies are used for the end-user authentication in iOS 11 and 12.
+    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12 do not share session (i.e. transient) cookies with their other instances or mobile Safari. In that case, one needs to use persistent cookies in order to implement SSO with the classes in a compliant with RFC 8252 way. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars. On the other hand, if no SSO is needed this sharing cookies policy seems to be covering the client impersonation case when session cookies are used for the end-user authentication in iOS 11 and 12.
 
-The included example iOS applications play the role of an [OpenID Connect](https://openid.net/connect/) (OIDC) [Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) and use the [AppAuth-iOS SDK](https://github.com/openid/AppAuth-iOS) for authorizing the RP against an [OIDC Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The AppAuth SDK follows the best practices described in `RFC8252` by extending the OAuth 2.0 protocol with PKCE and employing an external user agent for visiting the OP's authentication and authorization endpoints. Access tokens obtained during the authorization process are then included as [Bearer Token](https://tools.ietf.org/html/rfc6750) value of the `Authorization` header in requests made to protected endpoints on a [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
+The included example iOS applications play the role of an [OpenID Connect](https://openid.net/connect/) (OIDC) [Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) and use the [AppAuth-iOS SDK](https://github.com/openid/AppAuth-iOS) for authorizing the RP against an [OIDC Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The AppAuth SDK follows the best practices described in RFC 8252 by extending the OAuth 2.0 protocol with PKCE and employing an external user agent for visiting the OP's authentication and authorization endpoints. Access tokens obtained during the authorization process are then included as [Bearer Token](https://tools.ietf.org/html/rfc6750) value of the `Authorization` header in requests made to protected endpoints on a [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
 
 ***
 
@@ -71,7 +96,7 @@ The purpose of this exercise is to build from scratch (step-by-step, each of whi
 
 > The URIs and the private-use scheme used below serve demonstrational purposes; feel free to replace them with your own OP and RP specifics.
 
-> The completed Xcode project is a part of this repo, is located under `/iOS-AppAuth/iOS-AppAuth-Basic`, and could be used as a quick reference. A [short video](https://forgerock.wistia.com/medias/r7yn6bpfle) demonstrates the final result.
+> The completed Xcode project can be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-Basic](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-Basic) and could be used as a quick reference. A [short video](https://forgerock.wistia.com/medias/r7yn6bpfle) demonstrates the final result.
 
 We will build the app in a few implementation steps:
 
@@ -91,6 +116,8 @@ We will build the app in a few implementation steps:
     To install a CA root certificate on an iOS device simulator, for example, drag and drop the certificate file on a (preferably `Settings`) screen, follow the installation prompt, and, on a more recent version of iOS, enable the certificate in `General` > `About` > `Certificate Trust Settings`. It may take more than one attempt to engage the installation process. In that case don't get discouraged and keep trying; eventually the simulator will cooperate.
 
     > A [short video](https://forgerock.wistia.com/medias/1wft6023jm) shows the installation flow on an iOS 12.1 simulator.
+
+    > On the latest iOS simulator, 12.2 at the time of writing, you may need to manually open `Settings` > `General` > `Profile` > _`your-CA-certificate`_ to install the certificate after it has been downloaded. You will still need to enable it in `General` > `About` > `Certificate Trust Settings`.
 
 0. <a id="simple-op"></a>Collecting information about the OP
 
@@ -117,6 +144,8 @@ We will build the app in a few implementation steps:
     * _client_id_
     * _redirect_uri_
     * _scope_: the scopes available for this client (to choose from when sending the authorization request)
+
+    In this example, the application code will only request `openid` and `profile` scopes.
 
     Means to obtain the RP registration details are specific to the OP and not covered here. For example, you can consult the [Registering OAuth 2.0 Clients With the Authorization Service](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) guide on creating and obtaining client credentials and scopes for an RP registered with ForgeRock Access Management.
 
@@ -336,8 +365,8 @@ We will build the app in a few implementation steps:
             */
             func getOIDCProviderConfiguration() -> OIDServiceConfiguration {
                 let configuration = OIDServiceConfiguration.init(
-                    authorizationEndpoint: URL(string: "https://sample.iam.forgeops.com/am/oauth2/authorize")!,
-                    tokenEndpoint: URL(string: "https://sample.iam.forgeops.com/am/oauth2/access_token")!
+                    authorizationEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/authorize")!,
+                    tokenEndpoint: URL(string: "https://login.sample.forgeops.com/oauth2/access_token")!
                 )
 
                 return configuration
@@ -759,7 +788,7 @@ We will build the app in a few implementation steps:
             /**
             OpenID Connect issuer URL, where the OpenID configuration can be obtained from.
             */
-            let issuerUrl: String = "https://sample.iam.forgeops.com/am/oauth2"
+            let issuerUrl: String = "https://login.sample.forgeops.com/oauth2"
 
             override func viewDidLoad() {
                 super.viewDidLoad()
@@ -1378,13 +1407,15 @@ We will build the app in a few implementation steps:
 
 [Back to top](#top)
 
-The ForgeRock example is located under `/iOS-AppAuth/iOS-AppAuth-IDM`. A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
+The ForgeRock platform provides server ingredients for setting up OAuth 2.0 flows: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) and [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) may serve as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1). The easiest way to see it in action is setting up and running the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development). With this environment in place, you will be able to evaluate a more advanced iOS OAuth 2.0 client built by following the same principles as the basic application described above and, in fact, having the latter used as the starting point. The complete example could be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM). A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
 
-In this example [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) serves as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS). The example assumes an instance of the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development) running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
+This example assumes an instance of the ForgeRock platform running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
+
+> Currently, all references are given to the [6.5](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development) release of the ForgeRock platform and the sample code expects the 6.5 version as well.
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops-init/tree/master/7.0/oauth2/development)
+0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development)
 
 ### Installing and running the application
 
@@ -1392,7 +1423,7 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
 
     The platform instance provides access to the authorization and the resource servers only over HTTPS. Running within Minikube, it uses a self-sign certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including a simulator) is installing the development Certificate Authority (CA) root certificate on the device.
 
-    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). In order to install it, follow the [Enabling TLS in development environment](#simple-https) instructions for the simple app.
+    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/release/6.5.1/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). In order to install it, follow the [Enabling TLS in development environment](#simple-https) instructions for the simple app.
 
 0. Register the application as an OAuth 2.0 Client in AM
 
@@ -1401,7 +1432,7 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
     * Option 1: API requests with cURL
 
         ```bash
-        curl -k 'https://sample.iam.forgeops.com/am/json/realms/root/realm-config/agents/OAuth2Client/ios-appauth-idm' \
+        curl -k 'https://login.sample.forgeops.com/json/realms/root/realm-config/agents/OAuth2Client/ios-appauth-idm' \
         -X PUT \
         --data '{
             "clientType": "Public",
@@ -1424,7 +1455,7 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
         -H 'Content-Type: application/json' \
         -H 'Accept: application/json' \
         -H 'Cookie: iPlanetDirectoryPro='$( \
-            curl -k -s https://sample.iam.forgeops.com/am/json/realms/root/authenticate \
+            curl -k -s https://login.sample.forgeops.com/json/realms/root/authenticate \
             -X POST \
             -H 'X-OpenAm-Username:amadmin' \
             -H 'X-OpenAm-Password:password' \
@@ -1438,7 +1469,7 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
 
     * Option 2: Utilizing the platform sample UI
 
-        * Navigate to [AM Console](https://sample.iam.forgeops.com/am/console)
+        * Navigate to [AM Console](https://login.sample.forgeops.com/console)
         * Sign in with *`amadmin/password`*
         * Navigate to: *Top Level Realm* > *Applications* > *OAuth 2.0*
         * Add new client
@@ -1475,4 +1506,6 @@ For a newly created platform user, the notifications data  will not be populated
 
 ## <a id="conclusion"></a>Conclusion
 
-Both example apps referred here follow the best practices described in RFC8252 and rely on their implementation in the AppAuth SDK. The RFC is concerned with security issues existing in "third-party" applications that cannot be trusted by the end-user. Addressing these concerns comes with limitations in the iOS environment: a mandatory end-user consent dialog and extra steps that may be required for implementing a single sign on experience. Nevertheless, with the AppAuth SDK we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API.
+[Back to top](#top)
+
+Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth SDK. The RFC is concerned with security issues existing in "third-party" applications that cannot be trusted by the end-user. Addressing these concerns comes with limitations in the iOS environment: a mandatory end-user consent dialog and extra steps that may be required for implementing a single sign on experience. Nevertheless, with the AppAuth SDK we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
