@@ -62,25 +62,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 }
-
-// MARK: Shared
-
-extension AppDelegate {
-    /**
-     Creates a shared reference accessible from modules across the app.
-     */
-    static var shared: AppDelegate {
-        return UIApplication.shared.delegate as! AppDelegate
-    }
-
-    /**
-     Creates a reference to the root controller for sharing functionality.
-     */
-    var rootViewController: ViewController {
-        let navigationController: UINavigationController = window?.rootViewController as! UINavigationController
-
-        let viewController = navigationController.viewControllers.first as! ViewController
-
-        return viewController
-    }
-}

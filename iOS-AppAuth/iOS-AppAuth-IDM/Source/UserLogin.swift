@@ -25,5 +25,4 @@ struct UserLogin {
     }
 
     let url = "https://rs.sample.forgeops.com/openidm/info/login"
-    var data: Response? = nil
 }

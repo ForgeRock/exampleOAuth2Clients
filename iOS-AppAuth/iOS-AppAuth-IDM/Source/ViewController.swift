@@ -53,16 +53,11 @@ class ViewController: UIViewController {
     // Activity indicator for the splash screen.
     private let activityIndicatorView = UIActivityIndicatorView(style: .whiteLarge)
 
-    // Instantiating class for holding user data.
-    let user = User()
-
     // MARK: View Controller events
 
     // Responding to the view controller events.
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        validateUriScheme()
 
         // Displaying activity indicator while loading.
 
@@ -154,7 +149,7 @@ extension ViewController {
     /**
      Performs the authorization code flow.
 
-     Attempts to perform a request to authorization endpoint by utilizing an AppAuth convinience method.
+     Attempts to perform a request to authorization endpoint by utilizing an AppAuth convenience method.
      Completes authorization code flow with automatic code exchange.
      The response is handled then with the passed in escaping callback allowing the caller to handle the results.
      */
@@ -172,7 +167,7 @@ extension ViewController {
             return
         }
 
-        // Checking if the AppDelegate property holding the authorization session could be accessed
+        // Checking if the AppDelegate property that holds the authorization session could be accessed.
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             customPrint("Error accessing AppDelegate")
 
@@ -206,6 +201,8 @@ extension ViewController {
      - Parameter configuration: Ready to go OIDServiceConfiguration object populated with the OP's endpoints
      */
     func authorizeRp(issuerUrl: String?, configuration: OIDServiceConfiguration?) {
+        activityIndicatorView.startAnimating()
+
         /**
          Performs authorization with an OIDC Provider configuration.
 
@@ -409,24 +406,26 @@ extension ViewController {
      - Parameter urlRequest: URLRequest optionally crafted with additional information, which may include access token.
      - Parameter completion: Escaping completion handler allowing the caller to process the response.
      */
-    func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse) -> Void) {
+    func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse?, Error?, URLRequest) -> Void) {
         let task = URLSession.shared.dataTask(with: urlRequest) {data, response, error in
             DispatchQueue.main.async {
-                guard error == nil else {
+                if error != nil {
                     // Handling transport error
                     self.customPrint("HTTP request failed \(error?.localizedDescription ?? "")")
 
-                    return
+                    // return
                 }
 
-                guard let response = response as? HTTPURLResponse else {
+                let response = response as? HTTPURLResponse
+
+                if response == nil {
                     // Expecting HTTP response
                     self.customPrint("Non-HTTP response")
 
-                    return
+                    // return
                 }
 
-                completion(data, response)
+                completion(data, response, error, urlRequest)
             }
         }
 
@@ -439,7 +438,7 @@ extension ViewController {
      - Parameter urlRequest: URLRequest with pre-defined URL, method, etc.
      - Parameter completion: Escaping completion handler allowing the caller to process the response.
      */
-    func makeUrlRequestToProtectedResource(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse) -> Void) {
+    func makeUrlRequestToProtectedResource(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse?, Error?, URLRequest) -> Void) {
         let currentAccessToken: String? = self.authState?.lastTokenResponse?.accessToken
 
         // Validating and refreshing tokens
@@ -471,14 +470,14 @@ extension ViewController {
             requestHeaders["Authorization"] = "Bearer \(accessToken)"
             urlRequest.allHTTPHeaderFields = requestHeaders
 
-            self.sendUrlRequest(urlRequest: urlRequest) {data, response in
+            self.sendUrlRequest(urlRequest: urlRequest) {data, response, error, request in
                 guard let data = data, data.count > 0 else {
                     self.customPrint("HTTP response data is empty.")
 
                     return
                 }
 
-                if response.statusCode != 200 {
+                if let response = response, response.statusCode != 200 {
                     // Server replied with an error
                     let responseText: String? = String(data: data, encoding: String.Encoding.utf8)
 
@@ -508,7 +507,7 @@ extension ViewController {
                     }
                 }
 
-                completion(data, response)
+                completion(data, response, error, request)
             }
         }
     }
@@ -523,7 +522,7 @@ extension ViewController {
         method: String = "GET",
         body: Data? = nil,
         protected: Bool = false,
-        completion: @escaping (Data?, HTTPURLResponse?)
+        completion: @escaping (Data?, HTTPURLResponse?, Error?, URLRequest)
         -> Void
         ) {
         guard let url = URL(string: url) else {
@@ -549,12 +548,12 @@ extension ViewController {
         }
 
         if protected {
-            makeUrlRequestToProtectedResource(urlRequest: urlRequest) {data, response in
-                completion(data, response)
+            makeUrlRequestToProtectedResource(urlRequest: urlRequest) {data, response, error, request in
+                completion(data, response, error, request)
             }
         } else {
-            sendUrlRequest(urlRequest: urlRequest) {data, response in
-                completion(data, response)
+            sendUrlRequest(urlRequest: urlRequest) {data, response, error, request in
+                completion(data, response, error, request)
             }
         }
     }
@@ -601,13 +600,11 @@ extension ViewController {
      */
     func showUi() {
         // Obtaining the user info, including their internal ID.
-        makeUrlRequest(url: user.login.url, protected: true) {(data, response) in
-            self.user.login.data = self.decodeJson(UserLogin.Response.self, from: data!)
+        makeUrlRequest(url: UserLogin().url, protected: true) {data, response, error, request in
+            let userLoginResponse = self.decodeJson(UserLogin.Response.self, from: data!)
 
-            guard let authenticationId = self.user.login.data?.authenticationId else {
-                let message = "Error retrieving user ID"
-
-                self.customPrint(message)
+            guard let authenticationId = userLoginResponse?.authenticationId else {
+                self.customPrint("Error retrieving user ID.")
 
                 return
             }
@@ -616,8 +613,128 @@ extension ViewController {
 
             let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "TabBarController") as! UITabBarController
 
+            // MARK: Injecting dependencies
+
+            let customPrint = {[unowned self] (_ items: Any...) -> Void in
+                self.customPrint(items)
+            }
+
+            let signOut = {[unowned self] in
+                self.signOut()
+            }
+
+            var sampleUrls: [String] = []
+            if let sampleUrl = self.authState?.lastAuthorizationResponse.request.configuration.discoveryDocument?.userinfoEndpoint?.absoluteString {
+                sampleUrls.append(sampleUrl)
+            }
+            sampleUrls.append("https://rs.sample.forgeops.com/openidm/config/ui/dashboard")
+            sampleUrls.append("https://rs.sample.forgeops.com/openidm/info/login")
+
+            tabBarController.viewControllers?.forEach {navigationController in
+                let nv = navigationController as? UINavigationController
+
+                nv?.viewControllers.forEach {viewController in
+                    if let vc = viewController as? DashboardTableViewController {
+                        vc.sampleUrls = sampleUrls
+
+                        vc.customPrint = customPrint
+
+                        vc.signOut = signOut
+
+                        vc.getNotifications = {[unowned self] (completion) in
+                            self.makeUrlRequest(url: UserNotifications().url, protected: true) {data, response, error, request in
+                                guard let json = self.decodeJson(UserNotifications.Response.self, from: data!) else {
+                                    self.customPrint("Error retrieving user notifications: cannot decode JSON.")
+
+                                    return
+                                }
+
+                                completion(json.notifications)
+                            }
+                        }
+
+                        vc.deleteNotification = {[unowned self] (notificationId, completion) in
+                            self.makeUrlRequest(
+                                url: UserNotifications().url + (notificationId ?? ""),
+                                method: "DELETE",
+                                protected: true
+                            ) {data, response, error, request in
+                                completion(data, response!)
+                            }
+                        }
+
+                        // Injecting a "pass through" dependency to be injected in the controller's children
+                        vc.makeUrlRequest = {[unowned self] (url, protected, completion) in
+                            guard let url = URL(string: url) else {
+                                customPrint("Invalid URL")
+
+                                return
+                            }
+
+                            let urlRequest = URLRequest(url: url)
+
+                            func completeUrlRequest(data: Data?, response: HTTPURLResponse?, error: Error?, request: URLRequest) {
+                                completion(data, response, error, request)
+                            }
+
+                            if protected {
+                                self.makeUrlRequestToProtectedResource(urlRequest: urlRequest, completion: completeUrlRequest)
+                            } else {
+                                self.sendUrlRequest(urlRequest: urlRequest, completion: completeUrlRequest)
+                            }
+                        }
+                    } else if let vc = viewController as? AccountTableViewController {
+                        vc.customPrint = customPrint
+
+                        vc.signOut = signOut
+
+                        vc.getUserAccount = {[unowned self] completion in
+                            let url = UserAccount().url + (userLoginResponse?.authorization?.id ?? "")!
+
+                            var userAccountResponse: UserAccount.Response?
+
+                            self.makeUrlRequest(url: url, protected: true) {data, response, error, request in
+                                if let data = data {
+                                    userAccountResponse = self.decodeJson(UserAccount.Response.self, from: data)
+                                }
+
+                                completion(userAccountResponse, error)
+                            }
+                        }
+
+                        vc.updateUserAccount = {[unowned self] (field, value, completion) in
+                            let url = UserAccount().url + (userLoginResponse?.authorization?.id ?? "")!
+
+                            let update = UserAccountUpdate.Update(
+                                operation: "replace",
+                                field: field,
+                                value: value
+                            )
+
+                            var json = Data()
+
+                            var body = UserAccountUpdate().body
+
+                            body.append(update)
+
+                            let encoder = JSONEncoder()
+
+                            do {
+                                json = try encoder.encode(body)
+                            } catch {
+                                self.customPrint("Error updating user account: JSON encoding error.")
+                            }
+
+                            self.makeUrlRequest(url: url, method: "PATCH", body: json, protected: true) {data, response, error, request in
+                                completion(data, response, error, request)
+                            }
+                        }
+                    }
+                }
+            }
+            // Injecting dependencies: end
+
             self.present(tabBarController, animated: true) {
-                self.activityIndicatorView.stopAnimating()
             }
         }
     }
@@ -637,7 +754,7 @@ extension ViewController {
             if let endSessionEndpointUrl = URL(string: issuerUrl + "/connect/endSession" + "?id_token_hint=" + idToken) {
                 let urlRequest = URLRequest(url: endSessionEndpointUrl)
 
-                sendUrlRequest(urlRequest: urlRequest) {data, response in
+                sendUrlRequest(urlRequest: urlRequest) {data, response, error, request in
                     if data != nil, data!.count > 0 {
                         // Handling RP-initiated logout errors
                         self.customPrint("RP-initiated logout response: \(String(describing: String(data: data!, encoding: .utf8)))")
@@ -648,35 +765,6 @@ extension ViewController {
 
         // Clearing the authorization state
         setAuthState(nil)
-    }
-}
-
-// MARK: Validation methods
-extension ViewController {
-    /**
-     Verifies that the custom URI scheme has been updated in the `Info.plist`.
-     */
-    func validateUriScheme() {
-        guard let urlTypes: [AnyObject] = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [AnyObject], urlTypes.count > 0 else {
-            assertionFailure("No custom URI scheme has been configured for the project.")
-            return
-        }
-
-        guard let items = urlTypes[0] as? [String: AnyObject], let urlSchemes = items["CFBundleURLSchemes"] as? [AnyObject], urlSchemes.count > 0 else {
-            assertionFailure("No custom URI scheme has been configured for the project.")
-            return
-        }
-
-        guard let urlScheme = urlSchemes[0] as? String else {
-            assertionFailure("No custom URI scheme has been configured for the project.")
-            return
-        }
-
-        assert(
-            urlScheme == redirectionUriScheme,
-            "Configure the URI scheme in Info.plist (URL Types -> Item 0 -> URL Schemes -> Item 0) " +
-            "with the scheme of your redirect URI. The scheme is everything before the colon (:)."
-        )
     }
 }
 

@@ -9,8 +9,8 @@
 import UIKit
 
 /**
-    Used for dynamic table layout.
-*/
+ Used for dynamic table layout.
+ */
 struct TableSection {
     let title: String
     let cellReuseIdentifier: String

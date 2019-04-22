@@ -9,17 +9,43 @@
 import UIKit
 
 class DashboardTableViewController: UITableViewController {
-    // Reference to the root controller with authorization methods and helpers.
-    let app = AppDelegate.shared.rootViewController
+    // MARK: Dependencies
+
+    /**
+     Allows for custom printing implemented in the caller.
+
+     Here, no options are taken for the `separator` and the `terminator`.
+     */
+    var customPrint: ((Any...) -> Void)?
+
+    var signOut: (() -> Void)?
+
+    var getNotifications: ((@escaping ([UserNotifications.Response.Notification]) -> Void) -> Void)?
+
+    var deleteNotification: ((String?, @escaping (Data?, HTTPURLResponse) -> Void) -> Void)?
+
+    /**
+     Accepts a "pass through" dependency to be injected in the controller's children.
+
+     The current simple app structure does not require use of containers, factories, etc.
+     */
+
+    var sampleUrls: [String] = []
+
+    var makeUrlRequest: ((String, Bool, @escaping (Data?, HTTPURLResponse?, Error?, URLRequest) -> Void) -> Void)?
+
+    // Dependencies: end
+    
+    var notifications: [UserNotifications.Response.Notification] = []
 
     // Table sections placeholder.
     var tableSections: [TableSection] = []
 
-    // MARK: IBActions
+    // MARK: @IB
 
     @IBAction func signOut(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true) {
-            self.app.signOut()
+            self.signOut?()
         }
     }
 
@@ -55,7 +81,7 @@ class DashboardTableViewController: UITableViewController {
 
         switch tableSections[section].dataIdentifier {
         case "notifications":
-            numberOfRows = (app.user.notifications.records.count)
+            numberOfRows = notifications.count
         case "miscellanea":
             numberOfRows = 1
         default:
@@ -70,11 +96,11 @@ class DashboardTableViewController: UITableViewController {
 
         switch tableSections[indexPath.section].dataIdentifier {
         case "notifications":
-            cell.textLabel?.text = app.user.notifications.data.notifications[indexPath.row].message ?? ""
+            cell.textLabel?.text = notifications[indexPath.row].message ?? ""
 
             var createDate: String?
 
-            createDate = app.user.notifications.data.notifications[indexPath.row].createDate // ?? "1970-01-01T00:00:00.000Z"
+            createDate = notifications[indexPath.row].createDate ?? "1970-01-01T00:00:00.000Z"
 
             if let dateString = createDate {
                 let dateFormatter = DateFormatter()
@@ -119,14 +145,14 @@ class DashboardTableViewController: UITableViewController {
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            guard let notificationId = app.user.notifications.records[indexPath.row]._id else {
-                app.customPrint("Cannot delete Notification")
+            guard let notificationId = notifications[indexPath.row]._id, let deleteNotification = deleteNotification else {
+                customPrint?("Cannot delete notification.")
 
                 return
             }
 
-            app.makeUrlRequest(url: app.user.notifications.url + notificationId, method: "DELETE", protected: true) {data, response in
-                // For code simplicity, notification data is reloaded when a notification is deleted
+            deleteNotification(notificationId) {data, response in
+                // For code simplicity, notification data is always reloaded when a notification is deleted.
                 self.loadData()
             }
         } else if editingStyle == .insert {
@@ -149,15 +175,22 @@ class DashboardTableViewController: UITableViewController {
     }
     */
 
-    /*
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        let viewController = segue.destination
+
+        if let vc = viewController as? RequestViewController {
+            vc.sampleUrls = sampleUrls
+
+            vc.makeUrlRequest = {[unowned self] (url, protected, completion) in
+                self.makeUrlRequest?(url, protected) {data, response, error, request in
+                    completion(data, response, error, request)
+                }
+            }
+        }
     }
-    */
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return tableSections[section].title
@@ -171,23 +204,8 @@ extension DashboardTableViewController {
         Loads data used in this view controller.
     */
     func loadData() {
-        loadNotifications()
-    }
-
-    /**
-        Loads the user notifications.
-    */
-    func loadNotifications() {
-        app.makeUrlRequest(url: app.user.notifications.url, protected: true) {data, response in
-            guard data != nil else {
-                return
-            }
-
-            guard let json = self.app.decodeJson(UserNotifications.Response.self, from: data!) else {
-                return
-            }
-
-            self.app.user.notifications.data = json
+        getNotifications?() {notifications in
+            self.notifications = notifications
 
             self.tableView.reloadData()
         }
