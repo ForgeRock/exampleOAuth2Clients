@@ -17,6 +17,12 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="IDM.selected" translatesAutoresizingMaskIntoConstraints="NO" id="qYL-Rk-DbL">
+                                <rect key="frame" x="67" y="269" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -163,22 +169,37 @@
                                 <textInputTraits key="textInputTraits" keyboardType="URL" textContentType="url"/>
                             </textView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="SYd-Qn-WIy" userLabel="Request Results">
-                                <rect key="frame" x="16" y="160" width="343" height="442"/>
+                                <rect key="frame" x="16" y="191" width="343" height="411"/>
                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                 <accessibility key="accessibilityConfiguration" label="Request Results"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="r4t-7G-wlp" userLabel="Include Access Token">
+                                <rect key="frame" x="310" y="152" width="51" height="31"/>
+                            </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Include Access Token" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9xP-yK-ZX7">
+                                <rect key="frame" x="16" y="152" width="174.5" height="31"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="SYd-Qn-WIy" firstAttribute="top" secondItem="9xP-yK-ZX7" secondAttribute="bottom" constant="8" symbolic="YES" id="2tT-dq-B85"/>
                             <constraint firstItem="SYd-Qn-WIy" firstAttribute="leading" secondItem="JP1-Ff-ajg" secondAttribute="leading" constant="16" id="3xV-g8-x5V"/>
                             <constraint firstItem="JP1-Ff-ajg" firstAttribute="bottom" secondItem="SYd-Qn-WIy" secondAttribute="bottom" constant="16" id="N46-3z-abq"/>
+                            <constraint firstItem="9xP-yK-ZX7" firstAttribute="top" secondItem="dAF-km-jQ3" secondAttribute="bottom" constant="8" symbolic="YES" id="RrG-ai-Ddd"/>
                             <constraint firstItem="JP1-Ff-ajg" firstAttribute="trailing" secondItem="dAF-km-jQ3" secondAttribute="trailing" constant="16" id="Vdg-g0-wDv"/>
+                            <constraint firstItem="9xP-yK-ZX7" firstAttribute="leading" secondItem="JP1-Ff-ajg" secondAttribute="leading" constant="16" id="bjH-sF-FyI"/>
+                            <constraint firstItem="r4t-7G-wlp" firstAttribute="top" secondItem="dAF-km-jQ3" secondAttribute="bottom" constant="8" symbolic="YES" id="byw-tH-44M"/>
                             <constraint firstItem="dAF-km-jQ3" firstAttribute="top" secondItem="JP1-Ff-ajg" secondAttribute="top" constant="16" id="eH1-94-CNp"/>
+                            <constraint firstItem="JP1-Ff-ajg" firstAttribute="trailing" secondItem="r4t-7G-wlp" secondAttribute="trailing" constant="16" id="gCZ-p6-3xD"/>
                             <constraint firstItem="dAF-km-jQ3" firstAttribute="leading" secondItem="JP1-Ff-ajg" secondAttribute="leading" constant="16" id="jjq-I4-O8Y"/>
                             <constraint firstItem="JP1-Ff-ajg" firstAttribute="trailing" secondItem="SYd-Qn-WIy" secondAttribute="trailing" constant="16" id="lEh-vM-NBR"/>
-                            <constraint firstItem="SYd-Qn-WIy" firstAttribute="top" secondItem="dAF-km-jQ3" secondAttribute="bottom" constant="16" id="t2b-q5-PAJ"/>
+                            <constraint firstItem="r4t-7G-wlp" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="9xP-yK-ZX7" secondAttribute="trailing" constant="8" symbolic="YES" id="lVY-tW-9Ri"/>
+                            <constraint firstItem="SYd-Qn-WIy" firstAttribute="top" secondItem="r4t-7G-wlp" secondAttribute="bottom" constant="8" symbolic="YES" id="t2b-q5-PAJ"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="JP1-Ff-ajg"/>
                     </view>
@@ -190,13 +211,14 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="includeAccessToken" destination="r4t-7G-wlp" id="xHz-9m-t0g"/>
                         <outlet property="requestResultsTextView" destination="SYd-Qn-WIy" id="Ldu-KL-2NM"/>
                         <outlet property="requestUrlTextView" destination="dAF-km-jQ3" id="7ll-g1-BUq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6QA-dP-A7z" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4348" y="-897"/>
+            <point key="canvasLocation" x="4348" y="-897.30134932533736"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="r2i-T2-BzM">
@@ -274,6 +296,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="IDM.selected" width="224.16000366210938" height="258.48001098632812"/>
         <image name="dashboard" width="30" height="30"/>
         <image name="face_ID" width="30" height="30"/>
     </resources>

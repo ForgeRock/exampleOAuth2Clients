@@ -9,8 +9,8 @@
 import Foundation
 
 /**
-    Container for identified user account information.
-*/
+ Container for identified user account information.
+ */
 struct UserAccount {
     struct Response: Codable {
         // let _id: String?
@@ -30,6 +30,4 @@ struct UserAccount {
     }
 
     let url = "https://rs.sample.forgeops.com/openidm/managed/user/"
-
-    var data: Response? = nil
 }

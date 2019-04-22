@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C1C3E6F2215223F002EAC8E /* iOS_AppAuth_BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1C3E6E2215223F002EAC8E /* iOS_AppAuth_BasicTests.swift */; };
 		3CF5A4D022001C7500707500 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF5A4CF22001C7500707500 /* AppDelegate.swift */; };
 		3CF5A4D222001C7500707500 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF5A4D122001C7500707500 /* ViewController.swift */; };
 		3CF5A4D522001C7500707500 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3CF5A4D322001C7500707500 /* Main.storyboard */; };
@@ -15,7 +16,20 @@
 		3CF5A4E322001F5400707500 /* AppAuth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CF5A4E222001F5400707500 /* AppAuth.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3C1C3E712215223F002EAC8E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3CF5A4C422001C7500707500 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3CF5A4CB22001C7500707500;
+			remoteInfo = "iOS-AppAuth-Basic";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		3C1C3E6C2215223F002EAC8E /* iOS-AppAuth-BasicTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-AppAuth-BasicTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C1C3E6E2215223F002EAC8E /* iOS_AppAuth_BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOS_AppAuth_BasicTests.swift; sourceTree = "<group>"; };
+		3C1C3E702215223F002EAC8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3CF5A4CC22001C7500707500 /* iOS-AppAuth-Basic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-AppAuth-Basic.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CF5A4CF22001C7500707500 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3CF5A4D122001C7500707500 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -27,6 +41,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3C1C3E692215223F002EAC8E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3CF5A4C922001C7500707500 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -38,10 +59,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3C1C3E6D2215223F002EAC8E /* iOS-AppAuth-BasicTests */ = {
+			isa = PBXGroup;
+			children = (
+				3C1C3E6E2215223F002EAC8E /* iOS_AppAuth_BasicTests.swift */,
+				3C1C3E702215223F002EAC8E /* Info.plist */,
+			);
+			path = "iOS-AppAuth-BasicTests";
+			sourceTree = "<group>";
+		};
 		3CF5A4C322001C7500707500 = {
 			isa = PBXGroup;
 			children = (
 				3CF5A4CE22001C7500707500 /* iOS-AppAuth-Basic */,
+				3C1C3E6D2215223F002EAC8E /* iOS-AppAuth-BasicTests */,
 				3CF5A4CD22001C7500707500 /* Products */,
 				3CF5A4E122001F5400707500 /* Frameworks */,
 			);
@@ -51,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				3CF5A4CC22001C7500707500 /* iOS-AppAuth-Basic.app */,
+				3C1C3E6C2215223F002EAC8E /* iOS-AppAuth-BasicTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,6 +111,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3C1C3E6B2215223F002EAC8E /* iOS-AppAuth-BasicTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C1C3E752215223F002EAC8E /* Build configuration list for PBXNativeTarget "iOS-AppAuth-BasicTests" */;
+			buildPhases = (
+				3C1C3E682215223F002EAC8E /* Sources */,
+				3C1C3E692215223F002EAC8E /* Frameworks */,
+				3C1C3E6A2215223F002EAC8E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3C1C3E722215223F002EAC8E /* PBXTargetDependency */,
+			);
+			name = "iOS-AppAuth-BasicTests";
+			productName = "iOS-AppAuth-BasicTests";
+			productReference = 3C1C3E6C2215223F002EAC8E /* iOS-AppAuth-BasicTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		3CF5A4CB22001C7500707500 /* iOS-AppAuth-Basic */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3CF5A4DE22001C7600707500 /* Build configuration list for PBXNativeTarget "iOS-AppAuth-Basic" */;
@@ -107,6 +157,10 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = Forgerock;
 				TargetAttributes = {
+					3C1C3E6B2215223F002EAC8E = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = 3CF5A4CB22001C7500707500;
+					};
 					3CF5A4CB22001C7500707500 = {
 						CreatedOnToolsVersion = 10.1;
 					};
@@ -126,11 +180,19 @@
 			projectRoot = "";
 			targets = (
 				3CF5A4CB22001C7500707500 /* iOS-AppAuth-Basic */,
+				3C1C3E6B2215223F002EAC8E /* iOS-AppAuth-BasicTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3C1C3E6A2215223F002EAC8E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3CF5A4CA22001C7500707500 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -165,6 +227,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3C1C3E682215223F002EAC8E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C1C3E6F2215223F002EAC8E /* iOS_AppAuth_BasicTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3CF5A4C822001C7500707500 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -175,6 +245,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3C1C3E722215223F002EAC8E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3CF5A4CB22001C7500707500 /* iOS-AppAuth-Basic */;
+			targetProxy = 3C1C3E712215223F002EAC8E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		3CF5A4D322001C7500707500 /* Main.storyboard */ = {
@@ -196,6 +274,46 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		3C1C3E732215223F002EAC8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = "iOS-AppAuth-BasicTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.forgerock.iOS-AppAuth-BasicTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iOS-AppAuth-Basic.app/iOS-AppAuth-Basic";
+			};
+			name = Debug;
+		};
+		3C1C3E742215223F002EAC8E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = "iOS-AppAuth-BasicTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.forgerock.iOS-AppAuth-BasicTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iOS-AppAuth-Basic.app/iOS-AppAuth-Basic";
+			};
+			name = Release;
+		};
 		3CF5A4DC22001C7600707500 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -359,6 +477,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3C1C3E752215223F002EAC8E /* Build configuration list for PBXNativeTarget "iOS-AppAuth-BasicTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C1C3E732215223F002EAC8E /* Debug */,
+				3C1C3E742215223F002EAC8E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3CF5A4C722001C7500707500 /* Build configuration list for PBXProject "iOS-AppAuth-Basic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

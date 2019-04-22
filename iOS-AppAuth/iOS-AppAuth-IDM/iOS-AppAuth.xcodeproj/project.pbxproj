@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3C15B18B21E142DD00AEBBA7 /* UserAccountUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C15B18A21E142DD00AEBBA7 /* UserAccountUpdate.swift */; };
+		3C1C3E5322134A8A002EAC8E /* iOS_AppAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1C3E5222134A8A002EAC8E /* iOS_AppAuthTests.swift */; };
 		3C26FA0021BB03CD00E8E63B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26F9FF21BB03CD00E8E63B /* AppDelegate.swift */; };
 		3C26FA0221BB03CD00E8E63B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA0121BB03CD00E8E63B /* ViewController.swift */; };
 		3C26FA0521BB03CD00E8E63B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3C26FA0321BB03CD00E8E63B /* Main.storyboard */; };
@@ -17,15 +18,27 @@
 		3C26FA1A21C0607200E8E63B /* DashboardTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA1921C0607200E8E63B /* DashboardTableViewController.swift */; };
 		3C26FA1C21C0616A00E8E63B /* AccountTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA1B21C0616A00E8E63B /* AccountTableViewController.swift */; };
 		3C26FA1E21C0928400E8E63B /* TableSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA1D21C0928400E8E63B /* TableSection.swift */; };
-		3C26FA2021C09B4800E8E63B /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA1F21C09B4800E8E63B /* User.swift */; };
 		3C26FA2221C09BD400E8E63B /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA2121C09BD400E8E63B /* UserAccount.swift */; };
 		3C26FA2421C09C5000E8E63B /* UserLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA2321C09C5000E8E63B /* UserLogin.swift */; };
 		3C26FA2621C09C7D00E8E63B /* UserNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA2521C09C7D00E8E63B /* UserNotifications.swift */; };
 		3C26FA2C21C0C89900E8E63B /* RequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C26FA2B21C0C89900E8E63B /* RequestViewController.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3C1C3E5522134A8A002EAC8E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3C26F9F421BB03CD00E8E63B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3C26F9FB21BB03CD00E8E63B;
+			remoteInfo = "iOS-AppAuth";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		3C15B18A21E142DD00AEBBA7 /* UserAccountUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountUpdate.swift; sourceTree = "<group>"; };
+		3C1C3E5022134A89002EAC8E /* iOS-AppAuthTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-AppAuthTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C1C3E5222134A8A002EAC8E /* iOS_AppAuthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOS_AppAuthTests.swift; sourceTree = "<group>"; };
+		3C1C3E5422134A8A002EAC8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3C26F9FC21BB03CD00E8E63B /* iOS-AppAuth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-AppAuth.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C26F9FF21BB03CD00E8E63B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3C26FA0121BB03CD00E8E63B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -37,7 +50,6 @@
 		3C26FA1921C0607200E8E63B /* DashboardTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardTableViewController.swift; sourceTree = "<group>"; };
 		3C26FA1B21C0616A00E8E63B /* AccountTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewController.swift; sourceTree = "<group>"; };
 		3C26FA1D21C0928400E8E63B /* TableSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableSection.swift; sourceTree = "<group>"; };
-		3C26FA1F21C09B4800E8E63B /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		3C26FA2121C09BD400E8E63B /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
 		3C26FA2321C09C5000E8E63B /* UserLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLogin.swift; sourceTree = "<group>"; };
 		3C26FA2521C09C7D00E8E63B /* UserNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotifications.swift; sourceTree = "<group>"; };
@@ -45,6 +57,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3C1C3E4D22134A89002EAC8E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3C26F9F921BB03CD00E8E63B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -56,10 +75,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3C1C3E5122134A8A002EAC8E /* iOS-AppAuthTests */ = {
+			isa = PBXGroup;
+			children = (
+				3C1C3E5222134A8A002EAC8E /* iOS_AppAuthTests.swift */,
+				3C1C3E5422134A8A002EAC8E /* Info.plist */,
+			);
+			path = "iOS-AppAuthTests";
+			sourceTree = "<group>";
+		};
 		3C26F9F321BB03CD00E8E63B = {
 			isa = PBXGroup;
 			children = (
 				3C26F9FE21BB03CD00E8E63B /* Source */,
+				3C1C3E5122134A8A002EAC8E /* iOS-AppAuthTests */,
 				3C26F9FD21BB03CD00E8E63B /* Products */,
 				3C26FA1321BB1C8900E8E63B /* Frameworks */,
 			);
@@ -69,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				3C26F9FC21BB03CD00E8E63B /* iOS-AppAuth.app */,
+				3C1C3E5022134A89002EAC8E /* iOS-AppAuthTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -86,7 +116,6 @@
 				3C26FA0821BB03CE00E8E63B /* LaunchScreen.storyboard */,
 				3C26FA0B21BB03CE00E8E63B /* Info.plist */,
 				3C26FA1D21C0928400E8E63B /* TableSection.swift */,
-				3C26FA1F21C09B4800E8E63B /* User.swift */,
 				3C26FA2121C09BD400E8E63B /* UserAccount.swift */,
 				3C15B18A21E142DD00AEBBA7 /* UserAccountUpdate.swift */,
 				3C26FA2321C09C5000E8E63B /* UserLogin.swift */,
@@ -106,6 +135,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3C1C3E4F22134A89002EAC8E /* iOS-AppAuthTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C1C3E5922134A8A002EAC8E /* Build configuration list for PBXNativeTarget "iOS-AppAuthTests" */;
+			buildPhases = (
+				3C1C3E4C22134A89002EAC8E /* Sources */,
+				3C1C3E4D22134A89002EAC8E /* Frameworks */,
+				3C1C3E4E22134A89002EAC8E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3C1C3E5622134A8A002EAC8E /* PBXTargetDependency */,
+			);
+			name = "iOS-AppAuthTests";
+			productName = "iOS-AppAuthTests";
+			productReference = 3C1C3E5022134A89002EAC8E /* iOS-AppAuthTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		3C26F9FB21BB03CD00E8E63B /* iOS-AppAuth */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3C26FA0E21BB03CE00E8E63B /* Build configuration list for PBXNativeTarget "iOS-AppAuth" */;
@@ -134,6 +181,10 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = Forgerock;
 				TargetAttributes = {
+					3C1C3E4F22134A89002EAC8E = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = 3C26F9FB21BB03CD00E8E63B;
+					};
 					3C26F9FB21BB03CD00E8E63B = {
 						CreatedOnToolsVersion = 10.1;
 					};
@@ -153,11 +204,19 @@
 			projectRoot = "";
 			targets = (
 				3C26F9FB21BB03CD00E8E63B /* iOS-AppAuth */,
+				3C1C3E4F22134A89002EAC8E /* iOS-AppAuthTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3C1C3E4E22134A89002EAC8E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3C26F9FA21BB03CD00E8E63B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -192,6 +251,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3C1C3E4C22134A89002EAC8E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C1C3E5322134A8A002EAC8E /* iOS_AppAuthTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3C26F9F821BB03CD00E8E63B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -201,7 +268,6 @@
 				3C26FA1E21C0928400E8E63B /* TableSection.swift in Sources */,
 				3C26FA2621C09C7D00E8E63B /* UserNotifications.swift in Sources */,
 				3C26FA2421C09C5000E8E63B /* UserLogin.swift in Sources */,
-				3C26FA2021C09B4800E8E63B /* User.swift in Sources */,
 				3C26FA1A21C0607200E8E63B /* DashboardTableViewController.swift in Sources */,
 				3C26FA1C21C0616A00E8E63B /* AccountTableViewController.swift in Sources */,
 				3C26FA0021BB03CD00E8E63B /* AppDelegate.swift in Sources */,
@@ -211,6 +277,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3C1C3E5622134A8A002EAC8E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3C26F9FB21BB03CD00E8E63B /* iOS-AppAuth */;
+			targetProxy = 3C1C3E5522134A8A002EAC8E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		3C26FA0321BB03CD00E8E63B /* Main.storyboard */ = {
@@ -232,6 +306,44 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		3C1C3E5722134A8A002EAC8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = "iOS-AppAuthTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.forgerock.iOS-AppAuthTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iOS-AppAuth.app/iOS-AppAuth";
+			};
+			name = Debug;
+		};
+		3C1C3E5822134A8A002EAC8E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = "iOS-AppAuthTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.forgerock.iOS-AppAuthTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iOS-AppAuth.app/iOS-AppAuth";
+			};
+			name = Release;
+		};
 		3C26FA0C21BB03CE00E8E63B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -393,6 +505,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3C1C3E5922134A8A002EAC8E /* Build configuration list for PBXNativeTarget "iOS-AppAuthTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C1C3E5722134A8A002EAC8E /* Debug */,
+				3C1C3E5822134A8A002EAC8E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3C26F9F721BB03CD00E8E63B /* Build configuration list for PBXProject "iOS-AppAuth" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

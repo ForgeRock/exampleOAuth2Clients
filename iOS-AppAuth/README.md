@@ -1,16 +1,44 @@
-# <a name="top"></a>OAuth 2.0 Authorization Code Grant protected by PKCE for an iOS App with the AppAuth SDK
+# <a id="top"></a>Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK in iOS apps
 
-The language used in this document leverages terminology defined in the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) extension for the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) protocol.
+## Contents
 
-* [Intro](#intro)
+* [Preface](#preface)
+* [Introduction](#intro)
 * [Building a simple app with Swift and AppAuth](#simple)
 * [ForgeRock example](#full)
+* [Conclusion](#conclusion)
 
-## <a name="intro"></a> Intro
+## <a id="preface"></a> Preface: A note about standards
 
 [Back to top](#top)
 
-Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [RFC8252](https://tools.ietf.org/html/rfc8252) and provide following key points:
+_"The   analysis   found   a   positive   and   significant   contribution   of   standards   to   productivity – supporting  37.4%  of  annual  labour  productivity  growth  in  the  UK  economy  over  the  period  1921  to  2013,  which  translates  into  approximately  28.4%  of  annual  GDP  growth –  a  similar  finding to that of other recent national level studies in France and Germany."_
+
+_"One of the first [standards] to be introduced in the UK [was] the standardization of the number of tram gauge specifications . . . "_
+
+British Standards Institution, 2015
+
+_"And the Lord said, Behold, the people is one, and they have all one language; and this they begin to do: and now nothing will be restrained from them, which they have imagined to do."_
+
+Genesis 11:6 (KJV)
+
+It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers), because all interested parties are in agreement on direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area. After all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _trolley problem_.)
+
+Neil deGrasse Tyson said once, "If you want to be more creative, be less productive." On the way to delivering a software solution, the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, and creating operating systems, libraries, services, and applications, the number of participants increases with each level of abstraction. Consequently, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound. At the same time, the original research _should_ play a less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted, the more support it will receive from the community, and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important, because the gains in effort are multiplied by the number of participants.
+
+Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then, that standard should be employed. The least amount of creativity should be _required_ from the consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, there is developer pride and other more pragmatic concerns that may lead to competing standards:
+
+![how standards proliferate](https://imgs.xkcd.com/comics/standards.png)
+
+In the context of REST API protection, however, there seems to be a clear leader: the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) authorization framework with extensions galore*. In this document we will leverage terminology defined in OAuth 2.0 and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the current best practices for building native OAuth 2.0 clients—that is, applications running on the end-user's (mobile) device.
+
+> \* The ever-present OAuth 2.0 implementations resemble a branch in the evolutionary tree, with the protocol extensions forming homologous structures on top of the common ancestor—RFC 6749. Time will tell whether the whole family lives or is surpassed by a competitor and goes extinct, leaving only fossils at tools.ietf.org.
+
+## <a id="intro"></a> Introduction
+
+[Back to top](#top)
+
+Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [RFC 8252](https://tools.ietf.org/html/rfc8252) and provide following key points:
 
 1. OAuth 2.0 authorization requests from native apps should only be made through external user-agents (as opposed to embedded user-agents, like "web views"), typically the system browser or its programmatic instantiation called the "in-app browser tab".
 
@@ -20,7 +48,7 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
     In most cases native apps cannot maintain the confidentiality of a client secret, making them [OAuth 2.0 public clients](https://tools.ietf.org/html/rfc6749#section-2.1), for the (statically included) secret would be shared between instances of an app and available for retrieval. Public clients have two types of grants available to implement: [Authorization Code](https://tools.ietf.org/html/rfc6749#section-1.3.1) and [Implicit](https://tools.ietf.org/html/rfc6749#section-1.3.2).
 
-    In both cases a native app needs to be able to serve the redirection URI. In the context of a mobile iOS application the [Private-Use (custom) URI Scheme Redirection](https://tools.ietf.org/html/rfc8252#section-7.1) is most commonly employed. Multiple apps can potentially register the same private-use URI scheme on a device and be able to intercept the authorization response. The authorization code grant allows for mitigating interception attacks with the [Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636) (PKCE) extension, which is not applicable in its current implementation to the implicit grant.
+    In both cases a native app needs to be able to serve the redirection URI. In the context of a mobile iOS application the [Private-Use (custom) URI Scheme Redirection](https://tools.ietf.org/html/rfc8252#section-7.1) is commonly used for that purpose. Multiple apps can potentially register the same private-use URI scheme on a device and be able to intercept the authorization response. The authorization code grant allows for mitigating interception attacks with the [Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636) (PKCE) extension, which is not applicable in its current implementation to the Implicit grant.
 
     In addition, the Authorization Code grant provides an option for re-obtaining access tokens without user interaction by utilizing refresh tokens.
 
@@ -30,43 +58,45 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
    Using PKCE by itself does not cover a peculiar case of a malicious client _initiating_ the authorization code grant with its own `code_challenge` from the same device where a legitimate app exists and the resource owner is already authenticated, [impersonating](https://tools.ietf.org/html/rfc8252#section-8.6) the legitimate app.
 
-   In this case the end-user should be called for interaction prior to completing the authorization request. This can be achieved by requiring a consent screen, e.g. asking the user to authorize certain scopes the client is trying to access.
+   In this case the end-user should be called for interaction prior to completing the authorization request. This can be achieved by requiring a consent screen. For example, the authorization server may ask the user to authorize the client for accessing certain predefined [scopes](https://tools.ietf.org/html/rfc6749#section-3.3) associated with the client's account.
 
    ### The "first-party" apps
 
-   Often, mobile applications are developed by the same business entity as the one they consume resources from. These apps may be described as "first-party" clients. In the context of a "first-party" application the consent screen may seem redundant and distracting. In order to avoid it, the client needs to authenticate with the authorization server. A client _may_ be identified by employing the [Claimed "https" Scheme URI Redirection](https://tools.ietf.org/html/rfc8252#section-7.2), which in Apple's case is called [Universal Links](https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/enabling_universal_links). With the client identity confirmed no explicit consent dialog may be required from the authorization server.
+   Often, mobile applications are developed by the same business entity as the one they consume resources from. These apps may be described as first-party clients. In the context of a first-party application the consent screen may seem redundant and distracting. One way to make it unnecessary is authenticating the client to the authorization server. A client _may_ be identified by employing the [Claimed "https" Scheme URI Redirection](https://tools.ietf.org/html/rfc8252#section-7.2), which in Apple's case is called [Universal Links](https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/enabling_universal_links). With the client identity confirmed no explicit consent dialog may be required from the authorization server.
 
-   Apple, however, does not seem to allow switching between apps without user consent. As a result, there are currently reports ([example](http://www.openradar.appspot.com/19944416)) that App Store rejects apps using mobile Safari for redirection flows:
+   Apple, however, does not seem to allow switching between apps without user consent. As a result, an external browser cannot be used by an application without user interaction. In addition, there are currently reports ([example](http://www.openradar.appspot.com/19944416)) that App Store rejects apps using mobile Safari for redirection flows:
 
    > We noticed an issue in your app that contributes to a lower quality user experience than Apple users expect . . . Upon launching the app, a web page in mobile Safari opens for logging in . . . , then returns the user to the app. The user should be able to log in without opening Safari first.
 
-   This means one is to use designated "in-app browser tab" classes for visiting the authorization server endpoint:
+   This means that one is to use designated "in-app browser tab" classes for visiting the authorization server endpoints in iOS:
 
    * [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession) (iOS 12.0+)
    * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
    * [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) (iOS 9.0+)
 
-    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, will automatically present a dialog asking the end-user to give explicit consent to access the website’s data (and the existing login information) in Safari every time the authentication endpoint is visited. This makes the consent screen unavoidable in the current implementation of the authentication classes. On the other hand, this provides consistent user experience when consent is needed, e.g. for preventing client impersonation when a private-use URI scheme is employed.
+    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, will _automatically_ present a dialog asking the end-user to give explicit consent to access the website’s data (and the existing login information) in Safari every time the authentication endpoint is visited. This makes the consent screen unavoidable in the current implementation of the authentication classes. On the other hand, this provides consistent user experience when consent is needed, for example, to prevent client impersonation when a private-use URI scheme is employed.
+
+    `SFSafariViewController` can be used in iOS 9.0 and above and does not ask for user consent. It shares cookies and other website data with Safari in iOS 9 and 10, thus allowing for client impersonation in those environments if no consent screen is presented by the authorization server.
 
     > [According to Apple](https://developer.apple.com/support/app-store/), less than ten percent of all devices are using iOS below version 11.
 
-    ### The single sign on (SSO) experience
+    #### The single sign on (SSO) experience
 
-    In addition, none of the authentication classes seem to share session (i.e. transient) cookies with their instances or mobile Safari. In turn, this means one needs to use persistent cookies in order to implement SSO in iOS in a compliant with `RFC8252` way. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars. On the other hand, if no SSO is needed this seems to be covering the client impersonation case as well.
+    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12 do not share session (i.e. transient) cookies with their other instances or mobile Safari. In that case, one needs to use persistent cookies in order to implement SSO with the classes in a compliant with RFC 8252 way. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars. On the other hand, if no SSO is needed this sharing cookies policy seems to be covering the client impersonation case when session cookies are used for the end-user authentication in iOS 11 and 12.
 
-The included example iOS applications play the role of an [OpenID Connect](https://openid.net/connect/) (OIDC) [Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) and use the [AppAuth-iOS SDK](https://github.com/openid/AppAuth-iOS) for authorizing the RP against an [OIDC Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The AppAuth SDK follows the best practices described in `RFC8252` by extending the OAuth 2.0 protocol with PKCE and employing an external user agent for visiting the OP's authentication and authorization endpoints. Access tokens obtained during the authorization process are then included as [Bearer Token](https://tools.ietf.org/html/rfc6750) value of the `Authorization` header in requests made to protected endpoints on a [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
+The included example iOS applications play the role of an [OpenID Connect](https://openid.net/connect/) (OIDC) [Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) and use the [AppAuth-iOS SDK](https://github.com/openid/AppAuth-iOS) for authorizing the RP against an [OIDC Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The AppAuth SDK follows the best practices described in RFC 8252 by extending the OAuth 2.0 protocol with PKCE and employing an external user agent for visiting the OP's authentication and authorization endpoints. Access tokens obtained during the authorization process are then included as [Bearer Token](https://tools.ietf.org/html/rfc6750) value of the `Authorization` header in requests made to protected endpoints on a [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
 
 ***
 
-## <a name="simple"></a>Building a simple app with Swift and AppAuth
+## <a id="simple"></a>Building a simple app with Swift and AppAuth
 
 [Back to top](#top)
 
-The purpose of this exercise is to build from scratch (step-by-step) the most basic app capable of performing HTTP requests to a resource protected with OAuth 2.0. Xcode 10 and Swift 4 environment and iOS 9-12 targets will be assumed. The AppAuth SDK for iOS will be employed to perform the authorization flow.
+The purpose of this exercise is to build from scratch (step-by-step, each of which will be commented on) the most basic app capable of performing HTTP requests to a resource protected with OAuth 2.0. Xcode 10 and Swift 4 environment and iOS 9-12 targets will be assumed. The AppAuth SDK for iOS will be employed to perform the authorization flow.
 
 > The URIs and the private-use scheme used below serve demonstrational purposes; feel free to replace them with your own OP and RP specifics.
 
-> The completed Xcode project is a part of this repo, is located under `/iOS-AppAuth/iOS-AppAuth-Basic`, and could be used as a reference.
+> The completed Xcode project can be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-Basic](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-Basic) and could be used as a quick reference. A [short video](https://forgerock.wistia.com/medias/r7yn6bpfle) demonstrates the final result.
 
 We will build the app in a few implementation steps:
 
@@ -75,21 +105,25 @@ We will build the app in a few implementation steps:
 * [Collecting information about the RP](#simple-rp)
 * [Setting up Xcode project and adding the AppAuth SDK](#simple-xcode)
 * [Copy 'n' Paste](#simple-app)
-* [Conclusion](#simple-conclusion)
+* [In fine](#simple-conclusion)
 
-0. <a name="simple-https"></a>Enabling TLS in development environment
-
-    [Back to Building a simple app with Swift and AppAuth](#simple)
-
-    If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates you will need to accommodate this as described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
-
-    > Installing a CA's root certificate on an iOS device is illustrated in [Enable TLS](#full-tls) section of the ForgeRock example below.
-
-0. <a name="simple-op"></a>Collecting information about the OP
+0. <a id="simple-https"></a>Enabling TLS in development environment
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
-    The AppAuth SDK for iOS provides an option to specify location of the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) if it is supported by the OP. In this case, all necessary for the authorization flow endpoints could be obtained automatically by the SDK from a well-known OP's location.
+    If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates you will need to accommodate that as described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
+
+    To install a CA root certificate on an iOS device simulator, for example, drag and drop the certificate file on a (preferably `Settings`) screen, follow the installation prompt, and, on a more recent version of iOS, enable the certificate in `General` > `About` > `Certificate Trust Settings`. It may take more than one attempt to engage the installation process. In that case don't get discouraged and keep trying; eventually the simulator will cooperate.
+
+    > A [short video](https://forgerock.wistia.com/medias/1wft6023jm) shows the installation flow on an iOS 12.1 simulator.
+
+    > On the latest iOS simulator, 12.2 at the time of writing, you may need to manually open `Settings` > `General` > `Profile` > _`your-CA-certificate`_ to install the certificate after it has been downloaded. You will still need to enable it in `General` > `About` > `Certificate Trust Settings`.
+
+0. <a id="simple-op"></a>Collecting information about the OP
+
+    [Back to Building a simple app with Swift and AppAuth](#simple)
+
+    The AppAuth SDK for iOS provides an option to specify location of the [OpenID Provider Configuration Document](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) if it is supported by the OP. In this case, all endpoints necessary for the authorization flow could be obtained automatically by the SDK from the well-known location.
 
     > You can read more about OIDC discovery configuration and see a sample of the data returned from the well-known endpoint in [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) [documentation](https://backstage.forgerock.com/docs/am/6/oidc1-guide/#configure-openid-connect-discovery). If you have an AM instance running you will be able to see a live version of the configuration document at `https://your-am-instance/oauth2/.well-known/openid-configuration`.
 
@@ -101,7 +135,7 @@ We will build the app in a few implementation steps:
     * (optional) _userinfo_endpoint_
     * (optional) _end_session_endpoint_
 
-0. <a name="simple-rp"></a>Collecting information about the RP
+0. <a id="simple-rp"></a>Collecting information about the RP
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
@@ -111,9 +145,11 @@ We will build the app in a few implementation steps:
     * _redirect_uri_
     * _scope_: the scopes available for this client (to choose from when sending the authorization request)
 
-    Means to obtain the RP registration details are specific to the OP and not covered here. For example, you can consult with the [Registering OAuth 2.0 Clients With the Authorization Service](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) guide on creating and obtaining client credentials and scopes for an RP registered with ForgeRock Access Management.
+    In this example, the application code will only request `openid` and `profile` scopes.
 
-    > You could also refer to the [ForgeRock example](#full) section, where the process of registering a client is described in the context of a running ForgeRock platform sample.
+    Means to obtain the RP registration details are specific to the OP and not covered here. For example, you can consult the [Registering OAuth 2.0 Clients With the Authorization Service](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) guide on creating and obtaining client credentials and scopes for an RP registered with ForgeRock Access Management.
+
+    > You could also refer to the [ForgeRock example](#full) section, where the process of registering a client is described in the context of a running ForgeRock platform instance.
 
     For the purpose of this example, we will use a private-use URI scheme for the redirection URI: `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`.
 
@@ -121,7 +157,7 @@ We will build the app in a few implementation steps:
 
     Note, that the full and exact redirection URI MUST be registered for the RP with the OP.
 
-0. <a name="simple-xcode"></a>Setting up [Xcode](https://developer.apple.com/xcode/) project and adding the AppAuth SDK
+0. <a id="simple-xcode"></a>Setting up [Xcode](https://developer.apple.com/xcode/) project and adding the AppAuth SDK
 
     For the purposes of this example, we will assume Xcode 10 environment, Swift 4.2, and the sample application built down to iOS 9.0 - to demonstrate some important differences in versions below iOS 11.
 
@@ -135,7 +171,7 @@ We will build the app in a few implementation steps:
 
         > File > New > Project... > Single View App
 
-        Follow the prompts and provide Product Name and Organization details. Save the new project at desired location.
+        Follow the prompts and provide Product Name and Organization details. Save the new project in a location of choice.
 
         > If desired, provide a `Display Name` that will appear on the iOS device.
 
@@ -149,7 +185,7 @@ We will build the app in a few implementation steps:
 
     0. Setting AppAuth as a project dependency
 
-        Navigate to the project root (i.e. where `your-project-name.xcodeproj` is located) and create a `Cartfile` file; add the following line:
+        Navigate to the project root (that is, where `your-project-name.xcodeproj` is located) and create a `Cartfile` file; add the following line:
 
         > github "openid/AppAuth-iOS" "master"
 
@@ -165,7 +201,7 @@ We will build the app in a few implementation steps:
         carthage bootstrap --platform ios
         ```
 
-        This will build the AppAuth framework in your project under `Carthage` directory for `iOS`, according to the dependency specified in `Cartfile` and to the provided `--platform` option.
+        This will build the AppAuth framework for `iOS` in your project under `Carthage` directory, according to the dependency specified in `Cartfile` and the provided `--platform` option.
 
         > Not providing the platform option will result in building frameworks for all supported platforms, which won't hurt but may prove unnecessary.
 
@@ -177,7 +213,9 @@ We will build the app in a few implementation steps:
 
         Click on `+` and then on `Add Other...` , navigate to _`your-project-root`_ > `Carthage` > `Build` > `iOS`, and select `AppAuth.framework`; then, click `Open`.
 
-        Next switch over to the target's `Build Phases` tab and add a new `Run Script` build phase:
+        ![Screenshot](README_files/xcode.target.general.frameworks.png)
+
+        Next, switch over to the target's `Build Phases` tab and add a new `Run Script` build phase:
 
         Click on `+`, select `New Run Script Phase`, expand the newly created `Run Script` entry, and add the following shell command _under_ `Shell` (do not change the Shell path):
 
@@ -191,13 +229,15 @@ We will build the app in a few implementation steps:
         $(SRCROOT)/Carthage/Build/iOS/AppAuth.framework
         ```
 
+        ![Screenshot](README_files/xcode.target.build-phases.run-script.png)
+
         > At any point of building the app, including this very point, you can change the iOS deployment target under `Building Settings`.
 
-0. <a name="simple-app"></a>Copy 'n' Paste
+0. <a id="simple-app"></a>Copy 'n' Paste
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
-    Copy-and-paste is all you need to do to get started, but we will also provide some supporting comments along the way. Organizing the code for this app will consist of several distinct steps; after each step you should be able to build and run the app:
+    Organizing the code for this app will consist of several distinct steps; after each step you should be able to build and run the app. Copy-and-paste is all you need to do to get started, but along the way we will also explain what the steps do:
 
     * [Handling OAuth 2.0 redirection](#simple-app-redirection)
     * [Making AppAuth available in the main controller](#simple-app-appauth)
@@ -211,11 +251,11 @@ We will build the app in a few implementation steps:
     * [Optional](#simple-app-ui)
     * [Completely Optional](#simple-app-ui-extra)
 
-    1. <a name="simple-app-redirection"></a>Handling OAuth 2.0 redirection
+    1. <a id="simple-app-redirection"></a>Handling OAuth 2.0 redirection
 
         [Back to Copy 'n' Paste](#simple-app)
 
-        In iOS 11-12 environment, AppAuth employs designated authentication classes serving as the "in-app browser tab" for making authorization requests:
+        In iOS 11-12 environment, AppAuth employs designated authentication classes serving as the "in-app browser tabs" for making authorization requests:
 
         * [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession) (iOS 12.0+)
         * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
@@ -226,17 +266,19 @@ We will build the app in a few implementation steps:
 
         In iOS 9-10, however, [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) is used to perform the authorization request. This view controller does not provide an option to be initialized with a private-use callback scheme; hence, one needs to be added to be the project's `Info.plist` in order for the app to be able to respond to the redirection URI.
 
-        > The same applies to iOS versions below 9, which utilize mobile Safari as the external user-agent.
+        > The same applies to iOS versions below 9, which use mobile Safari as the external user agent.
 
         To specify the redirection URI scheme in `Info.plist`:
 
         * Add `URL types` key to `Information Property List` (the corresponding "raw" value is `CFBundleURLTypes`; right click on the key list and check "Show Raw Keys/Values" to have it shown).
-        * Fully expand the key and populate it with a single `URL Schemes` (`CFBundleURLSchemes`) item.
-        * Populate `URL Schemes` with a single item of the type `String` with the scheme of your redirection URI. The scheme is everything before the colon (`:`). For example, if the redirect URI is `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`, then the scheme would be `com.forgeops.ios-appauth-basic`.
+        * Fully expand the key and populate it with a `URL Schemes` (`CFBundleURLSchemes`) item.
+        * Add to `URL Schemes` an item of the type `String` with the scheme of your redirection URI. The scheme is everything before the colon (`:`). For example, if the redirect URI is `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`, then the scheme would be `com.forgeops.ios-appauth-basic`.
 
-        With the URL scheme registered, the redirection URI will be delivered to the app. This brings it to the foreground and calls the AppDelegate's [application(_:open:options:)](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623112-application) method. (AppAuth will automatically close the external user agent instance.)
+        ![Screenshot](README_files/xcode.info.plist.url-scheme.png)
 
-        > Please see the conditions for invoking this method in its documentation referenced above.
+        With the URL scheme registered, the redirection URI can be delivered to the app. This will bring the app to the foreground and call the AppDelegate's [application(_:open:options:)](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623112-application) method. (AppAuth will automatically close the external user agent instance.)
+
+        > Please see the conditions for invoking this AppDelegate's method in its documentation referenced above.
 
         In `application(_:open:options:)` the incoming URL can be parsed and an AppAuth handler for the authorization response can be provided. We will need to import the AppAuth SDK first; at the top of `AppDelegate.swift` add:
 
@@ -279,7 +321,7 @@ We will build the app in a few implementation steps:
 
         > Don't worry about lack of indentation in the comments, when pasted in Xcode  they will be aligned according to the convention in place.
 
-    0. <a name="simple-app-appauth"></a>Making AppAuth available in the main controller
+    0. <a id="simple-app-appauth"></a>Making AppAuth available in the main controller
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -292,14 +334,14 @@ We will build the app in a few implementation steps:
         import AppAuth
         ```
 
-    0. <a name="simple-app-op"></a>Providing OP configuration to the authorization services
+    0. <a id="simple-app-op"></a>Providing OP configuration to the authorization services
 
         [Back to Copy 'n' Paste](#simple-app)
 
         Ultimately, the AppAuth library performs client authorization via an `OIDAuthorizationRequest` instance initiated with the following parameters:
 
         * _configuration_: an AppAuth's `OIDServiceConfiguration` instance
-        * _clientId_: the RP's client ID as it is been registered on the OP's authorization server
+        * _clientId_: the RP's client ID as it's been registered on the OP's authorization server
         * _clientSecret_ (optional): may be populated for dynamically registered clients
         * _scopes_: the (subset of) scopes provided in the RP registration
         * _redirectURL_: a redirection URI associated with the RP registration
@@ -373,7 +415,7 @@ We will build the app in a few implementation steps:
 
         > Both methods could be implemented to accommodate different OIDC Providers.
 
-    0. <a name="simple-app-rp"></a>Providing RP configuration to the authorization services
+    0. <a id="simple-app-rp"></a>Providing RP configuration to the authorization services
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -411,7 +453,7 @@ We will build the app in a few implementation steps:
 
         > The OP and RP properties can also be made available as global variables or in other ways. It seems reasonable to assume that an app represents a single OAuth 2.0 Client or OIDC Relying Party.
 
-    0. <a name="simple-app-request"></a>Making authorization request
+    0. <a id="simple-app-request"></a>Making authorization request
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -474,9 +516,9 @@ We will build the app in a few implementation steps:
         }
         ```
 
-        > In theory, an RP may be authorized with multiple providers; hence, it may be beneficial to allow the caller of the authorization method to handle the authorization response (differently for different OPs) via the completion handler.
+        > In theory, an app may be authorized with multiple providers; hence, it may be beneficial to allow the caller of the authorization method to handle the authorization response (differently for different OPs) via the completion handler.
 
-    0. <a name="simple-app-state"></a>Maintaining authorization state
+    0. <a id="simple-app-state"></a>Maintaining authorization state
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -655,11 +697,11 @@ We will build the app in a few implementation steps:
         }
         ```
 
-    0. <a name="simple-app-auth"></a>Authorizing the RP
+    0. <a id="simple-app-auth"></a>Authorizing the RP
 
         [Back to Copy 'n' Paste](#simple-app)
 
-        In the extension marked "Authorization methods" add following method that will accept the OP's issuer URL (which can be used for OIDC discovery) or an already built OP configuration object:
+        In the extension marked "Authorization methods" add following method that will accept either the OP's issuer URL (which can be used for OIDC discovery) or an already built OP configuration object:
 
         ```swift
         // ViewController.swift
@@ -765,13 +807,13 @@ We will build the app in a few implementation steps:
 
         Build and run the application. It should prompt you to sign in at the OP's authentication endpoint and provide a means for authorizing the application. In your Xcode project logs you should see access and ID tokens obtained from the OP that could be further used in the application for making calls to the OIDC Provider and a Resource Server endpoints.
 
-    0. <a name="simple-app-api"></a>Making API requests
+    0. <a id="simple-app-api"></a>Making API requests
 
         [Back to Copy 'n' Paste](#simple-app)
 
-        In the above implementation re-launching the app on the same device (simulator) will load the authorization state saved in the previous session and the authorization flow will not be triggered. This, however, does not mean that the tokens saved from the last session are still valid. A model OAuth 2.0 client should probably check if the authorization server provided a token expiration date, which is captured by AppAuth in the `accessTokenExpirationDate` property of the last token response, but the token can be revoked before its scheduled expiration date. The client, therefore, should be able to accommodate an invalid token by obtaining a fresh one. The AppAuth's authorization state object provides `performAction()` method to do this automatically and use a refresh token if needed and if one is provided by the OP. On completion valid tokens may become available and an API call can be made. Or, in case of an error, re-authorization can be triggered.
+        In the above implementation re-launching the app on the same device (simulator) will load the authorization state saved in the previous session and the authorization flow will not be triggered. This, however, does not mean that the tokens saved from the last session are still valid. A model OAuth 2.0 client should probably check if the authorization server provided a token expiration date, which is captured by AppAuth in the `accessTokenExpirationDate` property of the last token response, but the token can be revoked before its scheduled expiration date. The client, therefore, should be able to accommodate an invalid token by obtaining a fresh one. The AppAuth's authorization state object provides `performAction()` method to do this automatically and use a refresh token if needed, and if one is provided by the OP. On completion valid tokens may become available and an API call can be made. Or, in case of an error, re-authorization can be triggered.
 
-        First we will add a generic request sender. The reason you may want one is that not all requests sent from your RP need to be protected. When making unprotected requests, you wouldn't want to deal with token validation or to send your access tokens to an unprepared-to-handle-them party. For example, this may be the case for manual exchange of the authorization code at the OP's token endpoint or when an [RP-initiated logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout) is performed. Hence, a non-protected request could be crafted differently but still be made with the generic method below:
+        First we will add a generic request sender. The reason you may want one is that not all requests sent from your RP need to be protected. When making unprotected requests, you wouldn't want to deal with token validation or send your access tokens to an unprepared-to-handle-them party. For example, this may be the case for manual exchange of the authorization code at the OP's token endpoint or when an [RP-initiated logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout) is performed. Hence, a non-protected request could be crafted differently but still be made with the generic method below:
 
         ```swift
         // ViewController.swift
@@ -788,7 +830,7 @@ We will build the app in a few implementation steps:
             - Parameter urlRequest: URLRequest optionally crafted with additional information, which may include access token.
             - Parameter completion: Escaping completion handler allowing the caller to process the response.
             */
-            func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse) -> Void) {
+            func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse, URLRequest) -> Void) {
                 let task = URLSession.shared.dataTask(with: urlRequest) {data, response, error in
                     DispatchQueue.main.async {
                         guard error == nil else {
@@ -805,7 +847,7 @@ We will build the app in a few implementation steps:
                             return
                         }
 
-                        completion(data, response)
+                        completion(data, response, urlRequest)
                     }
                 }
 
@@ -816,7 +858,7 @@ We will build the app in a few implementation steps:
         // . . .
         ```
 
-        > Alternatively, you can call the data task directly from wherever a request needs to be made and handle the response (or lack of it) there.
+        > Alternatively, you can call the data task directly from wherever a request needs to be made and handle the response (or lack of it) there. You can also pass the data task errors and non-HTTP responses from this method back to the original caller (via the completion handler) instead of making hard returns here. The latter approach is demonstrated in the more advanced [ForgeRock example](#full).
 
         Then add the API caller:
 
@@ -835,7 +877,7 @@ We will build the app in a few implementation steps:
             - Parameter urlRequest: URLRequest with pre-defined URL, method, etc.
             - Parameter completion: Escaping completion handler allowing the caller to process the response.
             */
-            func makeUrlRequestToProtectedResource(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse) -> Void) {
+            func makeUrlRequestToProtectedResource(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse, URLRequest) -> Void) {
                 let currentAccessToken: String? = self.authState?.lastTokenResponse?.accessToken
 
                 // Validating and refreshing tokens
@@ -867,7 +909,7 @@ We will build the app in a few implementation steps:
                     requestHeaders["Authorization"] = "Bearer \(accessToken)"
                     urlRequest.allHTTPHeaderFields = requestHeaders
 
-                    self.sendUrlRequest(urlRequest: urlRequest) {data, response in
+                    self.sendUrlRequest(urlRequest: urlRequest) {data, response, request in
                         guard let data = data, data.count > 0 else {
                             print("HTTP response data is empty.")
 
@@ -904,15 +946,15 @@ We will build the app in a few implementation steps:
                             }
                         }
 
-                        completion(data, response)
+                        completion(data, response, urlRequest)
                     }
                 }
             }
         }
         ```
-        > An error and/or a non-processable response could be detected and handled at any stage of this process and deferred (via escaping completion handlers) to the request maker where the information can be processed in a certain way. For example, an API request to a protected source expects some parsable data, even if an internal error occurs, but calling an RP-initiated logout endpoint may produce no data.
+        > An error and/or a non-processable response could be detected and handled at any stage of making a request and also deferred (via escaping completion handlers) to the original request maker where the information can be processed in a certain way. For example, an API request to a protected source expects some parsable data, even if an internal error occurs, but calling an RP-initiated logout endpoint may produce no data to handle.
 
-        Let's now prepare a call to the userinfo endpoint, the location for which we should be able to retrieve from the OIDC configuration document captured by AppAuth in the authorization state:
+        Let's now prepare a call to the userinfo endpoint, the location which we should be able to retrieve from the OIDC configuration document captured by AppAuth in the authorization state:
 
          ```swift
         // ViewController.swift
@@ -932,8 +974,32 @@ We will build the app in a few implementation steps:
 
                 let urlRequest = URLRequest(url: url)
 
-                makeUrlRequestToProtectedResource(urlRequest: urlRequest){data, response in
-                    print("User Info: \(String(describing: String(data: data!, encoding: .utf8)))")
+                makeUrlRequestToProtectedResource(urlRequest: urlRequest){data, response, request in
+                    var text = "User Info:\n"
+
+                    text += "\nREQUEST:\n"
+                    text += "URL: " + (request.url?.absoluteString ?? "") + "\n"
+
+                    text += "HEADERS: \n"
+                    request.allHTTPHeaderFields?.forEach({header in
+                        text += "\"\(header.key)\": \"\(header.value)\"\n"
+                    })
+
+                    print(request.description)
+                    text += "\nRESPONSE:\n"
+                    text += "Status Code: " + String(response.statusCode) + "\n"
+
+                    text += "HEADERS:\n"
+                    response.allHeaderFields.forEach({header in
+                        text += "\"\(header.key)\": \"\(header.value)\"\n"
+                    })
+
+                    text += "\nDATA:\n"
+                    if let data = data {
+                        text += String(bytes: data, encoding: .utf8)!
+                    }
+
+                    print(text)
                 }
             }
         }
@@ -967,7 +1033,7 @@ We will build the app in a few implementation steps:
         // . . .
         ```
 
-    0. <a name="simple-app-id"></a>Decoding ID Token
+    0. <a id="simple-app-id"></a>Decoding ID Token
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -1037,7 +1103,7 @@ We will build the app in a few implementation steps:
 
         Build and run the app. You should be able to see the user information in the logs. The white screen you see on the device simulator is the canvas to fill with functionality relying on OAuth 2.0 authorization.
 
-    0. <a name="simple-app-ui"></a>Optional
+    0. <a id="simple-app-ui"></a>Optional
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -1097,7 +1163,7 @@ We will build the app in a few implementation steps:
                     if let endSessionEndpointUrl = URL(string: issuerUrl + "/connect/endSession" + "?id_token_hint=" + idToken) {
                         let urlRequest = URLRequest(url: endSessionEndpointUrl)
 
-                        sendUrlRequest(urlRequest: urlRequest) {data, response in
+                        sendUrlRequest(urlRequest: urlRequest) {data, response, request in
                             if !(200...299).contains(response.statusCode) {
                                 // Handling server errors
                                 print("RP-initiated logout HTTP response code: \(response.statusCode)")
@@ -1183,7 +1249,7 @@ We will build the app in a few implementation steps:
 
         Now the app provides controls for signing in and out and initiating a call to the userinfo endpoint. Terminating the app without signing out should preserve the authorization state and not trigger the authorization flow on re-launching. Signing out will require the resource owner (i.e. the user) to re-authorize the app in order to be able to retrieve the user info.
 
-    0. <a name="simple-app-ui-extra"></a>Completely optional
+    0. <a id="simple-app-ui-extra"></a>Completely optional
 
         [Back to Copy 'n' Paste](#simple-app)
 
@@ -1287,8 +1353,11 @@ We will build the app in a few implementation steps:
             textView.insertText("\n" + output + "\n")
 
             let textViewBottom = NSMakeRange(textView.text.count - 1, 1)
-
             textView.scrollRangeToVisible(textViewBottom)
+
+            // Accommodating an iOS bug that may prevent scrolling under certain circumstances.
+            textView.isScrollEnabled = false
+            textView.isScrollEnabled = true
 
             Swift.print(output)
         }
@@ -1326,7 +1395,7 @@ We will build the app in a few implementation steps:
 
         Build and run the app.
 
-0. <a name="simple-conclusion"></a>Conclusion
+0. <a id="simple-conclusion"></a>In fine
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
@@ -1334,13 +1403,15 @@ We will build the app in a few implementation steps:
 
 ***
 
-## <a name="full"></a>ForgeRock example
+## <a id="full"></a>ForgeRock example
 
 [Back to top](#top)
 
-The ForgeRock example is located under `/iOS-AppAuth/iOS-AppAuth-IDM`.
+The ForgeRock platform provides server ingredients for setting up OAuth 2.0 flows: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) and [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) may serve as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1). The easiest way to see it in action is setting up and running the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development). With this environment in place, you will be able to evaluate a more advanced iOS OAuth 2.0 client built by following the same principles as the basic application described above and, in fact, having the latter used as the starting point. The complete example could be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM). A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
 
-In this example [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) serves as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS). The example assumes an instance of the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development) running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
+This example assumes an instance of the ForgeRock platform running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
+
+> Currently, all references are given to the [6.5](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2/development) release of the ForgeRock platform and the sample code expects the 6.5 version as well.
 
 ### Prerequisites
 
@@ -1348,11 +1419,11 @@ In this example [ForgeRock Access Management](https://www.forgerock.com/platform
 
 ### Installing and running the application
 
-0. <a name="full-tls"></a>Enable TLS
+0. <a id="full-tls"></a>Enable TLS
 
-    The platform instance provides access to the authorization and resource server only over HTTPS. Running within Minikube, it uses a self-sign certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including simulator) is installing the development Certificate Authority (CA) root certificate on the device (per [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html)).
+    The platform instance provides access to the authorization and the resource servers only over HTTPS. Running within Minikube, it uses a self-sign certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including a simulator) is installing the development Certificate Authority (CA) root certificate on the device.
 
-    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). To install on an iOS device simulator, for example, drag and drop the certificate file on a Settings screen, follow the installation prompt, and enable the certificate in `General` > `About` > `Certificate Trust Settings`. Refer to [Installing a CA’s Root Certificate on Your Test Device](https://developer.apple.com/library/archive/qa/qa1948/_index.html) for further details.
+    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/release/6.5.1/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). In order to install it, follow the [Enabling TLS in development environment](#simple-https) instructions for the simple app.
 
 0. Register the application as an OAuth 2.0 Client in AM
 
@@ -1430,3 +1501,11 @@ The OP and RP configuration is specified in `ViewController.swift` template. The
 When exploring the code base, please keep in mind that most of the visible layout and navigation is defined in `Main.storyboard`.
 
 For a newly created platform user, the notifications data  will not be populated by default. You can create notifications by updating `PERSONAL INFO` fields under the `Account` tab.
+
+***
+
+## <a id="conclusion"></a>Conclusion
+
+[Back to top](#top)
+
+Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth SDK. The RFC is concerned with security issues existing in "third-party" applications that cannot be trusted by the end-user. Addressing these concerns comes with limitations in the iOS environment: a mandatory end-user consent dialog and extra steps that may be required for implementing a single sign on experience. Nevertheless, with the AppAuth SDK we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.

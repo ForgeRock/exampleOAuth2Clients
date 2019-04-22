@@ -9,8 +9,21 @@
 import UIKit
 
 class AccountTableViewController: UITableViewController {
-    // Reference to the root controller with authorization methods and helpers.
-    let app = AppDelegate.shared.rootViewController
+    // MARK: Dependencies
+
+    /**
+     Allows for custom printing implemented in the caller.
+
+     Here, no options are taken for the `separator` and the `terminator`.
+     */
+    var customPrint: ((Any...) -> Void)?
+
+    var signOut: (() -> Void)?
+
+    var getUserAccount: ((@escaping (UserAccount.Response?, Error?) -> Void) -> Void)?
+
+    var updateUserAccount: ((String, String, @escaping (Data?, HTTPURLResponse?, Error?, URLRequest) -> Void) -> Void)?
+    // Dependencies: end
 
     // Placeholder for the signed in user account information.
     var accountData: [Dictionary<String, String>] = []
@@ -18,7 +31,7 @@ class AccountTableViewController: UITableViewController {
     // MARK: IBActions
     @IBAction func signOut(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true) {
-            self.app.signOut()
+            self.signOut?()
         }
     }
 
@@ -61,39 +74,39 @@ class AccountTableViewController: UITableViewController {
     }
 
     /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
+     // Override to support conditional editing of the table view.
+     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+     // Return false if you do not want the specified item to be editable.
+     return true
+     }
+     */
 
     /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }
-    }
-    */
+     // Override to support editing the table view.
+     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+     if editingStyle == .delete {
+     // Delete the row from the data source
+     tableView.deleteRows(at: [indexPath], with: .fade)
+     } else if editingStyle == .insert {
+     // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+     }
+     }
+     */
 
     /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
+     // Override to support rearranging the table view.
+     override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
 
-    }
-    */
+     }
+     */
 
     /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
+     // Override to support conditional rearranging of the table view.
+     override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+     // Return false if you do not want the item to be re-orderable.
+     return true
+     }
+     */
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         tableView.sectionHeaderHeight = 64
@@ -112,7 +125,7 @@ class AccountTableViewController: UITableViewController {
 
         let alert = UIAlertController(title: "", message: field.uppercased(), preferredStyle: UIAlertController.Style.alert)
 
-        alert.addTextField() {(textField) in
+        alert.addTextField() {textField in
             textField.text = value
 
             alert.addAction(
@@ -127,29 +140,12 @@ class AccountTableViewController: UITableViewController {
                         return
                     }
 
-                    let update = UserAccountUpdate.Update(
-                        operation: "replace",
-                        field: field,
-                        value: textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? value
-                    )
-
-                    var body = UserAccountUpdate().body
-
-                    body.append(update)
-
-                    let encoder = JSONEncoder()
-
-                    do {
-                        let json = try encoder.encode(body)
-
-                        let url = self.app.user.account.url + (self.app.user.login.data?.authorization?.id ?? "")
-
-                        self.app.makeUrlRequest(url: url, method: "PATCH", body: json, protected: true) {data, response in
-                            // For code simplicity, account data is reloaded on an update
-                            self.loadData()
+                    self.updateUserAccount?(field, newValue ?? value) {data, response, error, request in
+                        if error != nil {
+                            self.customPrint?("Error updating \(field).")
                         }
-                    } catch {
-                        self.app.customPrint("JSON encoding error")
+
+                        self.loadData()
                     }
                 }
             )
@@ -159,14 +155,14 @@ class AccountTableViewController: UITableViewController {
     }
 
     /*
-    // MARK: - Navigation
+     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destination.
+     // Pass the selected object to the new view controller.
+     }
+     */
 
 }
 
@@ -174,32 +170,26 @@ class AccountTableViewController: UITableViewController {
 
 extension AccountTableViewController {
     /**
-        Loads data used in this view controller.
-    */
+     Loads data used in this view controller.
+     */
     func loadData() {
         loadAccount()
     }
 
     /**
-        Loads the signed in user account data.
-    */
+     Loads the signed in user account data.
+     */
     func loadAccount() {
         self.accountData = []
 
-        let url = app.user.account.url + (app.user.login.data?.authorization?.id ?? "")
+        getUserAccount?() {userAccountResponse, error in
+            guard userAccountResponse != nil else {
+                self.customPrint?("Error retrieving user account data: \(error?.localizedDescription ?? "")")
 
-        app.makeUrlRequest(url: url, protected: true) {data, response in
-            guard data != nil else {
                 return
             }
 
-            guard let json = self.app.decodeJson(UserAccount.Response.self, from: data!) else {
-                return
-            }
-
-            self.app.user.account.data = json
-
-            let mirror = Mirror(reflecting: json)
+            let mirror = Mirror(reflecting: userAccountResponse!)
 
             for child in mirror.children {
                 if let label = child.label, let value = child.value as? String {

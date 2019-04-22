@@ -9,8 +9,8 @@
 import Foundation
 
 /**
-    Containter for PATCH request payload
-*/
+ Container for PATCH request payload
+ */
 
 struct UserAccountUpdate: Codable {
     struct Update: Codable {
