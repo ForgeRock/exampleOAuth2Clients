@@ -199,8 +199,9 @@ extension ViewController {
 
      - Parameter issuerUrl: The OP's `issuer` URL to use for OpenID configuration discovery
      - Parameter configuration: Ready to go OIDServiceConfiguration object populated with the OP's endpoints
+     - Parameter completion: (Optional) Completion handler to execute after successful authorization.
      */
-    func authorizeRp(issuerUrl: String?, configuration: OIDServiceConfiguration?) {
+    func authorizeRp(issuerUrl: String?, configuration: OIDServiceConfiguration?, completion: (() -> Void)? = nil) {
         activityIndicatorView.startAnimating()
 
         /**
@@ -232,6 +233,10 @@ extension ViewController {
                     self.customPrint("Successful authorization.")
 
                     self.showState()
+
+                    if let completion = completion {
+                        completion()
+                    }
                 } else {
                     self.customPrint("Authorization error: \(error?.localizedDescription ?? "")")
 
@@ -446,7 +451,10 @@ extension ViewController {
             if error != nil {
                 self.customPrint("Error fetching fresh tokens: \(error?.localizedDescription ?? "")")
 
-                self.authorizeRp(issuerUrl: self.issuerUrl, configuration: nil)
+                // Replaying request to a protected resource after (re)authorization.
+                self.authorizeRp(issuerUrl: self.issuerUrl, configuration: nil) {
+                    self.makeUrlRequestToProtectedResource(urlRequest: urlRequest, completion: completion)
+                }
 
                 return
             }
