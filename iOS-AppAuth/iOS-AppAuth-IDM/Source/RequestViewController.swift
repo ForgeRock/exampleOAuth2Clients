@@ -47,7 +47,9 @@ class RequestViewController: UIViewController {
             return
         }
 
-        makeUrlRequest?(url, self.includeAccessToken.isOn) {data, response, error, request in
+        makeUrlRequest?(url, self.includeAccessToken.isOn) {
+            data, response, error, request in
+
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "HH:mm:ss"
 
@@ -59,7 +61,9 @@ class RequestViewController: UIViewController {
             text += "URL: " + (request.url?.absoluteString ?? "") + "\n"
 
             text += "HEADERS: \n"
-            request.allHTTPHeaderFields?.forEach({header in
+            request.allHTTPHeaderFields?.forEach({
+                header in
+
                 text += "\"\(header.key)\": \"\(header.value)\"\n"
             })
 
@@ -69,7 +73,9 @@ class RequestViewController: UIViewController {
                 text += "Status Code: " + String(response.statusCode) + "\n"
 
                 text += "HEADERS:\n"
-                response.allHeaderFields.forEach({header in
+                response.allHeaderFields.forEach({
+                    header in
+
                     text += "\"\(header.key)\": \"\(header.value)\"\n"
                 })
             } else {
@@ -106,7 +112,9 @@ class RequestViewController: UIViewController {
     func addSampleUrls() {
         var text = ""
 
-        sampleUrls.enumerated().forEach({index, value in
+        sampleUrls.enumerated().forEach({
+            index, value in
+
             if let value = value {
                 text += value + "\n"
             }

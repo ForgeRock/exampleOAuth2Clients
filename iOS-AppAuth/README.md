@@ -404,7 +404,9 @@ We will build the app in a few implementation steps:
                 print("Retrieving configuration for: \(issuer.absoluteURL)")
 
                 // Discovering endpoints with an AppAuth's convenience method.
-                OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) {configuration, error in
+                OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) {
+                    configuration, error in
+
                     // Completing with the caller's callback.
                     completion(configuration, error)
                 }
@@ -508,7 +510,9 @@ We will build the app in a few implementation steps:
 
                 print("Initiating authorization request with scopes: \(request.scope ?? "DEFAULT_SCOPE")")
 
-                appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {authState, error in
+                appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+                    authState, error in
+
                     completion(authState, error)
                 }
             }
@@ -731,7 +735,9 @@ We will build the app in a few implementation steps:
                         configuration: configuration,
                         clientId: self.clientId,
                         redirectionUri: self.redirectionUri
-                    ) {authState, error in
+                    ) {
+                        authState, error in
+
                         if let authState = authState {
                             self.setAuthState(authState)
 
@@ -752,7 +758,9 @@ We will build the app in a few implementation steps:
 
                 if let issuerUrl = issuerUrl {
                     // Discovering OP configuration
-                    discoverOIDServiceConfiguration(issuerUrl) {configuration, error in
+                    discoverOIDServiceConfiguration(issuerUrl) {
+                        configuration, error in
+
                         guard let configuration = configuration else {
                             print("Error retrieving discovery document for \(issuerUrl): \(error?.localizedDescription ?? "")")
 
@@ -835,7 +843,9 @@ We will build the app in a few implementation steps:
             - Parameter completion: Escaping completion handler allowing the caller to process the response.
             */
             func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse, URLRequest) -> Void) {
-                let task = URLSession.shared.dataTask(with: urlRequest) {data, response, error in
+                let task = URLSession.shared.dataTask(with: urlRequest) {
+                    data, response, error in
+
                     DispatchQueue.main.async {
                         guard error == nil else {
                             // Handling transport error
@@ -885,7 +895,9 @@ We will build the app in a few implementation steps:
                 let currentAccessToken: String? = self.authState?.lastTokenResponse?.accessToken
 
                 // Validating and refreshing tokens
-                self.authState?.performAction() {accessToken, idToken, error in
+                self.authState?.performAction() {
+                    accessToken, idToken, error in
+
                     if error != nil {
                         print("Error fetching fresh tokens: \(error?.localizedDescription ?? "")")
 
@@ -916,7 +928,9 @@ We will build the app in a few implementation steps:
                     requestHeaders["Authorization"] = "Bearer \(accessToken)"
                     urlRequest.allHTTPHeaderFields = requestHeaders
 
-                    self.sendUrlRequest(urlRequest: urlRequest) {data, response, request in
+                    self.sendUrlRequest(urlRequest: urlRequest) {
+                        data, response, request in
+
                         guard let data = data, data.count > 0 else {
                             print("HTTP response data is empty.")
 
@@ -983,14 +997,18 @@ We will build the app in a few implementation steps:
 
                 let urlRequest = URLRequest(url: url)
 
-                makeUrlRequestToProtectedResource(urlRequest: urlRequest){data, response, request in
+                makeUrlRequestToProtectedResource(urlRequest: urlRequest){
+                    data, response, request in
+
                     var text = "User Info:\n"
 
                     text += "\nREQUEST:\n"
                     text += "URL: " + (request.url?.absoluteString ?? "") + "\n"
 
                     text += "HEADERS: \n"
-                    request.allHTTPHeaderFields?.forEach({header in
+                    request.allHTTPHeaderFields?.forEach({
+                        header in
+
                         text += "\"\(header.key)\": \"\(header.value)\"\n"
                     })
 
@@ -999,7 +1017,9 @@ We will build the app in a few implementation steps:
                     text += "Status Code: " + String(response.statusCode) + "\n"
 
                     text += "HEADERS:\n"
-                    response.allHeaderFields.forEach({header in
+                    response.allHeaderFields.forEach({
+                        header in
+
                         text += "\"\(header.key)\": \"\(header.value)\"\n"
                     })
 
@@ -1172,7 +1192,9 @@ We will build the app in a few implementation steps:
                     if let endSessionEndpointUrl = URL(string: issuerUrl + "/connect/endSession" + "?id_token_hint=" + idToken) {
                         let urlRequest = URLRequest(url: endSessionEndpointUrl)
 
-                        sendUrlRequest(urlRequest: urlRequest) {data, response, request in
+                        sendUrlRequest(urlRequest: urlRequest) {
+                            data, response, request in
+
                             if !(200...299).contains(response.statusCode) {
                                 // Handling server errors
                                 print("RP-initiated logout HTTP response code: \(response.statusCode)")

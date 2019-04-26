@@ -137,7 +137,9 @@ extension ViewController {
         customPrint("Retrieving configuration for: \(issuer.absoluteURL)")
 
         // Discovering endpoints with an AppAuth's convenience method.
-        OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) {configuration, error in
+        OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) {
+            configuration, error in
+
             // Completing with the caller's callback.
             completion(configuration, error)
         }
@@ -189,7 +191,9 @@ extension ViewController {
 
         customPrint("Initiating authorization request with scopes: \(request.scope ?? "DEFAULT_SCOPE")")
 
-        appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {authState, error in
+        appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+            authState, error in
+
             completion(authState, error)
         }
     }
@@ -226,7 +230,9 @@ extension ViewController {
                     "workflow_tasks",
                     "notifications"
                 ]
-            ) {authState, error in
+            ) {
+                authState, error in
+
                 if let authState = authState {
                     self.setAuthState(authState)
 
@@ -247,7 +253,9 @@ extension ViewController {
 
         if let issuerUrl = issuerUrl {
             // Discovering OP configuration
-            discoverOIDServiceConfiguration(issuerUrl) {configuration, error in
+            discoverOIDServiceConfiguration(issuerUrl) {
+                configuration, error in
+
                 guard let configuration = configuration else {
                     let message = "Error retrieving discovery document for \(issuerUrl): \(error?.localizedDescription ?? "")"
 
@@ -412,7 +420,9 @@ extension ViewController {
      - Parameter completion: Escaping completion handler allowing the caller to process the response.
      */
     func sendUrlRequest(urlRequest: URLRequest, completion: @escaping (Data?, HTTPURLResponse?, Error?, URLRequest) -> Void) {
-        let task = URLSession.shared.dataTask(with: urlRequest) {data, response, error in
+        let task = URLSession.shared.dataTask(with: urlRequest) {
+            data, response, error in
+
             DispatchQueue.main.async {
                 if error != nil {
                     // Handling transport error
@@ -447,7 +457,9 @@ extension ViewController {
         let currentAccessToken: String? = self.authState?.lastTokenResponse?.accessToken
 
         // Validating and refreshing tokens
-        self.authState?.performAction() {accessToken, idToken, error in
+        self.authState?.performAction() {
+            accessToken, idToken, error in
+
             if error != nil {
                 self.customPrint("Error fetching fresh tokens: \(error?.localizedDescription ?? "")")
 
@@ -478,7 +490,9 @@ extension ViewController {
             requestHeaders["Authorization"] = "Bearer \(accessToken)"
             urlRequest.allHTTPHeaderFields = requestHeaders
 
-            self.sendUrlRequest(urlRequest: urlRequest) {data, response, error, request in
+            self.sendUrlRequest(urlRequest: urlRequest) {
+                data, response, error, request in
+
                 guard let data = data, data.count > 0 else {
                     self.customPrint("HTTP response data is empty.")
 
@@ -556,11 +570,15 @@ extension ViewController {
         }
 
         if protected {
-            makeUrlRequestToProtectedResource(urlRequest: urlRequest) {data, response, error, request in
+            makeUrlRequestToProtectedResource(urlRequest: urlRequest) {
+                data, response, error, request in
+
                 completion(data, response, error, request)
             }
         } else {
-            sendUrlRequest(urlRequest: urlRequest) {data, response, error, request in
+            sendUrlRequest(urlRequest: urlRequest) {
+                data, response, error, request in
+
                 completion(data, response, error, request)
             }
         }
@@ -608,7 +626,9 @@ extension ViewController {
      */
     func showUi() {
         // Obtaining the user info, including their internal ID.
-        makeUrlRequest(url: UserLogin().url, protected: true) {data, response, error, request in
+        makeUrlRequest(url: UserLogin().url, protected: true) {
+            data, response, error, request in
+
             let userLoginResponse = self.decodeJson(UserLogin.Response.self, from: data!)
 
             guard let authenticationId = userLoginResponse?.authenticationId else {
@@ -627,7 +647,9 @@ extension ViewController {
                 self.customPrint(items)
             }
 
-            let signOut = {[unowned self] in
+            let signOut = {
+                [unowned self] in
+
                 self.signOut()
             }
 
@@ -638,10 +660,14 @@ extension ViewController {
             sampleUrls.append("https://rs.sample.forgeops.com/openidm/config/ui/dashboard")
             sampleUrls.append("https://rs.sample.forgeops.com/openidm/info/login")
 
-            tabBarController.viewControllers?.forEach {navigationController in
+            tabBarController.viewControllers?.forEach {
+                navigationController in
+
                 let nv = navigationController as? UINavigationController
 
-                nv?.viewControllers.forEach {viewController in
+                nv?.viewControllers.forEach {
+                    viewController in
+
                     if let vc = viewController as? DashboardTableViewController {
                         vc.sampleUrls = sampleUrls
 
@@ -649,8 +675,12 @@ extension ViewController {
 
                         vc.signOut = signOut
 
-                        vc.getNotifications = {[unowned self] (completion) in
-                            self.makeUrlRequest(url: UserNotifications().url, protected: true) {data, response, error, request in
+                        vc.getNotifications = {
+                            [unowned self] (completion) in
+
+                            self.makeUrlRequest(url: UserNotifications().url, protected: true) {
+                                data, response, error, request in
+
                                 guard let json = self.decodeJson(UserNotifications.Response.self, from: data!) else {
                                     self.customPrint("Error retrieving user notifications: cannot decode JSON.")
 
@@ -661,18 +691,24 @@ extension ViewController {
                             }
                         }
 
-                        vc.deleteNotification = {[unowned self] (notificationId, completion) in
+                        vc.deleteNotification = {
+                            [unowned self] (notificationId, completion) in
+
                             self.makeUrlRequest(
                                 url: UserNotifications().url + (notificationId ?? ""),
                                 method: "DELETE",
                                 protected: true
-                            ) {data, response, error, request in
+                            ) {
+                                data, response, error, request in
+
                                 completion(data, response!)
                             }
                         }
 
                         // Injecting a "pass through" dependency to be injected in the controller's children
-                        vc.makeUrlRequest = {[unowned self] (url, protected, completion) in
+                        vc.makeUrlRequest = {
+                            [unowned self] (url, protected, completion) in
+
                             guard let url = URL(string: url) else {
                                 customPrint("Invalid URL")
 
@@ -696,12 +732,16 @@ extension ViewController {
 
                         vc.signOut = signOut
 
-                        vc.getUserAccount = {[unowned self] completion in
+                        vc.getUserAccount = {
+                            [unowned self] completion in
+
                             let url = UserAccount().url + (userLoginResponse?.authorization?.id ?? "")!
 
                             var userAccountResponse: UserAccount.Response?
 
-                            self.makeUrlRequest(url: url, protected: true) {data, response, error, request in
+                            self.makeUrlRequest(url: url, protected: true) {
+                                data, response, error, request in
+
                                 if let data = data {
                                     userAccountResponse = self.decodeJson(UserAccount.Response.self, from: data)
                                 }
@@ -710,7 +750,9 @@ extension ViewController {
                             }
                         }
 
-                        vc.updateUserAccount = {[unowned self] (field, value, completion) in
+                        vc.updateUserAccount = {
+                            [unowned self] (field, value, completion) in
+
                             let url = UserAccount().url + (userLoginResponse?.authorization?.id ?? "")!
 
                             let update = UserAccountUpdate.Update(
@@ -733,7 +775,9 @@ extension ViewController {
                                 self.customPrint("Error updating user account: JSON encoding error.")
                             }
 
-                            self.makeUrlRequest(url: url, method: "PATCH", body: json, protected: true) {data, response, error, request in
+                            self.makeUrlRequest(url: url, method: "PATCH", body: json, protected: true) {
+                                data, response, error, request in
+
                                 completion(data, response, error, request)
                             }
                         }
@@ -762,7 +806,9 @@ extension ViewController {
             if let endSessionEndpointUrl = URL(string: issuerUrl + "/connect/endSession" + "?id_token_hint=" + idToken) {
                 let urlRequest = URLRequest(url: endSessionEndpointUrl)
 
-                sendUrlRequest(urlRequest: urlRequest) {data, response, error, request in
+                sendUrlRequest(urlRequest: urlRequest) {
+                    data, response, error, request in
+
                     if data != nil, data!.count > 0 {
                         // Handling RP-initiated logout errors
                         self.customPrint("RP-initiated logout response: \(String(describing: String(data: data!, encoding: .utf8)))")
