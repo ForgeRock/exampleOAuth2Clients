@@ -38,10 +38,14 @@ class iOS_AppAuthTests: XCTestCase {
 
         tabBarController = storyboard.instantiateViewController(withIdentifier: "TabBarController") as? UITabBarController
 
-        tabBarController.viewControllers?.forEach {navigationController in
+        tabBarController.viewControllers?.forEach {
+            navigationController in
+
             let nv = navigationController as? UINavigationController
 
-            nv?.viewControllers.forEach {viewController in
+            nv?.viewControllers.forEach {
+                viewController in
+
                 if let vc = viewController as? DashboardTableViewController {
                     dashboardTableViewController = vc
                 }
@@ -134,7 +138,9 @@ class iOS_AppAuthTests: XCTestCase {
         // Notifications are returned via escaping completion handler.
         let promise = expectation(description: "Completion handler")
 
-        dashboardTableViewController.getNotifications = {completion in
+        dashboardTableViewController.getNotifications = {
+            completion in
+
             // Returning notifications of the same structure that is expected from the rest end-point.
 
             var notifications: [UserNotifications.Response.Notification] = []

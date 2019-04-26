@@ -35,7 +35,7 @@ class DashboardTableViewController: UITableViewController {
     var makeUrlRequest: ((String, Bool, @escaping (Data?, HTTPURLResponse?, Error?, URLRequest) -> Void) -> Void)?
 
     // Dependencies: end
-    
+
     var notifications: [UserNotifications.Response.Notification] = []
 
     // Table sections placeholder.
@@ -138,7 +138,7 @@ class DashboardTableViewController: UITableViewController {
         if (tableSections[indexPath.section].dataIdentifier != "notifications") {
             return false
         }
-        
+
         return true
     }
 
@@ -151,13 +151,15 @@ class DashboardTableViewController: UITableViewController {
                 return
             }
 
-            deleteNotification(notificationId) {data, response in
+            deleteNotification(notificationId) {
+                data, response in
+
                 // For code simplicity, notification data is always reloaded when a notification is deleted.
                 self.loadData()
             }
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+        }
     }
 
     /*
@@ -184,8 +186,12 @@ class DashboardTableViewController: UITableViewController {
         if let vc = viewController as? RequestViewController {
             vc.sampleUrls = sampleUrls
 
-            vc.makeUrlRequest = {[unowned self] (url, protected, completion) in
-                self.makeUrlRequest?(url, protected) {data, response, error, request in
+            vc.makeUrlRequest = {
+                [unowned self] (url, protected, completion) in
+
+                self.makeUrlRequest?(url, protected) {
+                    data, response, error, request in
+
                     completion(data, response, error, request)
                 }
             }
@@ -204,7 +210,9 @@ extension DashboardTableViewController {
         Loads data used in this view controller.
     */
     func loadData() {
-        getNotifications?() {notifications in
+        getNotifications?() {
+            notifications in
+
             self.notifications = notifications
 
             self.tableView.reloadData()
