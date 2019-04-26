@@ -125,7 +125,9 @@ class AccountTableViewController: UITableViewController {
 
         let alert = UIAlertController(title: "", message: field.uppercased(), preferredStyle: UIAlertController.Style.alert)
 
-        alert.addTextField() {textField in
+        alert.addTextField() {
+            textField in
+
             textField.text = value
 
             alert.addAction(
@@ -140,7 +142,9 @@ class AccountTableViewController: UITableViewController {
                         return
                     }
 
-                    self.updateUserAccount?(field, newValue ?? value) {data, response, error, request in
+                    self.updateUserAccount?(field, newValue ?? value) {
+                        data, response, error, request in
+
                         if error != nil {
                             self.customPrint?("Error updating \(field).")
                         }
@@ -182,7 +186,9 @@ extension AccountTableViewController {
     func loadAccount() {
         self.accountData = []
 
-        getUserAccount?() {userAccountResponse, error in
+        getUserAccount?() {
+            userAccountResponse, error in
+
             guard userAccountResponse != nil else {
                 self.customPrint?("Error retrieving user account data: \(error?.localizedDescription ?? "")")
 
