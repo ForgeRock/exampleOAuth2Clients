@@ -27,10 +27,14 @@ define(["jquery", "lodash", "backbone", "handlebars", "moment", "org/forgerock/c
             });
         },
         fetch: function fetch(options) {
+            // stub out notification API;
+            var notificationPromise = $.Deferred().resolve({notifications:[]});
+            /*
             var notificationPromise = ServiceInvoker.restCall({
                 "url": this.url,
                 "type": "GET"
             });
+            */
 
             notificationPromise.then(options.success, options.error);
         }
