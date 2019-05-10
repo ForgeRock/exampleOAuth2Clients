@@ -4,35 +4,15 @@
 
 * [Preface](#preface)
 * [Introduction](#intro)
-* [Building a simple app with Swift and AppAuth](#simple)
+* [Building a simple app with Swift and AppAuth](#simple) (the code is here)
 * [ForgeRock example](#full)
 * [Conclusion](#conclusion)
 
-## <a id="preface"></a> Preface: A note about standards
+## <a id="preface"></a> Preface
 
 [Back to top](#top)
 
-_"The analysis found a positive and significant contribution of standards to productivity – supporting 37.4% of annual labour productivity growth in the UK economy over the period 1921 to 2013, which translates into approximately 28.4% of annual GDP growth – a similar finding to that of other recent national level studies in France and Germany."_
-
-_"One of the first [standards] to be introduced in the UK [was] the standardization of the number of tram gauge specifications . . . "_
-
-British Standards Institution, 2015
-
-_"And the Lord said, Behold, the people is one, and they have all one language; and this they begin to do: and now nothing will be restrained from them, which they have imagined to do."_
-
-Genesis 11:6 (KJV)
-
-It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers), because all interested parties are in agreement on direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area. After all, it is hard to do wheelies or donuts on a train, for it's just not built for such flexibility. (That's why it was the technology of choice in the infamous _trolley problem_.)
-
-Neil deGrasse Tyson said once, "If you want to be more creative, be less productive." On the way to delivering a software solution, the developer must strike a balance between creativity and productivity at every stage. In the process of inventing computers, defining network protocols and programming languages, and creating operating systems, libraries, services, and applications, the number of participants increases with each level of abstraction. Consequently, on the way up this "food chain", the effects of underlying quality and presence of stable interfaces in the lower level solution become more profound. At the same time, the original research _should_ play a less important role, so that any extra capacities may be allocated for addressing proprietary, specific business needs. A standard, technical or _de facto_, is an _accepted_ level of such abstraction. The wider it is accepted, the more support it will receive from the community, and the more efficiently it may be exploited. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important, because the gains in effort are multiplied by the number of participants.
-
-Thus, it seems, a software solution provider needs to identify the highest (that is, easiest to deal with) widely accepted level of abstraction that can be employed in its service/product. Then, that standard should be employed. The least amount of creativity should be _required_ from the consumers. Any non-standard solution should be sought-after only if there is no standard approach to address a particular issue. Of course, developer pride and other more pragmatic concerns may lead to competing standards:
-
-![how standards proliferate](https://imgs.xkcd.com/comics/standards.png)
-
-In the context of REST API protection, however, there seems to be a clear leader: the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) authorization framework with extensions galore*. In this document, we will leverage terminology defined in OAuth 2.0 and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the current best practices for building native OAuth 2.0 clients—that is, applications running on the end-user's (mobile) device.
-
-> \* The ever-present OAuth 2.0 implementations resemble a branch in the evolutionary tree, with the protocol extensions forming homologous structures on top of the common ancestor—RFC 6749. Time will tell whether the whole family lives or is surpassed by a competitor and goes extinct, leaving only fossils at tools.ietf.org.
+In this document, we will leverage terminology defined in [OAuth 2.0](https://tools.ietf.org/html/rfc6749) and one of its extensions—[OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the best current practices for building native OAuth 2.0 clients—that is, applications running on the end-user's (mobile) device.
 
 ## <a id="intro"></a> Introduction
 
@@ -40,50 +20,55 @@ In the context of REST API protection, however, there seems to be a clear leader
 
 Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [RFC 8252](https://tools.ietf.org/html/rfc8252) and provide following key points:
 
-1. OAuth 2.0 authorization requests from native apps should only be made through external user-agents (as opposed to embedded user-agents, like "web views"), typically the system browser or its programmatic instantiation called the "in-app browser tab".
+1. OAuth 2.0 authorization requests from native apps should only be made through external user-agents (as opposed to embedded user-agents, like a built-in or a custom web view); typically, the system browser or its programmatic instantiation called the "in-app browser tab".
 
-    Employing an external user-agent keeps the end-user credentials away from the native client and may provide access to the system browser's session information, thus allowing for single sign on (SSO) experience. The browser's URL address bar may also serve as a security device, providing the end-user with an option to make an informed decision before falling victim to a phishing attack. The in-app browser tab implementation allows for accessing the browser's authentication state and security context without leaving the native app.
+    Employing an external user-agent keeps the end-user credentials away from the native client. The browser's URL address bar may also serve as a security device, providing the end-user with an option to make an informed decision before falling victim to a phishing attack.
 
-0. The authorization request should be made with the [Authorization Code](https://tools.ietf.org/html/rfc6749#section-1.3.1) grant.
+    The in-app browser tab implementation allows for accessing the browser's authentication state and security context without leaving the native app. The following classes implement the in-app browser tab functionality in iOS:
+
+    * [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession) (iOS 12.0+)
+    * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
+    * [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) (iOS 9.0+)
+
+    Using a native browser or an in-app browser tab in iOS _may_ provide access to existing session information, thus allowing for single sign on (SSO) experience.
+
+    > The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12 do not share session (that is, transient) cookies with their other instances or with mobile Safari. The authentication cookies need to be persistent in order to implement SSO with the classes in a way that is compliant with RFC 8252. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars.
+
+    A web view allows access to its data, including cookies, user credentials, and so on, from the hosting app. Due to its unsafe nature, use of a web view for authorization and authentication purposes could be prohibited by identity providers ([example 1](https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html) and [example 2](https://dev.fitbit.com/build/reference/web-api/oauth2/#obtaining-consent)). A web view is NOT a recommended way to implement authorization flows, especially in the context of a third-party application that cannot be trusted by the end-user.
+
+0. The authorization request should be made with the Authorization Code grant.
 
     In most cases, native apps cannot maintain the confidentiality of a client secret, making them [OAuth 2.0 public clients](https://tools.ietf.org/html/rfc6749#section-2.1), for the (statically included) secret would be shared between instances of an app and available for retrieval. Public clients have two types of grants available to implement: [Authorization Code](https://tools.ietf.org/html/rfc6749#section-1.3.1) and [Implicit](https://tools.ietf.org/html/rfc6749#section-1.3.2).
 
-    In both cases, a native app needs to be able to serve the redirection URI. In the context of a mobile iOS application, the [Private-Use (custom) URI Scheme Redirection](https://tools.ietf.org/html/rfc8252#section-7.1) is commonly used for that purpose. Multiple apps can potentially register the same private-use URI scheme on a device and be able to intercept the authorization response. The authorization code grant allows for mitigating interception attacks with the [Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636) (PKCE) extension, which is not applicable in its current implementation to the Implicit grant.
+    The [OAuth 2.0 Security Best Current Practice](https://tools.ietf.org/id/draft-ietf-oauth-security-topics-12.html#implicit-grant) puts limits on use of the Implicit grant and recommends the Authorization Code grant as the more secure and more functional option.
 
-    In addition, the Authorization Code grant provides an option for re-obtaining access tokens without user interaction by utilizing refresh tokens.
+    An OAuth 2.0 native client needs to be able to serve the redirection URI. If an app is using a [private-use (custom) URI scheme redirection URI](https://tools.ietf.org/html/rfc8252#section-7.1), the same scheme could be registered by another app on the same device. If the private-use scheme is handled on the system level, the authorization response can be intercepted by the other, potentially malicious, app. The authorization code grant allows for mitigating interception attacks with the [Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636) (PKCE) technique, which is not applicable in its current implementation to the Implicit grant.
 
-0. In order to prevent [Client Impersonation](https://tools.ietf.org/html/rfc8252#section-8.6) the authorization
-   server should not process authorization requests for a public client automatically, without user consent or interaction.
+    > If one of the authentication classes (`ASWebAuthenticationSession` or `SFAuthenticationSession`) is initialized with the [callbackURLScheme](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/2990952-init) argument populated with a private-use URI Scheme, the redirection URI can be delivered directly to the app.
 
-   Using PKCE by itself does not cover a peculiar case of a malicious client _initiating_ the authorization code grant with its own `code_challenge` from the same device where a legitimate app exists, and the resource owner is already authenticated, [impersonating](https://tools.ietf.org/html/rfc8252#section-8.6) the legitimate app.
+    If a [claimed "https" scheme URI](https://tools.ietf.org/html/rfc8252#section-7.2) is used (a [Universal Link](https://developer.apple.com/ios/universal-links/), in Apple terms), only the app associated with this URI can receive it. Even then, RFC 8252 recommends PKCE for protecting the authorization code exchange process, which, in the case of native clients, does not require client authentication.
 
-   In this case, the end-user should be called for interaction prior to completing the authorization request. This can be achieved by requiring a consent screen. For example, the authorization server may ask the user to authorize the client for accessing certain predefined [scopes](https://tools.ietf.org/html/rfc6749#section-3.3) associated with the client's account.
+    > The [OAuth 2.0 Threat Model and Security Considerations](https://tools.ietf.org/html/rfc6819) (RFC 6819) describes ways the authorization code could end up in the hands of a malicious party. The OAuth 2.0 security best current practice document extends this model and simply obligates all OAuth 2.0 clients to [use PKCE in every Authorization Code grant](https://tools.ietf.org/id/draft-ietf-oauth-security-topics-12.html#ac).
 
-   ### The "first-party" apps
+    In addition to improved security, the Authorization Code grant allows for re-obtaining access tokens with refresh tokens—that is, without user interaction, which is important for a native app user experience.
 
-   Often, mobile applications are developed by the same business entity as the one they consume resources from. These apps may be described as first-party clients. In the context of a first-party application, the consent screen may seem redundant and distracting. One way to make it unnecessary is to authenticate the client to the authorization server. A client _may_ be identified by employing the [Claimed "https" Scheme URI Redirection](https://tools.ietf.org/html/rfc8252#section-7.2), which, in Apple's case, is called [Universal Links](https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/enabling_universal_links). With the client identity confirmed, no explicit consent dialog box may be required from the authorization server.
+0. In order to prevent [Client Impersonation](https://tools.ietf.org/html/rfc8252#section-8.6), the authorization server should not process authorization requests for a public client automatically, without user consent or interaction, unless the identity of the client can be proven.
 
-   Apple, however, does not seem to allow switching between apps without user consent. As a result, an external browser cannot be used by an application without user interaction. In addition, there have been reports ([example](http://www.openradar.appspot.com/19944416)) that App Store started to reject apps using mobile Safari for redirection flows:
+    Using PKCE by itself does not cover a peculiar case of a malicious client performing the Authorization Code grant with its own `code_challenge` and `code_verifier` on behalf of another client, using the latter's publicly available client ID and redirection URI.
 
-   > We noticed an issue in your app that contributes to a lower quality user experience than Apple users expect . . . Upon launching the app, a web page in mobile Safari opens for logging in . . . , then returns the user to the app. The user should be able to log in without opening Safari first.
+    To eliminate this possibility, a [claimed "https" scheme](https://tools.ietf.org/html/rfc8252#section-7.2) SHOULD be used in the redirection URI, which will uniquely identify the client, preventing any other client from receiving responses from the authorization server. Since the app and the URI association is hosted on a website, no foreign app can claim this URI. If the claimed URI cannot be directed to the legitimate client app, the external user agent will handle it—but not a different client.
 
-   This means that one is to use designated in-app browser tab classes for visiting the authorization server endpoints in iOS:
+    Another way to identify the client software is to _always_ present the end-user with a consent screen where the client identifier is displayed (along with other information that may help to make a conscious decision) by the authorization server. For example, the authorization server may ask the user to authorize the client for accessing certain predefined [scopes](https://tools.ietf.org/html/rfc6749#section-3.3) associated with the client's account. The consent screen method, in its best implementation, will still depend on the end-user's attentiveness and discernment. Some limitations of this approach are set out in [Section 5.5 of RFC 8619](https://tools.ietf.org/html/rfc6819#section-5.5).
 
-   * [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession) (iOS 12.0+)
-   * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
-   * [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) (iOS 9.0+)
+    > In iOS 11 and 12, the authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, will _automatically_ present a mandatory dialog box asking the end-user to give explicit consent for accessing the website’s data (and the existing login information) in Safari every time the authorization endpoint is visited. This consent screen displays the app’s (product) name and, seemingly, the endpoint domain name, if the latter is a recognizable [top-level domain](https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains). It doesn't, however, tell the end-user anything about the OAuth 2.0 client to be authorized. In iOS 13, the dialog _may_ be omitted by configuring `ASWebAuthenticationSession` for a private session via the [prefersEphemeralWebBrowserSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/3237231-prefersephemeralwebbrowsersessio) parameter. However, sharing browser data and SSO will not be an option in this case.
+    >
+    > `SFSafariViewController` can be used in iOS 9.0 and above, and does not ask for user consent. It shares cookies and other website data with its instances in iOS 9 and 10, thus allowing for easy client impersonation in those environments—if no consent screen is displayed by the authorization server. The same, except being version independent, applies to mobile Safari, the default browser in iOS.
 
-    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, will _automatically_ present a dialog box asking the end-user to give explicit consent to access the website’s data (and the existing login information) in Safari every time the authentication endpoint is visited. This makes the consent screen unavoidable in the current implementation of the authentication classes. On the other hand, this provides a consistent user experience when consent is needed; for example, to prevent client impersonation when a private-use URI scheme is employed.
+    The particularities of the iOS environment, combined with the fact that some identity providers allow for saving the user's consent and not asking for it again, mean that a consistent implementation of a mandatory consent screen may prove infeasible.
 
-    `SFSafariViewController` can be used in iOS 9.0 and above, and does not ask for user consent. It shares cookies and other website data with Safari in iOS 9 and 10, thus allowing for client impersonation in those environments, if no consent screen is presented by the authorization server.
+    Consequently, Universal Links are currently the only reliable and generic way of confirming the client identity in iOS. Unfortunately, Universal Links are not very well suited for OAuth 2.0 redirection flows at the moment. They do not appear to work with HTTP redirects in iOS 10 and below and [seem to require an intermediate screen in front of the authorization endpoint](https://openradar.appspot.com/51091611) in iOS 11 and 12. The authorization server consent dialog may serve the role of such screen, making it a mandatory addition to the technique in the contemporary iOS environment. Combined with use of refresh tokens, this may constitute an acceptable end-user experience, although, for mobile applications developed by the same business entity as the one they are authorized by and consume resources from, the "first-party" clients, any consent screen may seem redundant and distracting.
 
-    > [According to Apple](https://developer.apple.com/support/app-store/), less than ten percent of all devices are using iOS below version 11.
-
-    #### The single sign on (SSO) experience
-
-    The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12 do not share session (that is, transient) cookies with their other instances or with mobile Safari. One needs to use persistent cookies in order to implement SSO with the classes in a compliant with RFC 8252 way. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars.
-
-The included example iOS applications play the role of an [OpenID Connect](https://openid.net/connect/) (OIDC) [Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) and use the [AppAuth-iOS SDK](https://github.com/openid/AppAuth-iOS) for authorizing the RP against an [OIDC Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The AppAuth SDK follows the best practices described in RFC 8252 by extending the OAuth 2.0 protocol with PKCE and employing an external user agent for visiting the OP's authentication and authorization endpoints. Access tokens obtained during the authorization process are then included as [Bearer Token](https://tools.ietf.org/html/rfc6750) value of the `Authorization` header in requests made to protected endpoints on a [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
+The included example iOS applications play the role of an [OpenID Connect](https://openid.net/connect/) (OIDC) [Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) and use the [AppAuth-iOS SDK](https://github.com/openid/AppAuth-iOS) for authorizing the RP against an [OIDC Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The AppAuth SDK follows the best practices described in RFC 8252 by extending the OAuth 2.0 protocol with PKCE and employing an external user agent for visiting the OP's authentication and authorization endpoints. An access token obtained during the authorization process is then included as the [Bearer Token](https://tools.ietf.org/html/rfc6750) value of the `Authorization` header in requests made to protected endpoints on a [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
 
 ***
 
@@ -93,9 +78,11 @@ The included example iOS applications play the role of an [OpenID Connect](https
 
 The purpose of this exercise is to build from scratch (step-by-step, each of which will be commented on) the most basic app capable of performing HTTP requests to a resource protected with OAuth 2.0. Xcode 10 and Swift 4 environment and iOS 9-12 targets will be assumed. The AppAuth SDK for iOS will be employed to perform the authorization flow.
 
-The URIs and the private-use scheme used below serve demonstrational purposes. Feel free to replace them with your own OP and RP specifics.
+All URIs and the private-use URI scheme used below serve demonstrational purposes. Feel free to replace them with your own OP and RP specifics.
 
 The completed Xcode project can be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/6.5/iOS-AppAuth/iOS-AppAuth-Basic](https://github.com/ForgeRock/exampleOAuth2Clients/tree/6.5/iOS-AppAuth/iOS-AppAuth-Basic) and could be used as a quick reference. A [short video](https://forgerock.wistia.com/medias/r7yn6bpfle) demonstrates the final result.
+
+> The AppAuth SDK for iOS supports Universal Links. However, as a general technique, Universal Links are not universally adopted by the OAuth 2.0 community, including some Identity Providers ([example](https://developers.google.com/identity/protocols/OAuth2InstalledApp)). Hence, a case based on a custom URL scheme redirection will be described first.
 
 We will build the app in a few implementation steps:
 
@@ -103,7 +90,7 @@ We will build the app in a few implementation steps:
 * [Collecting information about the OP](#simple-op)
 * [Collecting information about the RP](#simple-rp)
 * [Setting up Xcode project and adding the AppAuth SDK](#simple-xcode)
-* [Copy 'n' Paste](#simple-app)
+* [Copy 'n' Paste](#simple-app) (the actual code is here)
 * [In fine](#simple-conclusion)
 
 0. <a id="simple-https"></a>Enabling TLS in development environment
@@ -151,8 +138,6 @@ We will build the app in a few implementation steps:
     > You could also refer to the [ForgeRock example](#full) section, where the process of registering a client is described in the context of a running ForgeRock platform instance.
 
     In this example, we will use a private-use URI scheme for the redirection URI: `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`.
-
-    > AppAuth also supports [Universal Links](https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content). However, because of the extra steps required for trying this approach (including the app been deployed in the App Store), we will not cover it here.
 
     Note, that the full and exact redirection URI MUST be registered for the RP with the OP.
 
@@ -274,6 +259,8 @@ We will build the app in a few implementation steps:
         * Add to `URL Schemes` an item of the type `String` with the scheme of your redirection URI. The scheme is everything before the colon (`:`). For example, if the redirect URI is `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`, then the scheme would be `com.forgeops.ios-appauth-basic`.
 
         ![Screenshot](README_files/xcode.info.plist.url-scheme.png)
+
+        > The official documentation provides more details on [Defining a Custom URL Scheme for Your App](https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app).
 
         With the URL scheme registered, the redirection URI can be delivered to the app. This will bring the app to the foreground and call the AppDelegate's [application(_:open:options:)](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623112-application) method. (AppAuth will automatically close the external user agent instance.)
 
@@ -1539,4 +1526,4 @@ For a newly created platform user, the notifications data  will not be populated
 
 [Back to top](#top)
 
-Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth SDK. The RFC is concerned with security issues existing in "third-party" applications that cannot be trusted by the end-user. Addressing these concerns comes with limitations in the iOS environment: a mandatory end-user consent dialog and extra steps that may be required for implementing a single sign on experience. Nevertheless, with the AppAuth SDK we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
+Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth for iOS SDK. The RFC is concerned with security issues existing in third-party applications that cannot be trusted by the end-user. Addressing these concerns in the iOS environment necessitates in leveraging Universal Links for client authentication and may require extra steps for implementing a single sign on experience. Nevertheless, with the AppAuth SDK, we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
