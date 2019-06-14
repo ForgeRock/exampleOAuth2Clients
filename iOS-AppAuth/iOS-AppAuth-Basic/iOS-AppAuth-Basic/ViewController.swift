@@ -45,11 +45,11 @@ class ViewController: UIViewController {
     let clientId = "ios-appauth-basic"
 
     /**
-     Private-use URI scheme used by the app
+     Scheme used in the redirection URI.
 
      This value is provided separately so that its presence in `Info.plist` can be easily checked and so that it can be reused with different redirection URIs.
      */
-    let redirectionUriScheme = "com.forgeops.ios-appauth-basic"
+    let redirectionUriScheme = "https" // com.forgeops.ios-appauth-basic"
 
     /**
      OAuth 2 redirection URI for the client.
@@ -57,7 +57,7 @@ class ViewController: UIViewController {
      The redirection URI is provided as a computed property, so that it can refer to the class' instance properties.
      */
     var redirectionUri: String {
-        return redirectionUriScheme + ":/oauth2/forgeops/redirect"
+        return redirectionUriScheme + "://lapinek.github.io/oauth2redirect/ios-appauth-basic" // + ":/oauth2/forgeops/redirect"
     }
 
     /**
