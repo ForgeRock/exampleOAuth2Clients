@@ -232,6 +232,7 @@ We will build the app in a few implementation steps:
     * [Authorizing the RP](#simple-app-auth)
     * [Making API requests](#simple-app-api)
     * [Decoding ID Token](#simple-app-id)
+    * [Universal Links](#simple-app-universal-links)
     * [Optional](#simple-app-ui)
     * [Completely Optional](#simple-app-ui-extra)
 
@@ -421,7 +422,7 @@ We will build the app in a few implementation steps:
             let clientId = "ios-appauth-basic"
 
             /**
-            Private-use URI scheme used by the app
+            Scheme used in the redirection URI.
 
             This value is provided separately so that its presence in `Info.plist` can be easily checked and so that it can be reused with different redirection URIs.
             */
@@ -1118,6 +1119,136 @@ We will build the app in a few implementation steps:
         ```
 
         Build and run the app. You should be able to see the user information in the logs. The white screen on your device simulator is the canvas to fill with functionality relying on OAuth 2.0 authorization.
+
+    0. <a id="simple-app-universal-links"></a>Universal Links
+
+        [Back to Copy 'n' Paste](#simple-app)
+
+        Universal Links should be required for OAuth 2.0 clients in production. As explained in the Introduction, using "https" scheme URI redirection is rather necessary for securing OAuth 2.0 redirection flows in a native application.
+
+        The [official documentation](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content) describes the process of enabling and handling Universal links. You need to take the following steps to support Universal Links in your iOS app.
+
+        0. Joining the [Apple Developer Program](https://developer.apple.com/programs/)
+
+            This membership is required for associating your app with a web domain.
+
+        0. Selecting the development team in your Xcode project
+
+            In your project target properties, under `General` tab, select your development team. For example:
+
+            ![Screenshot](README_files/xcode.target.general.team.png)
+
+            This will register the application at [https://developer.apple.com/account/ios/identifier/bundle](https://developer.apple.com/account/ios/identifier/bundle) and enable additional `Capabilities` in your Xcode project.
+
+        0. Setting up Associated Domains
+
+            Apple's [Setting Up an App’s Associated Domains](https://developer.apple.com/documentation/security/password_autofill/setting_up_an_app_s_associated_domains) article provides the steps to associate a domain, that you control and can use to serve files, with your application. For Universal Links, you will need to specify an associated domain entitlement for the `applinks` service, for example:
+
+            ![Screenshot](README_files/xcode.target.capabilities.associated-domains.png)
+
+        0. Creating and hosting the Apple App Site Association file
+
+            The general procedure of creating the association file is described in [Setting Up an App’s Associated Domains](https://developer.apple.com/documentation/security/password_autofill/setting_up_an_app_s_associated_domains#3001215), and Universal Links specifics are provided in the [Enabling Universal Links](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/enabling_universal_links#3002229) article. Once again, for Universal Links you will need to add the "applinks" key in the file,  with the "apps" key set to an empty array and the "details" key populated with the app's specifics, where the "appID" value consists of your development `Team Identifier` and  your app `Bundle Identifier` separated by a period. For example:
+
+            ```json
+            {
+                "applinks": {
+                    "apps": [],
+                    "details": [
+                        {
+                            "appID": "JV6EC9KSN3.com.forgerock.iOS-AppAuth-Basic",
+                            "paths": [
+                                "/oauth2redirect/ios-appauth-basic"
+                            ]
+                        }
+                    ]
+                }
+            }
+            ```
+
+            Host the file on the associated website in the .well-known directory and/or in the site root, over a _valid_ HTTPS connection.
+
+            > Depending on the web site, the association file may not be accessible under the .well-known directory; you can verify this by trying to open the file in the browser. There may also be an online tool available for checking accessibility and validating the format of the association file ([example](https://branch.io/resources/aasa-validator/)). The Apple's [App Search API Validation Tool](https://search.developer.apple.com/appsearch-validation-tool/) is not currently suitable for testing Universal Links during development, because it seemingly tries to find the associated app in App Store.
+
+            Note, that when changes are made to the association file, for them to take effect, iOS needs to download the updated file. This will happen when an app with the Associated Domains entitlement is installed on the user's device for the first time or is reinstalled with a new `Version`/`Build` combination.
+
+        0. Handling Universal Links
+
+            Apple's [Handling Universal Links](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/handling_universal_links) describes how data received via a Universal Link can be processed by the app. You will need to add `application(_:continue:restorationHandler:)` method to your AppDelegate to continue the authorization flow after the redirection, similar to this:
+
+            ```swift
+            // AppDelegate.swift
+
+            class AppDelegate: UIResponder, UIApplicationDelegate {
+
+                // . . .
+
+                /*
+                Sending the redirection URL to the existing AppAuth flow, if any, for handling the authorization response.
+                */
+                func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+                    guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+                        let url = userActivity.webpageURL else {
+                            return false
+                    }
+
+                    if let authorizationFlow = self.currentAuthorizationFlow, authorizationFlow.resumeExternalUserAgentFlow(with: url) {
+                        self.currentAuthorizationFlow = nil
+
+                        return true
+                    }
+
+                    return false
+                }
+
+                // . . .
+            ```
+
+        0. Setting the redirection URI
+
+            We've declared two variables to represent the redirection URI sent to the authorization server. Their values can now be changed to reflect the Universal Link defined by the location and the content of the association file. For example:
+
+            ```swift
+            // ViewController.swift
+
+            class ViewController: UIViewController {
+
+                // . . .
+
+                /**
+                Scheme used in the redirection URI.
+
+                This value is provided separately so that its presence in `Info.plist` can be easily checked and so that it can be reused with different redirection URIs.
+                */
+                let redirectionUriScheme = "https" // com.forgeops.ios-appauth-basic"
+
+                // . . .
+
+                /**
+                OAuth 2 redirection URI for the client.
+
+                The redirection URI is provided as a computed property, so that it can refer to the class' instance properties.
+                */
+                var redirectionUri: String {
+                    return redirectionUriScheme + "://lapinek.github.io/oauth2redirect/ios-appauth-basic" // + ":/oauth2/forgeops/redirect"
+                }
+
+                // . . .
+            ```
+
+        0. Registering the new redirect URI
+
+            According to the [OAuth 2.0 Security Best Current Practice](https://tools.ietf.org/id/draft-ietf-oauth-security-topics-12.html#rec_redirect), a preregistered client must be associated with a redirect URI exactly matching one used during the authorization flow. Before you can use the Universal Link, you will need to register it for the client with your authorization server.
+
+        0. Introducing the user consent screen
+
+            For the reasons described in the Introduction, in order for Universal Links to be redirected to the app, an intermediate screen is currently required, from which the end-user can navigate to the authorization endpoint. The particular implementation of such screen and its enforcement will depend on the OP. For example, ForgeRock Access Management provides administrators with option to disable "implied consent" for particular OAuth 2.0 client and not allow clients to skip consent:
+
+            ![Screenshot](README_files/am.oauth2.client.consent.png)
+
+            ![Screenshot](README_files/am.oauth2.provider.consent.png)
+
+        This concludes the Universal Links support topic. Preventing OAuth 2.0 client impersonation with just a consent screen is fraught with uncertainty.  Universal Links add robust protection against this threat when used in the redirection flows.
 
     0. <a id="simple-app-ui"></a>Optional
 
