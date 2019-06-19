@@ -191,10 +191,18 @@ extension ViewController {
 
         customPrint("Initiating authorization request with scopes: \(request.scope ?? "DEFAULT_SCOPE")")
 
-        appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
-            authState, error in
+        if #available(iOS 11, *) {
+            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request) {
+                authState, error in
 
-            completion(authState, error)
+                completion(authState, error)
+            }
+        } else {
+            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+                authState, error in
+
+                completion(authState, error)
+            }
         }
     }
 
@@ -797,13 +805,14 @@ extension ViewController {
      Resets the authorization state and signs out from the OIDC Provider using its [RP-initiated logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout) `end_session_endpoint`.
      */
     func signOut() {
-        if let idToken = authState?.lastTokenResponse?.idToken {
-            /**
-             OIDC Provider `end_session_endpoint`.
+        if let idToken = authState?.lastTokenResponse?.idToken, let endSessionEndpoint = authState?.lastTokenResponse?.request.configuration.endSessionEndpoint {
+            // RP-initiated logout (https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)
 
-             At the moment, AppAuth does not support [RP-initiated logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout), although it [may in the future](https://github.com/openid/AppAuth-iOS/pull/191), and the `end_session_endpoint` is not captured from the OIDC discovery document; hence, the endpoint may need to be provided manually.
-             */
-            if let endSessionEndpointUrl = URL(string: issuerUrl + "/connect/endSession" + "?id_token_hint=" + idToken) {
+            var urlComponents = URLComponents(url: endSessionEndpoint, resolvingAgainstBaseURL: false)
+
+            urlComponents?.queryItems = [URLQueryItem(name: "id_token_hint", value: idToken)]
+
+            if let endSessionEndpointUrl = urlComponents?.url {
                 let urlRequest = URLRequest(url: endSessionEndpointUrl)
 
                 sendUrlRequest(urlRequest: urlRequest) {

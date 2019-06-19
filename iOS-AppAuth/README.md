@@ -247,8 +247,6 @@ We will build the app in a few implementation steps:
 
         In the current AppAuth implementation, these classes are initialized with the [callbackURLScheme](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/2990952-init) argument, which allows the app to receive the redirection URI the authorization request was made with.
 
-        ### Supporting older iOS versions
-
         In iOS 9-10, however, [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) is used to perform the authorization request. This view controller does not provide an option to be initialized with a private-use callback scheme; hence, one needs to be added to be the project's `Info.plist` in order for the app to be able to respond to the redirection URI.
 
         > The same applies to iOS versions below 9, which use mobile Safari as the external user agent.
@@ -446,7 +444,7 @@ We will build the app in a few implementation steps:
 
         [Back to Copy 'n' Paste](#simple-app)
 
-        The AppAuth SDK allows for obtaining an authorization code and manually exchanging it for a token at the OP's `token_endpoint`. Alternatively, the code exchange can be performed automatically. In this example, we will follow the latter pattern by adding the following method to the main class (via an extension):
+        The AppAuth SDK allows for obtaining an authorization code and exchanging it for a token with a single call to an `OIDAuthState` convenience method. We will take this approach by adding the following extension to the main class:
 
          ```swift
         // ViewController.swift
@@ -460,7 +458,7 @@ We will build the app in a few implementation steps:
 
             Attempts to perform a request to authorization endpoint by utilizing an AppAuth convenience method.
             Completes authorization code flow with automatic code exchange.
-            The response is handled then with the passed in escaping callback allowing the caller to handle the results.
+            The response is then passed to the completion handler, which lets the caller to handle the results.
             */
             func authorizeWithAutoCodeExchange(
                 configuration: OIDServiceConfiguration,
@@ -496,18 +494,124 @@ We will build the app in a few implementation steps:
 
                 // Making authorization request.
 
-                print("Initiating authorization request with scopes: \(request.scope ?? "DEFAULT_SCOPE")")
+                print("Initiating authorization request with scopes: \(request.scope ?? "no scope requested")")
 
-                appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
-                    authState, error in
+                if #available(iOS 11, *) {
+                    appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request) {
+                        authState, error in
 
-                    completion(authState, error)
+                        completion(authState, error)
+                    }
+                } else {
+                    appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+                        authState, error in
+
+                        completion(authState, error)
+                    }
                 }
             }
         }
         ```
 
         Potentially, an app may be authorized with multiple providers; hence, it may be beneficial to allow the caller of the authorization method to handle the authorization response (differently for different OPs) via the completion handler.
+
+        Handling authorization and token requests separately could be needed in certain scenarios, if any custom processing or interaction is required between the two events. In these cases, the authorization code flow could be interrupted by utilizing AppAuth's `OIDAuthorizationService` methods. To illustrate, if `OIDAuthorizationService` was used in the authorization method we added to the main class, it would look like this:
+
+        ```swift
+        /**
+        Performs the authorization code flow in two steps.
+
+        Attempts to perform a request to authorization endpoint by utilizing an OIDAuthorizationService method.
+        Completes authorization code flow with code exchange initiated manually by invoking a separate OIDAuthorizationService method.
+        The response is then passed to the completion handler, which lets the caller to handle the results.
+
+        This method is not used and is here for illustration purposes.
+        */
+        func authorizeWithManualCodeExchange(
+            configuration: OIDServiceConfiguration,
+            clientId: String,
+            redirectionUri: String,
+            scopes: [String] = [OIDScopeOpenID, OIDScopeProfile],
+            completion: @escaping (OIDAuthState?, Error?) -> Void
+            ) {
+            // Checking if the redirection URL can be constructed.
+            guard let redirectURI = URL(string: redirectionUri) else {
+                print("Error creating redirection URL for : \(redirectionUri)")
+
+                return
+            }
+
+            // Checking if the AppDelegate property holding the authorization session could be accessed.
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+                print("Error accessing AppDelegate")
+
+                return
+            }
+
+            // Building authorization request.
+            let request = OIDAuthorizationRequest(
+                configuration: configuration,
+                clientId: clientId,
+                clientSecret: nil,
+                scopes: scopes,
+                redirectURL: redirectURI,
+                responseType: OIDResponseTypeCode,
+                additionalParameters: nil
+            )
+
+            /**
+            Makes token request.
+
+            The code obtained from the authorization request is exchanged at the token endpoint. This could be an external function taking the `completion` parameter as an argument.
+            */
+            func makeTokenRequest() {
+                guard let tokenExchangeRequest = self.authState?.lastAuthorizationResponse.tokenExchangeRequest() else {
+                    print("Error creating access token request.")
+
+                    return
+                }
+
+                print("Making token request with: ", tokenExchangeRequest)
+
+                OIDAuthorizationService.perform(tokenExchangeRequest) {
+                    response, error in
+
+                    if let response = response {
+                        print("Received token response with access token: ", response.accessToken ?? "")
+                    } else {
+                        print("Error making token request: \(error?.localizedDescription ?? "")")
+                    }
+
+                    self.authState?.update(with: response, error: error)
+
+                    completion(self.authState, error)
+                }
+            }
+
+            // Making authorization request.
+            appDelegate.currentAuthorizationFlow = OIDAuthorizationService.present(request, presenting: self) {
+                response, error in
+
+                if let response = response {
+                    print("Received authorization response with code: \(response.authorizationCode ?? "")")
+
+                    let authState = OIDAuthState(authorizationResponse: response)
+
+                    self.setAuthState(authState)
+
+                    // Custom processing here.
+
+                    makeTokenRequest()
+                } else {
+                    print("Error making authorization request: \(error?.localizedDescription ?? "")")
+
+                    completion(nil, error)
+                }
+            }
+        }
+        ```
+
+        In this walk through, we will assume the method with automatic code exchange is used.
 
     0. <a id="simple-app-state"></a>Maintaining authorization state
 
@@ -1548,7 +1652,7 @@ We will build the app in a few implementation steps:
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
-    Whether or not you performed the optional steps, the resulting iOS app, utilizing the AppAuth SDK for automatic code exchange and tokens renewal, provides a starting point to work with the Authorization Code grant extended by PKCE. If you need it, the SDK also provides convenience methods allowing for lower level interaction with OAuth 2.0/OIDC endpoints, which is covered in the [official API documentation](http://openid.github.io/AppAuth-iOS/docs/latest/annotated.html) and demonstrated in the [official examples](https://github.com/openid/AppAuth-iOS/tree/master/Examples).
+    Whether or not you performed the optional steps, the resulting iOS app, utilizing the AppAuth SDK for automatic code exchange and tokens renewal, provides a starting point to work with the Authorization Code grant extended by PKCE. The SDK also provides methods allowing for lower level interaction with OAuth 2.0/OIDC endpoints; you can find more information in the [official API documentation](http://openid.github.io/AppAuth-iOS/docs/latest/annotated.html) and the [official examples](https://github.com/openid/AppAuth-iOS/tree/master/Examples).
 
 ***
 
@@ -1657,4 +1761,4 @@ For a newly created platform user, the notifications data  will not be populated
 
 [Back to top](#top)
 
-Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth for iOS SDK. The RFC is concerned with security issues existing in third-party applications that cannot be trusted by the end-user. Addressing these concerns in the iOS environment necessitates in leveraging Universal Links for client authentication and may require extra steps for implementing a single sign on experience. Nevertheless, with the AppAuth SDK, we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
+Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth for iOS SDK. The RFC is concerned with security issues existing in third-party apps that cannot be trusted by the end-user. Addressing these concerns in the iOS environment requires using Universal Links for confirming client identity and persistent cookies for single sign on experience. Nevertheless, with the AppAuth SDK, we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
