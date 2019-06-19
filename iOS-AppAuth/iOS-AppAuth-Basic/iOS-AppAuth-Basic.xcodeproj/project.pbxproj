@@ -161,10 +161,12 @@
 				TargetAttributes = {
 					3C1C3E6B2215223F002EAC8E = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 						TestTargetID = 3CF5A4CB22001C7500707500;
 					};
 					3CF5A4CB22001C7500707500 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 						SystemCapabilities = {
 							com.apple.SafariKeychain = {
 								enabled = 1;
@@ -295,7 +297,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.forgerock.iOS-AppAuth-BasicTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iOS-AppAuth-Basic.app/iOS-AppAuth-Basic";
 			};
@@ -315,7 +317,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.forgerock.iOS-AppAuth-BasicTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iOS-AppAuth-Basic.app/iOS-AppAuth-Basic";
 			};
@@ -456,7 +458,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.forgerock.iOS-AppAuth-Basic";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -480,7 +482,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.forgerock.iOS-AppAuth-Basic";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

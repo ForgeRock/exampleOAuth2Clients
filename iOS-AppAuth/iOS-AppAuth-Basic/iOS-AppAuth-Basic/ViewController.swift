@@ -189,7 +189,7 @@ extension ViewController {
 
      Attempts to perform a request to authorization endpoint by utilizing an AppAuth convenience method.
      Completes authorization code flow with automatic code exchange.
-     The response is handled then with the passed in escaping callback allowing the caller to handle the results.
+     The response is then passed to the completion handler, which lets the caller to handle the results.
      */
     func authorizeWithAutoCodeExchange(
         configuration: OIDServiceConfiguration,
@@ -205,7 +205,7 @@ extension ViewController {
             return
         }
 
-        // Checking if the AppDelegate property holding the authorization session could be accessed
+        // Checking if the AppDelegate property holding the authorization session could be accessed.
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             print("Error accessing AppDelegate")
 
@@ -225,12 +225,112 @@ extension ViewController {
 
         // Making authorization request.
 
-        print("Initiating authorization request with scopes: \(request.scope ?? "DEFAULT_SCOPE")")
+        print("Initiating authorization request with scopes: \(request.scope ?? "no scope requested")")
 
-        appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
-            authState, error in
+        if #available(iOS 11, *) {
+            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request) {
+                authState, error in
 
-            completion(authState, error)
+                completion(authState, error)
+            }
+        } else {
+            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+                authState, error in
+
+                completion(authState, error)
+            }
+        }
+    }
+
+    /**
+     Performs the authorization code flow in two steps.
+
+     Attempts to perform a request to authorization endpoint by utilizing an OIDAuthorizationService method.
+     Completes authorization code flow with code exchange initiated manually by invoking a separate OIDAuthorizationService method.
+     The response is then passed to the completion handler, which lets the caller to handle the results.
+
+     This method is not used and is here for illustration purposes.
+     */
+    func authorizeWithManualCodeExchange(
+        configuration: OIDServiceConfiguration,
+        clientId: String,
+        redirectionUri: String,
+        scopes: [String] = [OIDScopeOpenID, OIDScopeProfile],
+        completion: @escaping (OIDAuthState?, Error?) -> Void
+        ) {
+        // Checking if the redirection URL can be constructed.
+        guard let redirectURI = URL(string: redirectionUri) else {
+            print("Error creating redirection URL for : \(redirectionUri)")
+
+            return
+        }
+
+        // Checking if the AppDelegate property holding the authorization session could be accessed.
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            print("Error accessing AppDelegate")
+
+            return
+        }
+
+        // Building authorization request.
+        let request = OIDAuthorizationRequest(
+            configuration: configuration,
+            clientId: clientId,
+            clientSecret: nil,
+            scopes: scopes,
+            redirectURL: redirectURI,
+            responseType: OIDResponseTypeCode,
+            additionalParameters: nil
+        )
+
+        /**
+         Makes token request.
+
+         The code obtained from the authorization request is exchanged at the token endpoint. This could be an external function taking the `completion` parameter as an argument.
+         */
+        func makeTokenRequest() {
+            guard let tokenExchangeRequest = self.authState?.lastAuthorizationResponse.tokenExchangeRequest() else {
+                print("Error creating access token request.")
+
+                return
+            }
+
+            print("Making token request with: ", tokenExchangeRequest)
+
+            OIDAuthorizationService.perform(tokenExchangeRequest) {
+                response, error in
+
+                if let response = response {
+                    print("Received token response with access token: ", response.accessToken ?? "")
+                } else {
+                    print("Error making token request: \(error?.localizedDescription ?? "")")
+                }
+
+                self.authState?.update(with: response, error: error)
+
+                completion(self.authState, error)
+            }
+        }
+
+        // Making authorization request.
+        appDelegate.currentAuthorizationFlow = OIDAuthorizationService.present(request, presenting: self) {
+            response, error in
+
+            if let response = response {
+                print("Received authorization response with code: \(response.authorizationCode ?? "")")
+
+                let authState = OIDAuthState(authorizationResponse: response)
+
+                self.setAuthState(authState)
+
+                // Custom processing here.
+
+                makeTokenRequest()
+            } else {
+                print("Error making authorization request: \(error?.localizedDescription ?? "")")
+
+                completion(nil, error)
+            }
         }
     }
 
@@ -586,13 +686,14 @@ extension ViewController {
      Resets the authorization state and signs out from the OIDC Provider using its [RP-initiated logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout) `end_session_endpoint`.
      */
     @objc func signOut() {
-        if let idToken = authState?.lastTokenResponse?.idToken {
-            /**
-             OIDC Provider `end_session_endpoint`.
+        if let idToken = authState?.lastTokenResponse?.idToken, let endSessionEndpoint = authState?.lastTokenResponse?.request.configuration.endSessionEndpoint {
+            // RP-initiated logout (https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)
 
-             At the moment, AppAuth does not support [RP-initiated logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout), although it [may in the future](https://github.com/openid/AppAuth-iOS/pull/191), and the `end_session_endpoint` is not captured from the OIDC discovery document; hence, the endpoint may need to be provided manually.
-             */
-            if let endSessionEndpointUrl = URL(string: issuerUrl + "/connect/endSession" + "?id_token_hint=" + idToken) {
+            var urlComponents = URLComponents(url: endSessionEndpoint, resolvingAgainstBaseURL: false)
+
+            urlComponents?.queryItems = [URLQueryItem(name: "id_token_hint", value: idToken)]
+
+            if let endSessionEndpointUrl = urlComponents?.url {
                 let urlRequest = URLRequest(url: endSessionEndpointUrl)
 
                 sendUrlRequest(urlRequest: urlRequest) {
