@@ -61,8 +61,8 @@ Each example client is self-contained, and fully described in its own README.
     _Different branches are not compatible and not interoperable._
     The `master` branch is under active development. Older branches are more stable.
     For example, before trying the `exampleOAuth2Clients` [6.5 branch](https://github.com/ForgeRock/exampleOAuth2Clients/tree/6.5),
-    check out a branch tracking the appropriate `forgeops` tag:
-    `cd forgeops ; git fetch --all --tags --prune ; git checkout tags/6.5.1 -b 6.5.1`<br>
+    check out a branch tracking the appropriate `forgeops` branch:
+    `cd forgeops ; git fetch --all --tags --prune ; git checkout --track release/6.5.1`<br>
     The `forgeops-init` repository uses versioned directories rather than branches.
 *   Your browser does not trust the server certificates used by default.
     The certificates are signed by a self-signed example CA certificate.
