@@ -78,7 +78,7 @@ The [app.groovy](src/app.groovy) code has the full context of these two snippets
 
 ### Prerequisites
 
-1. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops/tree/master/dev).
+1. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops).
 
 2. Register *vertxClient* application with AM as a new OAuth2 Client:
 

@@ -47,7 +47,7 @@ Each example client is self-contained, and fully described in its own README.
    * `skaffold` (<https://github.com/GoogleContainerTools/skaffold#installation>)
 1. (Optional) XCode on macOS for the iOS examples.
 1. Follow the README for the [ForgeRock Cloud Platform](
-   https://github.com/ForgeRock/forgeops/tree/master/dev)
+   https://github.com/ForgeRock/forgeops)
 1. Follow the README for your chosen client in this repository.
 
 **Important**
@@ -69,7 +69,7 @@ Each example client is self-contained, and fully described in its own README.
 
 To use the example client applications as described in their README files,
 you must access or set up a running instance of the ForgeRock
-[ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops/tree/master/dev).
+[ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops).
 The ForgeRock Cloud Platform deploys the ForgeRock Identity Platform
 into a Kubernetes environment such as `minikube` on a laptop,
 Amazon Elastic Container Service for Kubernetes (Amazon EKS), or
