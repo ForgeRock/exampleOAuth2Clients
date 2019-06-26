@@ -478,7 +478,7 @@ This web application was started with the [Express application generator](https:
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops/tree/master/dev).
+0. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops).
 
 ### Installing and Running the Application
 

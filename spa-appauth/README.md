@@ -89,7 +89,7 @@ Once the tokens are available, the main SPA code can be loaded. This is what is 
 
 ### Prerequisites
 
-1. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops/tree/master/dev).
+1. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops).
 
 2. Register the *appAuthClient* application with AM as a new OAuth2 Client.
 

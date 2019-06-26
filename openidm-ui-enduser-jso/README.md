@@ -154,7 +154,7 @@ The following illustrates how an SPA application can employ the Implicit flow ag
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops/tree/master/dev)
+0. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops)
 
 ### Installing and Running the Application
 

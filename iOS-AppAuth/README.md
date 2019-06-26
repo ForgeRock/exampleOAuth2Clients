@@ -1660,13 +1660,13 @@ We will build the app in a few implementation steps:
 
 [Back to top](#top)
 
-The ForgeRock platform provides server ingredients for setting up OAuth 2.0 flows: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) and [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) may serve as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1). The easiest way to see it in action is setting up and running the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops/tree/master/dev). With this environment in place, you will be able to evaluate a more advanced OAuth 2.0 client for iOS built by following the same principles as the basic application described above and, in fact, having the latter used as the starting point. The complete example could be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM). A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
+The ForgeRock platform provides server ingredients for setting up OAuth 2.0 flows: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) and [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) may serve as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1). The easiest way to see it in action is setting up and running the [ForgeRock DevOps and Cloud Deployment sample](https://github.com/ForgeRock/forgeops). With this environment in place, you will be able to evaluate a more advanced OAuth 2.0 client for iOS built by following the same principles as the basic application described above and, in fact, having the latter used as the starting point. The complete example could be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM). A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
 
 This example assumes an instance of the ForgeRock platform running locally, within [Minikube](https://kubernetes.io/docs/setup/minikube/).
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops/tree/master/dev)
+0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops)
 
 ### Installing and running the application
 
