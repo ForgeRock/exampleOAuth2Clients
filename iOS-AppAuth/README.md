@@ -30,9 +30,9 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
     * [SFAuthenticationSession](https://developer.apple.com/documentation/safariservices/sfauthenticationsession) (iOS 11.0–12.0 Deprecated)
     * [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) (iOS 9.0+)
 
-    Using a native browser or an in-app browser tab in iOS _may_ provide access to existing session information, thus allowing for single sign on (SSO) experience.
+    Using a native browser or an in-app browser tab in iOS _may_ provide access to existing session information, thus allowing for single sign-on (SSO) experience.
 
-    > The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12 do not share session (that is, transient) cookies with their other instances or with mobile Safari. The authentication cookies need to be persistent in order to implement SSO with the classes in a way that is compliant with RFC 8252. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars.
+    > The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12, do not share session (that is, transient) cookies with their other instances or with mobile Safari. The authentication cookies need to be persistent in order to implement SSO with the classes in a way that is compliant with RFC 8252. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars.
 
     A web view allows access to its data, including cookies, user credentials, and so on, from the hosting app. Due to its unsafe nature, use of a web view for authorization and authentication purposes could be prohibited by identity providers ([example 1](https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html) and [example 2](https://dev.fitbit.com/build/reference/web-api/oauth2/#obtaining-consent)). A web view is NOT a recommended way to implement authorization flows, especially in the context of a third-party application that cannot be trusted by the end-user.
 
@@ -99,7 +99,7 @@ We will build the app in a few implementation steps:
 
     If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates, you will need to accommodate that as described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
 
-    To install a CA root certificate on an iOS device simulator, for example, drag and drop the certificate file on a (preferably `Settings`) screen, follow the installation prompt, and, on a more recent version of iOS, enable the certificate in `General` > `About` > `Certificate Trust Settings`. It may take more than one attempt to engage the installation process. In that case don't get discouraged and keep trying; eventually the simulator will cooperate.
+    To install a CA root certificate on an iOS device simulator, for example, drag and drop the certificate file on a (preferably Settings) screen and follow the installation prompt. If there is no installation prompt, you may need to manually open Settings > General > Profile > _your-CA-certificate_ to install the certificate after it has been downloaded. On a more recent version of iOS, enable the certificate in General > About > Certificate Trust Settings. It may take more than one attempt to engage the installation process. In that case, don't get discouraged and keep trying; eventually, the simulator will cooperate.
 
     A [short video](https://forgerock.wistia.com/medias/1wft6023jm) shows the installation flow on an iOS 12.1 simulator.
 
@@ -153,13 +153,13 @@ We will build the app in a few implementation steps:
 
     1. Creating the project
 
-        Create a new `Single View App` Xcode project for `iOS` choosing `Swift` as the language:
+        Create a new Single View App Xcode project for iOS choosing Swift as the language:
 
-        `File` > `New` > `Project...` > `Single View App`
+        File > New > Project... > Single View App
 
         Follow the prompts and provide Product Name and Organization details. Save the new project in a location of choice.
 
-        If desired, provide a `Display Name` that will appear on the iOS device.
+        If desired, provide a Display Name that will appear on the iOS device.
 
     0. Installing the dependency manager
 
@@ -187,27 +187,27 @@ We will build the app in a few implementation steps:
         carthage bootstrap --platform ios
         ```
 
-        This will build the AppAuth framework for `iOS` in your project under `Carthage` directory, according to the dependency specified in `Cartfile` and the provided `--platform` option. Providing no platform option will result in building frameworks for all supported platforms, which won't hurt but may prove unnecessary.
+        This will build the AppAuth framework for iOS in your project under the Carthage directory, according to the dependency specified in `Cartfile` and the provided `--platform` option. Providing no platform option will result in building frameworks for all supported platforms, which won't hurt but may prove unnecessary.
 
         > The artifacts created by Carthage (namely `Carthage/Build` and `Carthage/Checkouts`) may be optionally committed to version control. This is advisable if the dependencies are not recreated (and possibly updated) in the project's other instances.
 
     0. Setting up the AppAuth framework
 
-        In the Xcode project Navigator select the project and then the target under `TARGETS`. Under `General` tab, scroll down to `Linked Frameworks and Libraries` and add the AppAuth framework:
+        In the Xcode project Navigator select the project and then the target under TARGETS. Under the General tab, scroll down to Linked Frameworks and Libraries and add the AppAuth framework:
 
-        Select `+` and then on `Add Other...` , navigate to _`your-project-root`_ > `Carthage` > `Build` > `iOS`, and select `AppAuth.framework`; then, select `Open`.
+        Select +, and then Add Other..., navigate to _your-project-root_ > Carthage > Build > iOS, and select AppAuth.framework; then, select Open.
 
         ![Screenshot](README_files/xcode.target.general.frameworks.png)
 
-        Next, switch over to the target's `Build Phases` tab and add a new `Run Script` build phase:
+        Next, switch over to the target's Build Phases tab and add a new Run Script build phase:
 
-        Select `+`, choose `New Run Script Phase`, expand the newly created `Run Script` entry, and add the following shell command _under_ `Shell` (do not change the Shell path):
+        Select +, choose New Run Script Phase, expand the newly created Run Script entry, and add the following shell command _under_ Shell (do not change the Shell path):
 
         ```bash
         /usr/local/bin/carthage copy-frameworks
         ```
 
-        Under `Input Files` select `+` and add:
+        Under Input Files, select + and add:
 
         ```bash
         $(SRCROOT)/Carthage/Build/iOS/AppAuth.framework
@@ -215,7 +215,7 @@ We will build the app in a few implementation steps:
 
         ![Screenshot](README_files/xcode.target.build-phases.run-script.png)
 
-        > At any point of building the app, including this very point, you can change the iOS deployment target under `Building Settings`.
+        > At any point of building the app, including this very point, you can change the iOS deployment target under Building Settings.
 
 0. <a id="simple-app"></a>Copy 'n' Paste
 
@@ -253,8 +253,8 @@ We will build the app in a few implementation steps:
 
         To specify the redirection URI scheme in `Info.plist`:
 
-        * Add `URL types` key to `Information Property List` (the corresponding "raw" value is `CFBundleURLTypes`; right click on the key list and check "Show Raw Keys/Values" to have it shown).
-        * Fully expand the key and populate it with a `URL Schemes` (`CFBundleURLSchemes`) item.
+        * Add URL types key to Information Property List (the corresponding "raw" value is CFBundleURLTypes; right-click the key list, and select Show Raw Keys/Values to have it shown).
+        * Fully expand the key and populate it with a URL Schemes (`CFBundleURLSchemes`) item.
         * Add to `URL Schemes` an item of the type `String` with the scheme of your redirection URI. The scheme is everything before the colon (`:`). For example, if the redirect URI is `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`, then the scheme would be `com.forgeops.ios-appauth-basic`.
 
         ![Screenshot](README_files/xcode.info.plist.url-scheme.png)
@@ -515,7 +515,7 @@ We will build the app in a few implementation steps:
 
         Potentially, an app may be authorized with multiple providers; hence, it may be beneficial to allow the caller of the authorization method to handle the authorization response (differently for different OPs) via the completion handler.
 
-        Handling authorization and token requests separately could be needed in certain scenarios, if any custom processing or interaction is required between the two events. In these cases, the authorization code flow could be interrupted by utilizing AppAuth's `OIDAuthorizationService` methods. To illustrate, if `OIDAuthorizationService` was used in the authorization method we added to the main class, it would look like this:
+        Handling authorization and token requests separately could be needed in certain scenarios, if any custom processing or interaction is required between the two events. In these cases, the authorization code flow could be interrupted by utilizing AppAuth's `OIDAuthorizationService` methods. To illustrate, if `OIDAuthorizationService` was used in the authorization method that we added to the main class, it would look like this:
 
         ```swift
         /**
@@ -1067,7 +1067,7 @@ We will build the app in a few implementation steps:
         ```
         > An error and/or a non-processable response could be detected and handled at any stage of making a request and also deferred (via escaping completion handlers) to the original request maker where the information can be processed in a certain way. For example, an API request to a protected source expects some parsable data, even if an internal error occurs, but calling an RP-initiated logout endpoint may produce no data to handle.
 
-        Here, if the `performAction(_:)` method produces an error, we attempt to re-authorize the RP and then to replay the API request by passing a completion handler in the `authorizeRp(issuerUrl:configuration:completion:)` method.
+        Here, if the `performAction(_:)` method produces an error, we attempt to reauthorize the RP and then to replay the API request by passing a completion handler in the `authorizeRp(issuerUrl:configuration:completion:)` method.
 
         Let's now prepare a call to the userinfo endpoint—the location which we should be able to retrieve from the OIDC configuration document captured by AppAuth in the authorization state:
 
@@ -1158,7 +1158,7 @@ We will build the app in a few implementation steps:
 
         [Back to Copy 'n' Paste](#simple-app)
 
-        Instead of (or along with) using the raw content of the ID token, we could decode the Base64 encoded string and get the token claims:
+        Instead of (or along with) using the raw content of the ID token, we could decode the Base64-encoded string and get the token claims:
 
          ```swift
         // ViewController.swift
@@ -1238,7 +1238,7 @@ We will build the app in a few implementation steps:
 
         0. Selecting the development team in your Xcode project
 
-            In your project target properties, under `General` tab, select your development team. For example:
+            In your project target properties, under the General tab, select your development team. For example:
 
             ![Screenshot](README_files/xcode.target.general.team.png)
 
@@ -1252,7 +1252,7 @@ We will build the app in a few implementation steps:
 
         0. Creating and hosting the Apple App Site Association file
 
-            The general procedure of creating the association file is described in [Setting Up an App’s Associated Domains](https://developer.apple.com/documentation/security/password_autofill/setting_up_an_app_s_associated_domains#3001215), and Universal Links specifics are provided in the [Enabling Universal Links](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/enabling_universal_links#3002229) article. Once again, for Universal Links you will need to add the "applinks" key in the file,  with the "apps" key set to an empty array and the "details" key populated with the app's specifics, where the "appID" value consists of your development `Team Identifier` and  your app `Bundle Identifier` separated by a period. For example:
+            The general procedure of creating the association file is described in [Setting Up an App’s Associated Domains](https://developer.apple.com/documentation/security/password_autofill/setting_up_an_app_s_associated_domains#3001215), and Universal Links specifics are provided in the [Enabling Universal Links](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/enabling_universal_links#3002229) article. Once again, for Universal Links, you will need to add the "applinks" key in the file, with the "apps" key set to an empty array, and the "details" key populated with the app's specifics, where the "appID" value consists of your development `Team Identifier` and your app `Bundle Identifier` separated by a period. For example:
 
             ```json
             {
@@ -1360,7 +1360,7 @@ We will build the app in a few implementation steps:
 
         Currently, there is no means in the app to reset the authorization state or sign out from the OP. There is also no UI to initiate the API call. We will add some basic controls to the app to complete the picture, but this part should not require elaborate comments as the actual UI implementation will greatly depend on your own app design. To abstract from the storyboard environment we will add all the UI pieces programmatically.
 
-        In the `application(_:didFinishLaunchingWithOptions:)` method of `AppDelegate.swift` add a navigation controller to the app:
+        In the `application(_:didFinishLaunchingWithOptions:)` method of `AppDelegate.swift`, add a navigation controller to the app:
 
          ```swift
         // AppDelegate.swift
@@ -1500,7 +1500,7 @@ We will build the app in a few implementation steps:
         // . . .
         ```
 
-        Now the app provides controls for signing in and out and initiating a call to the userinfo endpoint. Terminating the app without signing out should preserve the authorization state and not trigger the authorization flow on re-launching. Signing out will require the resource owner (i.e. the user) to re-authorize the app in order to be able to retrieve the user info.
+        Now the app provides controls for signing in and out and initiating a call to the userinfo endpoint. Terminating the app without signing out should preserve the authorization state and not trigger the authorization flow on re-launching. Signing out will require the resource owner (that is, the user) to reauthorize the app in order to be able to retrieve the user info.
 
     0. <a id="simple-app-ui-extra"></a>Completely optional
 
@@ -1662,7 +1662,7 @@ We will build the app in a few implementation steps:
 
 The ForgeRock platform provides server ingredients for setting up OAuth 2.0 flows: [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) plays the role of the [OpenID Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) and [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) may serve as the [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1). The easiest way to see it in action is setting up and running the [ForgeRock platform tailored for OAuth 2.0 development](https://github.com/ForgeRock/forgeops/tree/master/dev). With this environment in place, you will be able to evaluate a more advanced OAuth 2.0 client for iOS built by following the same principles as the basic application described above and, in fact, having the latter used as the starting point. The complete example could be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-IDM). A [short video](https://forgerock.wistia.com/medias/3dft2ndyvh) demonstrates the app running on an iOS simulator.
 
-This example assumes an instance of the ForgeRock platform running locally (i.e. within [Minikube](https://kubernetes.io/docs/setup/minikube/)).
+This example assumes an instance of the ForgeRock platform running locally, within [Minikube](https://kubernetes.io/docs/setup/minikube/).
 
 ### Prerequisites
 
@@ -1672,7 +1672,7 @@ This example assumes an instance of the ForgeRock platform running locally (i.e.
 
 0. <a id="full-tls"></a>Enable TLS
 
-    The platform instance provides access to the authorization and the resource servers only over HTTPS. Running within Minikube, it uses a self-sign certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including a simulator) is installing the development Certificate Authority (CA) root certificate on the device.
+    The platform instance provides access to the authorization and the resource servers only over HTTPS. Running within Minikube, it uses a self-signed certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including a simulator) is installing the development Certificate Authority (CA) root certificate on the device.
 
     The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). In order to install it, follow the [Enabling TLS in development environment](#simple-https) instructions for the simple app.
 
@@ -1744,7 +1744,7 @@ This example assumes an instance of the ForgeRock platform running locally (i.e.
 
     This will add the AppAuth-iOS SDK content to the project.
 
-0. Open `iOS-AppAuth.xcodeproj` in Xcode, then build and run the product for selected device simulator. The github project does not have a development team and cannot be run on an actual device by default.
+0. Open `iOS-AppAuth.xcodeproj` in Xcode, then build and run the product for selected device simulator. The GitHub project does not have a development team and cannot be run on an actual device by default.
 
 The OP and RP configuration is specified in `ViewController.swift` template. The data structures, defined in `User...swift` files, expect certain responses from the API calls. This means that if you replace these with your own, the UI may not be populated as a result. However, after authenticating the end-user and authorizing the app, you should still be able to make arbitrary GET requests crafted with the OP's access token by navigating to `Make a Request to a Protected Resource` screen.
 
@@ -1758,4 +1758,4 @@ For a newly created platform user, the notifications data  will not be populated
 
 [Back to top](#top)
 
-Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth for iOS SDK. The RFC is concerned with security issues existing in third-party apps that cannot be trusted by the end-user. Addressing these concerns in the iOS environment requires using Universal Links for confirming client identity and persistent cookies for single sign on experience. Nevertheless, with the AppAuth SDK, we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
+Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth for iOS SDK. The RFC is concerned with security issues existing in third-party apps that cannot be trusted by the end-user. Addressing these concerns in the iOS environment requires using Universal Links for confirming client identity and persistent cookies for single sign-on experience. Nevertheless, with the AppAuth SDK, we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
