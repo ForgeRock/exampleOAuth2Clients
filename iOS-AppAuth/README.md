@@ -66,7 +66,7 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
     The particularities of the iOS environment, combined with the fact that some identity providers allow for saving the user's consent and not asking for it again, mean that a consistent implementation of a mandatory consent screen may prove infeasible.
 
-    Consequently, Universal Links are currently the only reliable and generic way of confirming the client identity in iOS. Unfortunately, Universal Links are not very well suited for OAuth 2.0 redirection flows at the moment. They do not appear to work with HTTP redirects in iOS 10 and below and [seem to require an intermediate screen in front of the authorization endpoint](https://openradar.appspot.com/51091611) in iOS 11 and 12. The authorization server consent dialog may serve the role of such screen, making it a mandatory addition to the technique in the contemporary iOS environment. Combined with use of refresh tokens, this may constitute an acceptable end-user experience, although, for mobile applications developed by the same business entity as the one they are authorized by and consume resources from, the "first-party" clients, any consent screen may seem redundant and distracting.
+    Consequently, Universal Links are currently the only reliable and generic way of confirming the client identity in iOS. Unfortunately, Universal Links are not very well suited for OAuth 2.0 redirection flows at the moment. At present, they do not appear to work with HTTP redirects in iOS 9 and [seem to require an intermediate screen in front of the authorization endpoint](https://openradar.appspot.com/51091611) in iOS 10-12. The authorization server consent dialog may serve the role of such screen, making it a mandatory addition to the technique in the contemporary iOS environment. Combined with use of refresh tokens, this may constitute an acceptable end-user experience, although, for mobile applications developed by the same business entity as the one they are authorized by and consume resources from, the "first-party" clients, any consent screen may seem redundant and distracting.
 
 The included example iOS applications play the role of an [OpenID Connect](https://openid.net/connect/) (OIDC) [Relying Party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (RP) and use the [AppAuth-iOS SDK](https://github.com/openid/AppAuth-iOS) for authorizing the RP against an [OIDC Provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) (OP). The AppAuth SDK follows the best practices described in RFC 8252 by extending the OAuth 2.0 protocol with PKCE and employing an external user agent for visiting the OP's authentication and authorization endpoints. An access token obtained during the authorization process is then included as the [Bearer Token](https://tools.ietf.org/html/rfc6750) value of the `Authorization` header in requests made to protected endpoints on a [Resource Server](https://tools.ietf.org/html/rfc6749#section-1.1) (RS).
 
@@ -1324,7 +1324,7 @@ We will build the app in a few implementation steps:
 
                 This value is provided separately so that its presence in `Info.plist` can be easily checked and so that it can be reused with different redirection URIs.
                 */
-                let redirectionUriScheme = "https" // com.forgeops.ios-appauth-basic"
+                let redirectionUriScheme = "https" // "com.forgeops.ios-appauth-basic"
 
                 // . . .
 

@@ -8,8 +8,8 @@ var config = {
   }
 };
 
-/* 
-  potentially sensitive values can be overwritten by counterparts from ./client-config.js.ignore, 
+/*
+  potentially sensitive values can be overwritten by counterparts from ./client-config.js.ignore,
   which is not tracked by the repository and can be kept confidential
 */
 var fs = require('fs');
