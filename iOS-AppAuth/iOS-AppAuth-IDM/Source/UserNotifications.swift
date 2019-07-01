@@ -19,8 +19,10 @@ struct UserNotifications {
             let _id: String?
         }
 
-        var notifications: [Notification] = []
+        var _notifications: [Notification] = []
     }
 
-    let url = "https://default.iam.example.com/openidm/endpoint/usernotifications/"
+    let url = "https://default.iam.example.com/openidm/managed/user/"
+    let urlQuery = "?_fields=_notifications/*"
+    let deleteUrl = "https://default.iam.example.com/openidm/internal/notification/"
 }
