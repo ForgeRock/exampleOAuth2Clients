@@ -685,7 +685,7 @@ extension ViewController {
                         vc.getNotifications = {
                             [unowned self] (completion) in
 
-                            self.makeUrlRequest(url: UserNotifications().url, protected: true) {
+                            self.makeUrlRequest(url: UserNotifications().url + (userLoginResponse?.authorization?.id ?? "") + UserNotifications().urlQuery, protected: true) {
                                 data, response, error, request in
 
                                 guard let json = self.decodeJson(UserNotifications.Response.self, from: data!) else {
@@ -694,7 +694,7 @@ extension ViewController {
                                     return
                                 }
 
-                                completion(json.notifications)
+                                completion(json._notifications)
                             }
                         }
 
@@ -702,7 +702,7 @@ extension ViewController {
                             [unowned self] (notificationId, completion) in
 
                             self.makeUrlRequest(
-                                url: UserNotifications().url + (notificationId ?? ""),
+                                url: UserNotifications().deleteUrl + (notificationId ?? ""),
                                 method: "DELETE",
                                 protected: true
                             ) {
