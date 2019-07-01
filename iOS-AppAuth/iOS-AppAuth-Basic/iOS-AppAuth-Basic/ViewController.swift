@@ -49,7 +49,7 @@ class ViewController: UIViewController {
 
      This value is provided separately so that its presence in `Info.plist` can be easily checked and so that it can be reused with different redirection URIs.
      */
-    let redirectionUriScheme = "https" // com.forgeops.ios-appauth-basic"
+    let redirectionUriScheme = "https" // "com.forgeops.ios-appauth-basic"
 
     /**
      OAuth 2 redirection URI for the client.

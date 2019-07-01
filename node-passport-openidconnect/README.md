@@ -499,7 +499,7 @@ This web application was started with the [Express application generator](https:
           "userpassword": "password",
           "clientType": "Confidential",
           "redirectionUris": ["http://localhost:3000/forgerock/redirect"],
-          "scopes": ["openid", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"],
+          "scopes": ["openid", "profile", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"],
           "responseTypes": ["code"],
           "tokenEndpointAuthMethod": "client_secret_post",
           "isConsentImplied": false,
@@ -532,7 +532,7 @@ This web application was started with the [Express application generator](https:
           * "Client ID": "node-passport-openidconnect"
           * "Client secret": "password"
           * "Redirection URIs": ["http://localhost:3000/forgerock/redirect"]
-          * "Scope(s)": ["openid", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"]
+          * "Scope(s)": ["openid", "profile", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"]
       * Update the new client
           * _Core_ > "Client type": "Confidential"
           * _Advanced_ > "Response Types": ["code"]
