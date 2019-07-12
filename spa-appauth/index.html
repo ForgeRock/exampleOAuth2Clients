@@ -63,10 +63,6 @@
                 // check the validity of the session immediately
                 sessionCheck.triggerSessionCheck();
 
-                // check every minute
-                setInterval(function () {
-                    sessionCheck.triggerSessionCheck();
-                }, 60000);
                 // check with every captured event
                 document.addEventListener("click", function () {
                     sessionCheck.triggerSessionCheck();
