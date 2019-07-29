@@ -3,7 +3,7 @@
 //  SSO-WebView-1
 //
 //  Created by Konstantin Lapine on 7/19/19.
-//  Copyright © 2019 Forgerock. All rights reserved.
+//  Copyright © 2019 ForgeRock AS.
 //
 
 import UIKit

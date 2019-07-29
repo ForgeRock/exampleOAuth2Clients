@@ -3,7 +3,7 @@
 //  iOS-AppAuthTests
 //
 //  Created by Konstantin Lapine on 2/12/19.
-//  Copyright © 2019 Forgerock. All rights reserved.
+//  Copyright © 2019 ForgeRock AS.
 //
 
 import XCTest

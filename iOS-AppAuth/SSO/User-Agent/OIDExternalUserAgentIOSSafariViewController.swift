@@ -1,11 +1,11 @@
 //
-//  OIDExternalUserAgentiOSSafariViewController.swift
+//  OIDExternalUserAgentIOSSafariViewController.swift
 //  iOS-AppAuth-Basic
 //
 //  Created by Konstantin Lapine on 7/8/19.
-//  Copyright © 2019 Forgerock. All rights reserved.
+//  Copyright © 2019 ForgeRock AS.
 //
-//  Credit:
+//  Credits:
 //  https://gist.github.com/WilliamDenniss/18f3779b4a310361bb955cf4e534f29c
 //  https://gist.github.com/ugenlik/2a543f351e9b9425800b48266760dc85
 

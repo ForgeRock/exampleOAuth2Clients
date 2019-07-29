@@ -392,7 +392,3 @@ The following illustrates how an SPA application can employ the Implicit flow ag
     ```
 
     A similar implementation can be included in your own SPA by reusing sections of the code marked with the example-specific comments.
-
-## License
-
-(The MIT License)

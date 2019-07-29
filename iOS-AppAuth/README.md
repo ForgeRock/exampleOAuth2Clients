@@ -458,7 +458,7 @@ We will build the app in a few implementation steps:
             /**
             Performs the authorization code flow.
 
-            Attempts to perform a request to authorization endpoint by utilizing an AppAuth convenience method.
+            Attempts to perform a request to authorization endpoint by utilizing an AppAuth's convenience method.
             Completes authorization code flow with automatic code exchange.
             The response is then passed to the completion handler, which lets the caller to handle the results.
             */

@@ -157,7 +157,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1010;
 				LastUpgradeCheck = 1010;
-				ORGANIZATIONNAME = Forgerock;
+				ORGANIZATIONNAME = ForgeRock;
 				TargetAttributes = {
 					3C1C3E6B2215223F002EAC8E = {
 						CreatedOnToolsVersion = 10.1;

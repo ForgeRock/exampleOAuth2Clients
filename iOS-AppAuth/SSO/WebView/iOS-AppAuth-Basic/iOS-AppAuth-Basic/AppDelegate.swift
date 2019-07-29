@@ -3,7 +3,7 @@
 //  iOS-AppAuth-Basic
 //
 //  Created by Konstantin Lapine on 1/28/19.
-//  Copyright © 2019 Forgerock. All rights reserved.
+//  Copyright © 2019 ForgeRock AS.
 //
 
 // MARK: Importing the AppAuth SDK
