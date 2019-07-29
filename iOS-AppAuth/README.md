@@ -1,4 +1,4 @@
-# <a id="top"></a>Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK in iOS apps
+# <a id="top"></a>Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK for iOS
 
 ## Contents
 
@@ -32,7 +32,9 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
     Using a native browser or an in-app browser tab in iOS _may_ provide access to existing session information, thus allowing for single sign-on (SSO) experience.
 
-    > The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12, do not share session (that is, transient) cookies with their other instances or with mobile Safari. The authentication cookies need to be persistent in order to implement SSO with the classes in a way that is compliant with RFC 8252. Even then, there have been reports ([example](http://www.openradar.me/radar?id=5036182937272320)) of slow/unreliable synchronization between the classes and mobile Safari cookie jars.
+    > The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12, do not share session (that is, transient) cookies with their other instances or with mobile Safari. The authentication cookies need to be persistent in order to implement SSO with the classes in a way that is compliant with RFC 8252.
+    >
+    > There is more elaborate discussion on this subject in [Implementing SSO with the AppAuth SDK for iOS](SSO/README.md).
 
     A web view allows access to its data, including cookies, user credentials, and so on, from the hosting app. Due to its unsafe nature, use of a web view for authorization and authentication purposes could be prohibited by identity providers ([example 1](https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html) and [example 2](https://dev.fitbit.com/build/reference/web-api/oauth2/#obtaining-consent)). A web view is NOT a recommended way to implement authorization flows, especially in the context of a third-party application that cannot be trusted by the end-user.
 
@@ -42,7 +44,7 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
     The [OAuth 2.0 Security Best Current Practice](https://tools.ietf.org/id/draft-ietf-oauth-security-topics-12.html#implicit-grant) puts limits on use of the Implicit grant and recommends the Authorization Code grant as the more secure and more functional option.
 
-    An OAuth 2.0 native client needs to be able to serve the redirection URI. If an app is using a [private-use (custom) URI scheme redirection URI](https://tools.ietf.org/html/rfc8252#section-7.1), the same scheme could be registered by another app on the same device. If the private-use scheme is handled on the system level, the authorization response can be intercepted by the other, potentially malicious, app. The authorization code grant allows for mitigating interception attacks with the [Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636) (PKCE) technique, which is not applicable in its current implementation to the Implicit grant.
+    An OAuth 2.0 native client needs to be able to serve the redirection URI. If an app is using a [private-use (custom) URI scheme redirection](https://tools.ietf.org/html/rfc8252#section-7.1), the same scheme could be registered by another app on the same device. If the private-use scheme is handled on the system level, the authorization response can be intercepted by the other, potentially malicious, app. The authorization code grant allows for mitigating interception attacks with the [Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636) (PKCE) technique, which is not applicable in its current implementation to the Implicit grant.
 
     > If one of the authentication classes (`ASWebAuthenticationSession` or `SFAuthenticationSession`) is initialized with the [callbackURLScheme](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/2990952-init) argument populated with a private-use URI Scheme, the redirection URI can be delivered directly to the app.
 
@@ -82,8 +84,6 @@ All URIs and the private-use URI scheme used below serve demonstrational purpose
 
 The completed Xcode project can be found at [https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-Basic](https://github.com/ForgeRock/exampleOAuth2Clients/tree/master/iOS-AppAuth/iOS-AppAuth-Basic) and could be used as a quick reference. A [short video](https://forgerock.wistia.com/medias/r7yn6bpfle) demonstrates the final result.
 
-> The AppAuth SDK for iOS supports Universal Links. However, as a general technique, Universal Links are not universally adopted by the OAuth 2.0 community, including some Identity Providers ([example](https://developers.google.com/identity/protocols/OAuth2InstalledApp)). Hence, a case based on a custom URL scheme redirection will be described first.
-
 We will build the app in a few implementation steps:
 
 * [Enabling TLS in development environment](#simple-https)
@@ -97,7 +97,7 @@ We will build the app in a few implementation steps:
 
     [Back to Building a simple app with Swift and AppAuth](#simple)
 
-    If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates, you will need to accommodate that as described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
+    If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates, you will need to accommodate that with an approach described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
 
     To install a CA root certificate on an iOS device simulator, for example, drag and drop the certificate file on a (preferably Settings) screen and follow the installation prompt. If there is no installation prompt, you may need to manually open Settings > General > Profile > _your-CA-certificate_ to install the certificate after it has been downloaded. On a more recent version of iOS, enable the certificate in General > About > Certificate Trust Settings. It may take more than one attempt to engage the installation process. In that case, don't get discouraged and keep trying; eventually, the simulator will cooperate.
 
@@ -137,7 +137,9 @@ We will build the app in a few implementation steps:
 
     > You could also refer to the [ForgeRock example](#full) section, where the process of registering a client is described in the context of a running ForgeRock platform instance.
 
-    In this example, we will use a private-use URI scheme for the redirection URI: `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`.
+    To start with, we will use a private-use URI scheme for the redirection URI: `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`.
+
+    > The AppAuth SDK for iOS supports Universal Links, and an example of their implementation will be introduced later in the [Copy 'n' Paste](#simple-app) section. However, as a general technique, Universal Links are not universally adopted by the OAuth 2.0 community, which applies to some Identity Providers ([example](https://developers.google.com/identity/protocols/OAuth2InstalledApp)). Hence, a case based on a custom URL scheme redirection will be described first.
 
     Note, that the full and exact redirection URI MUST be registered for the RP with the OP.
 
@@ -515,9 +517,38 @@ We will build the app in a few implementation steps:
 
         Potentially, an app may be authorized with multiple providers; hence, it may be beneficial to allow the caller of the authorization method to handle the authorization response (differently for different OPs) via the completion handler.
 
-        Handling authorization and token requests separately could be needed in certain scenarios, if any custom processing or interaction is required between the two events. In these cases, the authorization code flow could be interrupted by utilizing AppAuth's `OIDAuthorizationService` methods. To illustrate, if `OIDAuthorizationService` was used in the authorization method that we added to the main class, it would look like this:
+        Handling authorization and token requests separately could be needed in certain scenarios, if any custom processing or interaction is required between the two events. In these cases, the authorization code flow could be interrupted by utilizing AppAuth `OIDAuthorizationService` methods. To illustrate, if `OIDAuthorizationService` was used in the authorization method that we added to the main class, the code could look like this:
 
         ```swift
+        /**
+        Makes token exchange request.
+
+        The code obtained from the authorization request is exchanged at the token endpoint.
+        */
+        func makeTokenRequest(completion: @escaping (OIDAuthState?, Error?) -> Void) {
+            guard let tokenExchangeRequest = self.authState?.lastAuthorizationResponse.tokenExchangeRequest() else {
+                print("Error creating access token request.")
+
+                return
+            }
+
+            print("Making token request with: ", tokenExchangeRequest)
+
+            OIDAuthorizationService.perform(tokenExchangeRequest) {
+                response, error in
+
+                if let response = response {
+                    print("Received token response with access token: ", response.accessToken ?? "")
+                } else {
+                    print("Error making token request: \(error?.localizedDescription ?? "")")
+                }
+
+                self.authState?.update(with: response, error: error)
+
+                completion(self.authState, error)
+            }
+        }
+
         /**
         Performs the authorization code flow in two steps.
 
@@ -559,35 +590,6 @@ We will build the app in a few implementation steps:
                 additionalParameters: nil
             )
 
-            /**
-            Makes token request.
-
-            The code obtained from the authorization request is exchanged at the token endpoint. This could be an external function taking the `completion` parameter as an argument.
-            */
-            func makeTokenRequest() {
-                guard let tokenExchangeRequest = self.authState?.lastAuthorizationResponse.tokenExchangeRequest() else {
-                    print("Error creating access token request.")
-
-                    return
-                }
-
-                print("Making token request with: ", tokenExchangeRequest)
-
-                OIDAuthorizationService.perform(tokenExchangeRequest) {
-                    response, error in
-
-                    if let response = response {
-                        print("Received token response with access token: ", response.accessToken ?? "")
-                    } else {
-                        print("Error making token request: \(error?.localizedDescription ?? "")")
-                    }
-
-                    self.authState?.update(with: response, error: error)
-
-                    completion(self.authState, error)
-                }
-            }
-
             // Making authorization request.
             appDelegate.currentAuthorizationFlow = OIDAuthorizationService.present(request, presenting: self) {
                 response, error in
@@ -601,7 +603,11 @@ We will build the app in a few implementation steps:
 
                     // Custom processing here.
 
-                    makeTokenRequest()
+                    self.makeTokenRequest() {
+                        authState, error in
+
+                        completion(authState, error)
+                    }
                 } else {
                     print("Error making authorization request: \(error?.localizedDescription ?? "")")
 
@@ -1758,4 +1764,4 @@ For a newly created platform user, the notifications data  will not be populated
 
 [Back to top](#top)
 
-Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth for iOS SDK. The RFC is concerned with security issues existing in third-party apps that cannot be trusted by the end-user. Addressing these concerns in the iOS environment requires using Universal Links for confirming client identity and persistent cookies for single sign-on experience. Nevertheless, with the AppAuth SDK, we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
+Both example apps referred here follow the best practices outlined in RFC 8252 and rely on their implementation in the AppAuth SDK for iOS. The RFC is concerned with security issues existing in third-party apps that cannot be trusted by the end-user. Addressing these concerns in the iOS environment requires using Universal Links for confirming client identity and persistent cookies for single sign-on experience. Nevertheless, with the AppAuth SDK, we've demonstrated the most universal approach for implementing OAuth 2.0 authorization flows in native iOS apps. The examples can serve as a quick reference for the most basic tasks these types of applications may perform when consuming data from a REST API protected by OAuth 2.0.
