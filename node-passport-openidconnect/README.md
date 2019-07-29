@@ -769,7 +769,3 @@ This web application was started with the [Express application generator](https:
     ```
 
 This concludes the full example.
-
-# License
-
-(The MIT License)

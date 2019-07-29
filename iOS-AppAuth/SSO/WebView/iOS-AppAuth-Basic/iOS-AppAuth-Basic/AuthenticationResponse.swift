@@ -3,7 +3,7 @@
 //  iOS-AppAuth-Basic
 //
 //  Created by Konstantin Lapine on 7/24/19.
-//  Copyright © 2019 Forgerock. All rights reserved.
+//  Copyright © 2019 ForgeRock AS.
 //
 
 import Foundation

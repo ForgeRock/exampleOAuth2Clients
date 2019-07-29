@@ -3,7 +3,7 @@
 //  iOS-AppAuth
 //
 //  Created by Konstantin Lapine on 12/7/18.
-//  Copyright © 2018 Forgerock. All rights reserved.
+//  Copyright © 2018 ForgeRock AS.
 //
 
 // MARK: AppAuth: Importing the SDK
@@ -151,7 +151,7 @@ extension ViewController {
     /**
      Performs the authorization code flow.
 
-     Attempts to perform a request to authorization endpoint by utilizing an AppAuth convenience method.
+     Attempts to perform a request to authorization endpoint by utilizing an AppAuth's convenience method.
      Completes authorization code flow with automatic code exchange.
      The response is handled then with the passed in escaping callback allowing the caller to handle the results.
      */
