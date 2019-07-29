@@ -10,6 +10,7 @@
 import AppAuth
 
 import UIKit
+import WebKit
 
 /**
  Shadows the `Swift.print` providing for extra output options.
@@ -75,6 +76,42 @@ class ViewController: UIViewController {
      */
     let issuerUrl: String = "https://default.iam.example.com/am/oauth2"
 
+    /**
+     App Group name.
+
+     Serves as a reference to the App Group for sharing the authentication state.
+     */
+    let appGroup = "group.com.forgerock.sso-webview"
+
+    /**
+     Cookies to be shared with the App Group.
+     */
+    let appGroupCookies = ["iPlanetDirectoryPro"]
+
+    /**
+     Reference to a request object built by AppAuth.
+
+     This will be used to build AppAuth `OIDAuthorizationResponse` to continue authorization with the SDK after redirection event in the web view.
+     */
+    var oidAuthorizationRequest: OIDAuthorizationRequest? = nil
+
+    /**
+     Reference to the class providing web view.
+     */
+    var webViewController: WebViewController!
+
+    /**
+     Reference to the web view via its `tag` property.
+     */
+    var webViewTag = 1
+
+    /**
+     Completes successful authorization.
+
+     This property serve as a placeholder for authorization completion handler for being called from a different context than one the authorization was initiated in. In this example, it sets the authorization state and performs callbacks—if any.
+     */
+    var authorizationCompletion: ((OIDAuthState?, Error?) -> Void)? = nil
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -89,6 +126,8 @@ class ViewController: UIViewController {
         if authState == nil {
             authorizeRp(issuerUrl: issuerUrl, configuration: nil)
         }
+
+        showUi()
 
         addTextView()
     }
@@ -172,7 +211,7 @@ extension ViewController {
 
         print("Retrieving configuration for: \(issuer.absoluteURL)")
 
-        // Discovering endpoints with an AppAuth's convenience method.
+        // Discovering endpoints with an AppAuth convenience method.
         OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) {
             configuration, error in
 
@@ -339,6 +378,94 @@ extension ViewController {
     }
 
     /**
+     Performs the authorization code flow using a web view.
+
+     Attempts to make a request to the authorization endpoint by utilizing a web view.
+     Allows the web view to handle the redirection.
+     */
+    func authorizeWithWebView(
+        configuration: OIDServiceConfiguration,
+        clientId: String,
+        redirectionUri: String,
+        scopes: [String] = [OIDScopeOpenID, OIDScopeProfile],
+        completion: @escaping (OIDAuthState?, Error?) -> Void
+        ) {
+        // Checking if the redirection URL can be constructed.
+        guard let redirectURI = URL(string: redirectionUri) else {
+            print("Error creating redirection URL for : \(redirectionUri)")
+
+            return
+        }
+
+        // Building authorization request.
+        let request = OIDAuthorizationRequest(
+            configuration: configuration,
+            clientId: clientId,
+            clientSecret: nil,
+            scopes: scopes,
+            redirectURL: redirectURI,
+            responseType: OIDResponseTypeCode,
+            additionalParameters: nil
+        )
+
+        // Making authorization request.
+
+        print("Initiating authorization request with scopes: \(request.scope ?? "no scope requested")")
+
+        // Using web view instead of built in AppAuth methods invoking an external user-agent.
+
+        /**
+         Reference to the completion handler to be called on successful authorization.
+
+         The redirection URI will be processed in the web view navigation event. The code will be exchanged for tokens using the `makeTokenRequest()` method, which will need to follow by the completion callback passed in here from the `authorizeRp()` method. Since the navigation event will be handled in a different context, we need to preserve the completion block.
+         */
+        authorizationCompletion = completion
+
+        /**
+         The request object reference accessible from other methods.
+
+         AppAuth methods will be used to complete the authorization flow after redirection from the authorization endpoint and need the original request details.
+         */
+        oidAuthorizationRequest = request
+
+        // Dismissing any existing subview.
+        view.viewWithTag(webViewTag)?.removeFromSuperview()
+
+        // Dismissing any existing web view controller.
+        webViewController = nil
+
+        // Configuring the web view for JavaScript interactions.
+
+        let userContentController = WKUserContentController()
+        userContentController.add(self, name: "callback")
+
+        let configuration = WKWebViewConfiguration()
+        configuration.userContentController = userContentController
+
+        // Providing the web view class with initial parameters, including the URL to the authorization endpoint obtained from the AppAuth authorization request object.
+        webViewController = WebViewController.init(
+            initialUrl: request.authorizationRequestURL().absoluteString,
+            appGroup: appGroup,
+            appGroupCookies: appGroupCookies,
+            webViewFrame: view.bounds,
+            webViewConfiguration: configuration
+        )
+
+        // Setting this controller as the web view navigation delegate.
+        webViewController.wkNavigationDelegate = self
+
+        // Loading the view with the authorization URL.
+        webViewController.loadWebView() {
+            webView in
+
+            // Tracking the view by its tag.
+            webView.tag = self.webViewTag
+
+            self.view.addSubview(webView)
+        }
+    }
+
+    /**
      Authorizes the Relying Party with an OIDC Provider.
 
      - Parameter issuerUrl: The OP's `issuer` URL to use for OpenID configuration discovery
@@ -356,7 +483,7 @@ extension ViewController {
         func authorize(configuration: OIDServiceConfiguration) {
             print("Authorizing with configuration: \(configuration)")
 
-            self.authorizeWithAutoCodeExchange(
+            self.authorizeWithWebView(
                 configuration: configuration,
                 clientId: self.clientId,
                 redirectionUri: self.redirectionUri
@@ -485,8 +612,6 @@ extension ViewController {
      */
     func showState() {
         print("Current authorization state: ")
-
-        print("Refresh token: ", self.authState?.refreshToken)
 
         print("Access token: \(authState?.lastTokenResponse?.accessToken ?? "none")")
 
@@ -792,6 +917,226 @@ extension ViewController {
             textView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
             textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8).isActive = true
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8).isActive = true
+        }
+    }
+}
+
+// MARK: Delegate for the web view navigation events.
+extension ViewController: WKNavigationDelegate {
+    // Could be used to (automatically) load specific for the protection space cookies.
+    func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+
+        print(#function, challenge.protectionSpace.host, challenge.protectionSpace.authenticationMethod)
+
+        completionHandler(.performDefaultHandling, nil)
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        print(#function)
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        print(#function)
+    }
+
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        print(#function)
+    }
+
+    func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
+        print(#function)
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        print(#function, error.localizedDescription)
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        print(#function, error.localizedDescription)
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        print(#function, navigationAction.request.url?.absoluteString ?? "")
+
+        /**
+         Handling the redirect from the authorization endpoint.
+
+         Alternatively, for a custom URI scheme, one could use WKURLSchemeHandler; for example:
+            let configuration = WKWebViewConfiguration()
+            configuration.setURLSchemeHandler(your-class-adopting-the-WKURLSchemeHandler-protocol, forURLScheme: redirectionUriScheme)
+            webView = WKWebView(frame: webViewFrame, configuration: configuration)
+         */
+        if navigationAction.request.url?.absoluteString.starts(with: redirectionUri) ?? false {
+            print("Redirection URI: ", navigationAction.request.url?.absoluteString ?? "")
+
+            /**
+             Redirection URI query parameters.
+             */
+            var parameters: [String : String] = [:]
+
+            if let urlComponents = URLComponents(url: navigationAction.request.url!, resolvingAgainstBaseURL: false) {
+                let queryItems: [URLQueryItem]? = urlComponents.queryItems
+
+                if let queryItems = queryItems {
+                    parameters = queryItems.reduce(into: parameters) {result, queryItem in
+                        result[queryItem.name] = queryItem.value
+                    }
+                }
+            }
+
+            // Checking if the web view is associated with an OIDAuthorizationRequest.
+            if let oidAuthorizationRequest = oidAuthorizationRequest {
+                // Creating an OIDAuthorizationResponse to initiate token exchange request with.
+                let oidAuthorizationResponse = OIDAuthorizationResponse(request: oidAuthorizationRequest, parameters: parameters as [String : NSCopying & NSObjectProtocol])
+
+                // Verifying that the state in the response matches the state in the request.
+                if oidAuthorizationRequest.state == oidAuthorizationResponse.state, let _ = oidAuthorizationResponse.authorizationCode {
+                    // Saving the response in the authentication state object.
+                    let authState = OIDAuthState(authorizationResponse: oidAuthorizationResponse)
+
+                    // Saving the authorization state.
+                    setAuthState(authState)
+
+                    // Performing the token exchange and providing the callback on completion.
+                    makeTokenRequest() {
+                        authState, error in
+
+                        self.authorizationCompletion?(authState, error)
+                    }
+                } else {
+                    setAuthState(nil)
+                }
+
+                decisionHandler(.cancel)
+
+                view.viewWithTag(webViewTag)?.removeFromSuperview()
+
+                webViewController = nil
+
+                return
+            }
+        }
+
+        // Allowing navigation to and saving cookies from the issuer site.
+        if navigationAction.request.url?.host == (URL(string: issuerUrl))?.host {
+            decisionHandler(.allow)
+
+            // Capturing (authentication) cookies when they are present—after signing in at the authentication endpoint.
+            WKWebsiteDataStore.default().httpCookieStore.getAllCookies() {
+                cookies in
+
+                let cookies = cookies.filter {
+                    self.appGroupCookies.contains($0.name)
+                }
+
+                guard cookies.count > 0 else {
+                    return
+                }
+
+                self.webViewController.saveCookies(cookies)
+            }
+
+            // Dummy script imitating page content.
+            var scriptSource = ""
+            if let scriptPath = Bundle.main.path(forResource: "WebViewScriptSource", ofType: "js") {
+                scriptSource = try! String(contentsOfFile: scriptPath)
+            }
+            let script = WKUserScript(source: scriptSource, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+            webView.configuration.userContentController.addUserScript(script)
+
+            return
+        }
+
+        print("Cancelling navigation to: ", navigationAction.request.url?.absoluteString ?? "")
+
+        decisionHandler(.cancel)
+    }
+
+    // Checking the web view responses and reporting errors.
+    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        print(#function)
+
+        guard let statusCode = (navigationResponse.response as? HTTPURLResponse)?.statusCode else {
+            print("Error: non-HTTP response")
+
+            decisionHandler(.cancel)
+
+            return
+        }
+
+        guard statusCode < 400 else {
+            print("Error: HTTP status code ", statusCode)
+
+            decisionHandler(.cancel)
+
+            return
+        }
+
+        // Allowing navigation if no errors are detected.
+        decisionHandler(.allow)
+    }
+}
+
+// MARK: Conforming to WKScriptMessageHandler protocol
+extension ViewController: WKScriptMessageHandler {
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        print(#function)
+
+        if message.name == "callback", let messageBody = message.body as? String, let messageBodyData = messageBody.data(using: .utf8) {
+            let decoder = JSONDecoder()
+            var messageBodyJson: AuthenticationResponse?
+
+            do {
+                messageBodyJson = try decoder.decode(AuthenticationResponse.self, from: messageBodyData)
+
+                messageBodyJson?.callbacks.forEach {
+                    callback in
+
+                    if callback.type == "code" {
+                        /**
+                         Example action against the web content.
+                         */
+                        let scriptSource = "(function () {document.body.style.backgroundColor = 'lightgreen'}())"
+
+                        // Example action performed in the native app.
+
+                        let webView = self.view.viewWithTag(webViewTag) as? WKWebView
+
+                        let alert = UIAlertController(title: "Native Prompt", message: "Enter the code. \nThe correct one is: 0000", preferredStyle: UIAlertController.Style.alert)
+
+                        alert.addTextField() {
+                            textField in
+
+                            alert.addAction(
+                                UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel Action"), style: UIAlertAction.Style.cancel) {
+                                    (_: UIAlertAction) in
+
+                                    webView?.removeFromSuperview()
+                                }
+                            )
+
+                            alert.addAction(
+                                UIAlertAction(title: NSLocalizedString("Submit", comment: "Submit Action"), style: UIAlertAction.Style.default) {
+                                    (_: UIAlertAction) in
+
+                                    let newValue = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                                    if (newValue != "0000") {
+                                        webView?.removeFromSuperview()
+                                    } else {
+                                        // Performing the action against the web content.
+                                        webView?.evaluateJavaScript(scriptSource, completionHandler: nil)
+                                    }
+                                }
+                            )
+                        }
+
+                        present(alert, animated: false)
+                    }
+                }
+            } catch {
+                print("Error decoding callback message: ", error.localizedDescription)
+            }
         }
     }
 }
