@@ -1,7 +1,7 @@
-/* 
-  Example: configuring a new passport-openidconnect (https://github.com/jaredhanson/passport-openidconnect) strategy 
-  with the ForgeRock platform specific parameters, including the well-known enpoints, 
-  which can be obtained from the OpenID Provider Configuration Document: 
+/*
+  Example: configuring a new passport-openidconnect (https://github.com/jaredhanson/passport-openidconnect) strategy
+  with the ForgeRock platform specific parameters, including the well-known enpoints,
+  which can be obtained from the OpenID Provider Configuration Document:
   https://default.iam.example.com/am/oauth2/.well-known/openid-configuration
 */
 var OidcStrategy = require('passport-openidconnect').Strategy;
@@ -20,7 +20,7 @@ module.exports = new OidcStrategy({
   clientSecret: clientConfig.oauth.client_secret,
   callbackURL: clientConfig.oauth.callbackURL,
   scope: clientConfig.oauth.scope
-}, function (issuer, sub, profile, jwtClaims, accessToken, refereshToken, tokenResponse, done) {
+}, function (issuer, sub, profile, jwtClaims, accessToken, refreshToken, tokenResponse, done) {
   /*
     tokens received from the token endpoint after successful authentication and authorization
     are saved for future use by passing the information received from the OP to the next handler
@@ -39,9 +39,9 @@ module.exports = new OidcStrategy({
           'https://default.iam.example.com/openidm/info/login',
           'https://default.iam.example.com/openidm/managed/user/:authorization.id (from https://default.iam.example.com/openidm/info/login)'
         ],
-        /* 
+        /*
           populating the "end_session_endpoint" value with the authorization server's logout endpoint,
-          which will be used in the code for ending the user's session in AM 
+          which will be used in the code for ending the user's session in AM
         */
         end_session_endpoint: discovery.end_session_endpoint
       },
