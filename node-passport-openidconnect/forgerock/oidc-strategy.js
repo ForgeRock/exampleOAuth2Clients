@@ -1,6 +1,6 @@
 /*
   Example: configuring a new passport-openidconnect (https://github.com/jaredhanson/passport-openidconnect) strategy
-  with the ForgeRock platform specific parameters, including the well-known enpoints,
+  with the ForgeRock platform specific parameters, including the well-known endpoints,
   which can be obtained from the OpenID Provider Configuration Document:
   https://default.iam.example.com/am/oauth2/.well-known/openid-configuration
 */
