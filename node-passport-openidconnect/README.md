@@ -646,7 +646,7 @@ This web application was started with the [Express application generator](https:
 
     Using any of those or both will retrieve corresponding ID and access tokens and save them in the session. The tokens can be then reused throughout the life of the session. To renew expired access tokens visit the `Home` page and sign in again.
 
-    Note that you may need to respond to the invalid certificate warning on ForgeRock's AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. Node communications over unsecure HTTPS have been allowed in the main module:
+    Note that you may need to respond to the invalid certificate warning on ForgeRock's AM login page, because the authorization server is only accessible over HTTPS and is using a self-signed certificate. Node communications over insecure HTTPS have been allowed in the main module:
 
     [index.js](index.js)
 
