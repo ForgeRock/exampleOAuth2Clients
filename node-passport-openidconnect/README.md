@@ -116,7 +116,7 @@ The steps:
     * `profile`: the authenticated user information
     * `jwtClaims`: [claims](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims) included in the [id_token](https://openid.net/specs/openid-connect-core-1_0.html#Terminology)
     * `accessToken`: an [access token](https://tools.ietf.org/html/rfc6749#section-1.4)
-    * `refereshToken`: a [refresh token](https://tools.ietf.org/html/rfc6749#section-1.5)
+    * `refreshToken`: a [refresh token](https://tools.ietf.org/html/rfc6749#section-1.5)
     * `tokenResponse`: a full response from the OP's token endpoint
     * `done`: call the next handler in Passport
 
@@ -138,7 +138,7 @@ The steps:
       clientSecret: `client_secret`,
       callbackURL: '/oauth2/redirect',
       scope: `space separated scopes available for this client`
-    }, function (issuer, sub, profile, jwtClaims, accessToken, refereshToken, tokenResponse, done) {
+    }, function (issuer, sub, profile, jwtClaims, accessToken, refreshToken, tokenResponse, done) {
       /*
         tokens received from the token endpoint after successful authentication and authorization
         are saved for future use by passing the information received from the OP to the next handler

@@ -1,6 +1,6 @@
-/* 
-  Example: configuring a new passport-openidconnect (https://github.com/jaredhanson/passport-openidconnect) strategy 
-  with the Google platform specific parameters, including the well-known enpoints, 
+/*
+  Example: configuring a new passport-openidconnect (https://github.com/jaredhanson/passport-openidconnect) strategy
+  with the Google platform specific parameters, including the well-known enpoints,
   which can be obtained from the OpenID Provider Configuration Document: https://accounts.google.com/.well-known/openid-configuration
 */
 var OidcStrategy = require('passport-openidconnect').Strategy;
@@ -19,7 +19,7 @@ module.exports = new OidcStrategy({
   clientSecret: config.oauth.client_secret,
   callbackURL: config.oauth.callbackURL,
   scope: config.oauth.scope
-}, function (issuer, sub, profile, jwtClaims, accessToken, refereshToken, tokens, done) {
+}, function (issuer, sub, profile, jwtClaims, accessToken, refreshToken, tokens, done) {
   /*
     tokens received from the token endpoint after successful authentication and authorization
     are saved for future use by passing the information received from the OP to the next handler
