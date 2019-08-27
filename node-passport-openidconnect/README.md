@@ -553,7 +553,7 @@ This web application was started with the [Express application generator](https:
         client_id: 'node-passport-openidconnect',
         client_secret: 'password',
         callbackURL: '/forgerock/redirect',
-        scope: 'openid fr:idm:profile fr:idm:consent_read fr:idm:notifications'
+        scope: 'openid profile fr:idm:profile fr:idm:consent_read fr:idm:notifications'
       }
     };
 
