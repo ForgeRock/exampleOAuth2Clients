@@ -3,3 +3,6 @@ node_modules
 package-lock.json
 .DS_Store
 iOS-AppAuth/README_files/developer.account.resources.identifiers.png
+
+# VSCode
+**/.vscode
