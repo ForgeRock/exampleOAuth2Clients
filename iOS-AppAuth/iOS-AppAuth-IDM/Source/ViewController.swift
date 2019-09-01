@@ -136,7 +136,7 @@ extension ViewController {
 
         customPrint("Retrieving configuration for: \(issuer.absoluteURL)")
 
-        // Discovering endpoints with an AppAuth's convenience method.
+        // Discovering endpoints with AppAuth's convenience method.
         OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) {
             configuration, error in
 
@@ -151,7 +151,7 @@ extension ViewController {
     /**
      Performs the authorization code flow.
 
-     Attempts to perform a request to authorization endpoint by utilizing an AppAuth's convenience method.
+     Attempts to perform a request to authorization endpoint by utilizing AppAuth's convenience method.
      Completes authorization code flow with automatic code exchange.
      The response is handled then with the passed in escaping callback allowing the caller to handle the results.
      */

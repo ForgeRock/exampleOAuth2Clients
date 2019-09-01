@@ -894,4 +894,4 @@ Utilizing a web view allows for reusing functionality already built for the brow
 
 [Back to top](#top)
 
-There seem to be no ideal solution for implementing SSO based on browser cookies in iOS in a way that is compliant with the best current practices and recommendations for OAuth 2.0 clients. In this overview, we extended our experience with the AppAuth SDK for iOS by describing a few additional options for enabling SSO when it is not available with the SDK "out of the box".
+There seems to be no ideal solution for implementing SSO based on browser cookies in iOS in a way that is compliant with the best current practices and recommendations for OAuth 2.0 clients. In this overview, we extended our experience with the AppAuth SDK for iOS by describing a few additional options for enabling SSO when it is not available with the SDK "out of the box".
