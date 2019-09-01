@@ -327,7 +327,7 @@ We will build the app in a few implementation steps:
 
         Ultimately, the AppAuth library performs client authorization via an `OIDAuthorizationRequest` instance initiated with the following parameters:
 
-        * _configuration_: an AppAuth's `OIDServiceConfiguration` instance
+        * _configuration_: AppAuth's `OIDServiceConfiguration` instance
         * _clientId_: the RP's client ID as it's been registered on the OP's authorization server
         * _clientSecret_ (optional): may be populated for dynamically registered clients
         * _scopes_: the (subset of) scopes provided in the RP registration
@@ -391,7 +391,7 @@ We will build the app in a few implementation steps:
 
                 print("Retrieving configuration for: \(issuer.absoluteURL)")
 
-                // Discovering endpoints with an AppAuth's convenience method.
+                // Discovering endpoints with AppAuth's convenience method.
                 OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) {
                     configuration, error in
 
@@ -458,7 +458,7 @@ We will build the app in a few implementation steps:
             /**
             Performs the authorization code flow.
 
-            Attempts to perform a request to authorization endpoint by utilizing an AppAuth's convenience method.
+            Attempts to perform a request to authorization endpoint by utilizing AppAuth's convenience method.
             Completes authorization code flow with automatic code exchange.
             The response is then passed to the completion handler, which lets the caller to handle the results.
             */
@@ -517,7 +517,7 @@ We will build the app in a few implementation steps:
 
         Potentially, an app may be authorized with multiple providers; hence, it may be beneficial to allow the caller of the authorization method to handle the authorization response (differently for different OPs) via the completion handler.
 
-        Handling authorization and token requests separately could be needed in certain scenarios, if any custom processing or interaction is required between the two events. In these cases, the authorization code flow could be interrupted by utilizing AppAuth `OIDAuthorizationService` methods. To illustrate, if `OIDAuthorizationService` was used in the authorization method that we added to the main class, the code could look like this:
+        Handling authorization and token requests separately could be needed in certain scenarios, if any custom processing or interaction is required between the two events. In these cases, the authorization code flow could be interrupted by utilizing AppAuth's `OIDAuthorizationService` methods. To illustrate, if `OIDAuthorizationService` was used in the authorization method that we added to the main class, the code could look like this:
 
         ```swift
         /**
