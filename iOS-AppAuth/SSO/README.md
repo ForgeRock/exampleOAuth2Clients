@@ -10,11 +10,11 @@
 
 ## <a id="introduction"></a> Introduction
 
-This writing assumes familiarity with the content covered in [Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK for iOS](/iOS-AppAuth/README.md). In that article, we went over the best current practices for building OAuth 2.0 clients in native apps and described in details how to create a simple app serving the role of an OpenID Connect Relying Party with the help of the AppAuth SDK. Some of the examples here are based on the code from that simple app.
+This writing assumes familiarity with the content covered in [Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK for iOS](/iOS-AppAuth/README.md). In that article, we went over the best current practices for building OAuth 2.0 clients in native apps, and described in detail how to create a simple app serving the role of an OpenID Connect Relying Party with the help of the AppAuth SDK. Some of the examples here are based on the code from that simple app.
 
-The AppAuth SDK for iOS employs an external user-agent for the front-channel communications. Doing so should provide the benefit of sharing session information existing in the user browser—thus, naturally allowing for the single sign-on (SSO) experience. This, however, comes with a limitation in iOS.
+The AppAuth SDK for iOS employs an external user-agent for the front-channel communications. Doing so should provide the benefit of sharing session information existing in the user browser; thus, naturally allowing for the single sign-on (SSO) experience. This, however, comes with a limitation in iOS.
 
-If the system browser was used as the external user-agent, no sharing of user's authentication state would be required. However, leaving an app and opening the default browser for authentication (and/or authorization) is generally considered to provide a poor user experience. Instead, the so called "in-app browser tabs" should be used for allowing the user to interact with the authorization server screens. Accordingly, by default, AppAuth calls Safari as the external user-agent only as a fall-back option, when in-app browser tabs are not available—that is, in iOS versions below 9.
+If the system browser was used as the external user-agent, no sharing of the user's authentication state would be required. However, leaving an app and opening the default browser for authentication (and/or authorization) is generally considered as providing a poor user experience. Instead, the so called "in-app browser tabs" should be used for allowing the user to interact with the authorization server screens. Accordingly, by default, AppAuth calls Safari as the external user-agent only as a fall-back option, when in-app browser tabs are not available; that is, in iOS versions below 9.
 
 In iOS 9-10, [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) is used as the user-agent. This class allows for sharing browser data, including authentication cookies, between its instances in iOS 9 and 10.
 
@@ -24,9 +24,9 @@ In iOS 11-12, designated authentication classes are used for interacting with th
 
 > [According to Apple](https://developer.apple.com/support/app-store/), more than 90% of all devices are using iOS 11+.
 
-In both cases, [session cookies](https://en.wikipedia.org/wiki/HTTP_cookie#Session_cookie) are not shared with Safari or other classes' instances, making SSO an option only with persistent cookies. Session cookies are never written to disk and, conceivably, present the more secure way of maintaining user session. It is possible, that your authorization server is using session cookies and, therefore, the SSO experience will not be automatically available with the AppAuth SDK for iOS.
+In both cases, [session cookies](https://en.wikipedia.org/wiki/HTTP_cookie#Session_cookie) are not shared with Safari or other classes' instances, making SSO an option only with persistent cookies. Session cookies are never written to disk and, conceivably, present the more secure way of maintaining a user session. It is possible that your authorization server is using session cookies, and therefore, the SSO experience will not be automatically available with the AppAuth SDK for iOS.
 
-> The authentication classes will ask the user for their consent to share the website data with the browser tab opened by the app. This means, that SSO experience in this case comes at the price of an extra action required from the user.
+> The authentication classes will ask the user for their consent to share the website data with the browser tab opened by the app. This means that the SSO experience in this case comes at the price of an extra action required from the user.
 
 Here, we will discuss three options for enabling SSO with session cookies when it is not available by default in an OAuth 2.0 client built with AppAuth for iOS:
 
@@ -39,7 +39,7 @@ Here, we will discuss three options for enabling SSO with session cookies when i
     - Authentication in Safari forces the user to leave the app
     - Safari tabs cannot be controlled from the app
 
-* If calling the default browser for front-channel communications is not acceptable, enabling persistent cookies for session management could be an option in the authorization server configuration. This will allow for sharing authentication state in the iOS in-app browser tabs. An example of this approach is described in the [Enabling Persistent Cookies in ForgeRock Access Management](#implementing-persistent-cookie-authentication-in-am) section.
+* If calling the default browser for front-channel communications is not acceptable, enabling persistent cookies for session management could be an option in the authorization server configuration. This will allow for sharing the authentication state in the iOS in-app browser tabs. An example of this approach is described in the [Enabling Persistent Cookies in ForgeRock Access Management](#implementing-persistent-cookie-authentication-in-am) section.
 
     PROS:
     - Supported with "out of the box" configuration of AppAuth for iOS
@@ -47,7 +47,7 @@ Here, we will discuss three options for enabling SSO with session cookies when i
     CONS:
     - May require configuration changes in the authorization server
 
-* Alternatively, a trusted app could be given access to the user session information and allowed to share it with other apps produced by the same development team, effecting SSO via the back-channel (that is, without the user being involved). A particular implementation of this method is demonstrated in the [Employing Embedded User-Agent](#embedded-user-agent) section.
+* Alternatively, a trusted app could be given access to the user session information and be allowed to share it with other apps produced by the same development team, affecting SSO via the back-channel (that is, without the user being involved). A particular implementation of this method is demonstrated in the [Employing Embedded User-Agent](#embedded-user-agent) section.
 
     PROS:
     - Does not depend on the operating system policies
@@ -63,11 +63,11 @@ The details for each implementation are outlined below.
 
 [Back to top](#top)
 
- In iOS 11+ session cookies are not shared with the in-app browser tabs. If your authorization server uses session cookies, as [ForgeRock Access Management](https://www.forgerock.com/platform/access-management/) does by default, SSO can be implemented with the default browser; doing so will still comply with the best current practices set out in [RFC 8252](https://tools.ietf.org/html/rfc8252).
+ In iOS 11+ session cookies are not shared with the in-app browser tabs. If your authorization server uses session cookies, as [ForgeRock Access Management](https://www.forgerock.com/platform/access-management/) does by default, SSO can be implemented with the default browser. Doing so will still comply with the best current practices set out in [RFC 8252](https://tools.ietf.org/html/rfc8252).
 
-Out of the box, AppAuth for iOS automatically selects an external user-agent based on conditions set in the [OIDExternalUserAgentIOS](https://github.com/openid/AppAuth-iOS/blob/e46bf966ba0189986f377719455c3656933a1566/Source/iOS/OIDExternalUserAgentIOS.m) class. Using the `OIDExternalUserAgent` interface, a modified copy of this class could be used for specifying an external user-agent explicitly, when the authorization flow is initiated. For example, using Safari as the user-agent in iOS 11-12 will allow for sharing session cookies.
+Out of the box, AppAuth for iOS automatically selects an external user-agent based on conditions set in the [OIDExternalUserAgentIOS](https://github.com/openid/AppAuth-iOS/blob/e46bf966ba0189986f377719455c3656933a1566/Source/iOS/OIDExternalUserAgentIOS.m) class. Using the `OIDExternalUserAgent` interface, a modified copy of this class could be used for specifying an external user-agent explicitly when the authorization flow is initiated. For example, using Safari as the user-agent in iOS 11-12 will allow for sharing session cookies.
 
-An example of such custom version of the OIDExternalUserAgentIOS class can be found at [User-Agent/OIDExternalUserAgentIOSSafari.swift](User-Agent/OIDExternalUserAgentIOSSafari.swift). The key part of the class definition is the following statement, unconditionally opening the request URL in Safari:
+An example of such a custom version of the OIDExternalUserAgentIOS class can be found at [User-Agent/OIDExternalUserAgentIOSSafari.swift](User-Agent/OIDExternalUserAgentIOSSafari.swift). The key part of the class definition is the following statement, unconditionally opening the request URL in Safari:
 
 ```swift
 // OIDExternalUserAgentIOSSafari.swift
@@ -131,9 +131,9 @@ appDelegate.currentAuthorizationFlow = OIDAuthorizationService.present(request, 
 
 Now, when the user authenticates to the authorization server from an app using Safari as the external user-agent, all browser information, including user's session, is naturally available on subsequent requests.
 
-There are problems with this approach though. Leaving an app for authentication might be considered a less than ideal user experience. At least in the past, there have been reports ([example](http://www.openradar.appspot.com/19944416)) that App Store rejects apps using mobile Safari for signing in.
+There are problems with this approach, though. Leaving an app for authentication might be considered a less than ideal user experience. At least in the past, there have been reports ([example](http://www.openradar.appspot.com/19944416)) that the App Store rejects apps using mobile Safari for signing in.
 
-Another issue is that the Safari tab used for authentication will not be closed after the user is redirected back to the original app (in contrary to an in-app browser tab that can be dismissed by the app):
+Another issue is that the Safari tab used for authentication will not be closed after the user is redirected back to the original app (contrary to an in-app browser tab that can be dismissed by the app):
 
 ![Screenshot: ios.authentication.safari.png](README_files/ios.authentication.safari.png)
 
