@@ -10,11 +10,11 @@
 
 ## <a id="introduction"></a> Introduction
 
-This writing assumes familiarity with the content covered in [Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK for iOS](/iOS-AppAuth/README.md). In that article, we went over the best current practices for building OAuth 2.0 clients in native apps, and described in detail how to create a simple app serving in the role of an OpenID Connect Relying Party with the help of the AppAuth SDK. Some of the examples here are based on the code from that simple app.
+This article assumes familiarity with the content covered in [Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK for iOS](/iOS-AppAuth/README.md). In that article, we went over the best current practices for building OAuth 2.0 clients in native apps, and described in detail how to create a simple app serving in the role of an OpenID Connect Relying Party with the help of the AppAuth SDK. Some of the examples here are based on the code from that simple app.
 
 The AppAuth SDK for iOS employs an external user-agent for the front-channel communications. Doing so should provide the benefit of sharing session information existing in the user browser; thus, naturally allowing for the single sign-on (SSO) experience. This, however, comes with a limitation in iOS.
 
-If the system browser was used as the external user-agent, no sharing of user's authentication state would be required. However, leaving an app and opening the default browser for authentication (and/or authorization) is generally considered to be a poor user experience. Instead, the so called "in-app browser tabs" should be used for allowing the user to interact with the authorization server screens. Accordingly, by default, AppAuth calls Safari as the external user-agent only as a fall-back option, when in-app browser tabs are not available—that is, in iOS versions below 9.
+If the system browser was used as the external user-agent, no sharing of users' authentication state would be required. However, leaving an app and opening the default browser for authentication (and/or authorization) is generally considered to be a poor user experience. Instead, the so called "in-app browser tabs" should be used for allowing the user to interact with the authorization server screens. Accordingly, by default, AppAuth calls Safari as the external user-agent only as a fall-back option, when in-app browser tabs are not available—that is, in iOS versions below 9.
 
 In iOS 9-10, [SFSafariViewController](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller) is used as the user-agent. This class allows for sharing browser data, including authentication cookies, between its instances in iOS 9 and 10.
 
@@ -30,7 +30,7 @@ In both cases, [session cookies](https://en.wikipedia.org/wiki/HTTP_cookie#Sessi
 
 Here, we will discuss three options for enabling SSO with session cookies when it is not available by default in an OAuth 2.0 client built with AppAuth for iOS:
 
-* Using Safari for user authentication will allow sharing session cookies in all versions of iOS. This technique is described in the [Selecting User-Agent](#selecting-user-agent) section.
+* Using Safari for user authentication will allow sharing of session cookies in all versions of iOS. This technique is described in the [Selecting User-Agent](#selecting-user-agent) section.
 
     PROS:
     - Full control over sharing browser data between authentication events
@@ -47,7 +47,7 @@ Here, we will discuss three options for enabling SSO with session cookies when i
     CONS:
     - May require configuration changes in the authorization server
 
-* Alternatively, a trusted app could be given access to the user session information and allowed to share it with other apps produced by the same development team, effecting SSO via the back-channel (that is, without the user being involved). A particular implementation of this method is demonstrated in the [Employing Embedded User-Agent](#embedded-user-agent) section:
+* Alternatively, a trusted app could be given access to the user session information and allowed to share it with other apps produced by the same development team, effecting SSO via the back channel (that is, without the user being involved). A particular implementation of this method is demonstrated in the [Employing Embedded User-Agent](#embedded-user-agent) section.
 
     PROS:
     - Does not depend on the operating system policies
@@ -67,7 +67,7 @@ The details for each implementation are outlined below.
 
 Out of the box, AppAuth for iOS automatically selects an external user-agent based on conditions set in the [OIDExternalUserAgentIOS](https://github.com/openid/AppAuth-iOS/blob/e46bf966ba0189986f377719455c3656933a1566/Source/iOS/OIDExternalUserAgentIOS.m) class. Using the `OIDExternalUserAgent` interface, a modified copy of this class could be used for specifying an external user-agent explicitly when the authorization flow is initiated. For example, using Safari as the user-agent in iOS 11-12 will allow for sharing session cookies.
 
-An example of such custom version of the OIDExternalUserAgentIOS class can be found at [User-Agent/OIDExternalUserAgentIOSSafari.swift](User-Agent/OIDExternalUserAgentIOSSafari.swift). The key part of the class definition is the following statement, unconditionally opening the request URL in Safari:
+An example of such a custom version of the `OIDExternalUserAgentIOS` class can be found at [User-Agent/OIDExternalUserAgentIOSSafari.swift](User-Agent/OIDExternalUserAgentIOSSafari.swift). The key part of the class definition is the following statement, unconditionally opening the request URL in Safari:
 
 ```swift
 // OIDExternalUserAgentIOSSafari.swift
@@ -129,7 +129,7 @@ appDelegate.currentAuthorizationFlow = OIDAuthorizationService.present(request, 
 // . . .
 ```
 
-Now, when the user authenticates to the authorization server from an app using Safari as the external user-agent, all browser information, including user's session, is naturally available on subsequent requests.
+Now, when the user authenticates to the authorization server from an app using Safari as the external user-agent, all browser information, including the user's session, is naturally available on subsequent requests.
 
 There are problems with this approach though. Leaving an app for authentication might be considered a less than ideal user experience. At least in the past, there have been reports ([example](http://www.openradar.appspot.com/19944416)) that the App Store rejects apps using mobile Safari for signing in.
 
@@ -178,7 +178,7 @@ let request = OIDAuthorizationRequest(
 
 > The example above is based on the code from [iOS-AppAuth-Basic](/iOS-AppAuth/iOS-AppAuth-Basic) app.
 
-If your user has already been authenticated to AM in a non-private session using the persistent cookie set in this authentication tree, the cookie will be shared with other non-private sessions utilizing the same tree, and will allow for SSO until the cookie is expired. For example, you could initiate an authorization flow in another AppAuth app with the same additional parameters, or you could sign in by navigating to the AM web site in Safari, and specify the authentication tree with the `service` parameter:
+If your user has already been authenticated to AM in a non-private session using the persistent cookie set in this authentication tree, the cookie will be shared with other non-private sessions utilizing the same tree and will allow for SSO until the cookie expires. For example, you could initiate an authorization flow in another AppAuth app with the same additional parameters, or you could sign in by navigating to the AM web site in Safari and specify the authentication tree with the `service` parameter:
 
 https://default.iam.example.com/am/?service=persistent-cookie
 
@@ -195,19 +195,19 @@ https://default.iam.example.com/am/?service=persistent-cookie
 
 ### <a id="embedded-user-agent-introduction"></a> Introduction
 
-AppAuth for iOS follows the best current practices (BCP) outlined in RFC 8252, and calls for an external user-agent to initiate the authorization request. Doing so provides both usability and security benefits: the browser existing authentication state can be shared, system-wide tools (like password managers) could be utilized to provide a consistent user experience, and the user's credentials are not exposed to the app.
+AppAuth for iOS follows the best current practices (BCPs) outlined in RFC 8252, and calls for an external user-agent to initiate the authorization request. Doing so provides both usability and security benefits: the browser existing authentication state can be shared, system-wide tools (like password managers) can be utilized to provide a consistent user experience, and the user's credentials are not exposed to the app.
 
-There are some limitations and downsides associated with this strategy. Sharing session information with the in-app browser tabs is not always readily available in iOS. In addition, in iOS 11+, the user is informed about starting a non-private browser session in the app via a dialog box that necessitates an extra input from the user. In addition to that, the external user-agents provide limited options for blending the authentication web page into the app's general design.
+There are some limitations and negative aspects associated with this strategy. Sharing session information with the in-app browser tabs is not always readily available in iOS. In addition, in iOS 11+, the user is informed about starting a non-private browser session in the app via a dialog box that necessitates an extra input from the user. In addition to that, the external user-agents provide limited options for blending the authentication web page into the app's general design.
 
-Potentially, apps could share the user's authentication state directly, not relying on its persistence in the system browser. For example, collecting the user's credentials via an embedded user-agent and performing authentication from inside the app code would allow for reusing existing web authentication methods, and provide access to the session cookies. In addition, embedding a browser in the app would help with seamless integration of the authentication UI. This approach, however, is strongly discouraged by the BCP.
+Potentially, apps could share the user's authentication state directly, not relying on its persistence in the system browser. For example, collecting the user's credentials via an embedded user-agent and performing authentication from inside the app code would allow for reusing existing web authentication methods and provide access to the session cookies. In addition, embedding a browser in the app would help with seamless integration of the authentication UI. This approach, however, is strongly discouraged by the BCPs.
 
- In regard to the security and privacy considerations, the BCP are mostly written with the third-party clients in mind.
+ In regard to the security and privacy considerations, the BCPs are mostly written with the third-party clients in mind.
 
 > You can think of the first two parties as ones being bound by a contract. For example, in OAuth 2.0 terms, the first two are represented by the resource owner and the system providing access to their resources—the authorization server and the resource server. The client software arrives later on the scene and, unless it is directly controlled by the authorization system, is the third party, which is not a subject to the contract.
 
 Third-party apps belong to security domains separate from the one where the user's identity is being maintained. Providing the user's credentials to a third-party app as the means for verifying user's identity would allow the third-party to access resources that it does not manage, and should only be able to utilize with the user's consent. In order for the user's identity and its authentication status to be shared across the trust boundary, a trusted communication channel needs to be established between the Identity Provider (IdP) and the third-party software. This could be done with the help of various federation protocols, which employ digital signing and encryption for setting trusted relationships. With this federation in place, a user can authenticate to an IdP with an external system tool like a browser, which the third party has no control of. Then, the user's identity is confirmed to the third-party app with the means provided by the trusted relationship.
 
-In the case of OAuth 2.0 clients, federation could be implemented with policies defined in the [OpenID Connect](https://openid.net/connect/) (OIDC) standard, which extends the OAuth 2.0 framework. The OIDC layer allows communication of user's identity via an [ID Token](https://openid.net/specs/openid-connect-core-1_0.html#IDToken), which contains information about the user's authentication. Sharing this information with another app by itself does not let the other app authenticate the user to the authorization server via a back-channel. An additional protocol needs to be adopted by the client and by the authorization server to enable such authentication with the means of an ID Token. Currently, there is only a draft for [OpenID Connect Native SSO for Mobile Apps](https://openid.net/specs/openid-connect-native-sso-1_0.html), which describes additional specifications and their use for allowing a mobile app to share the identity/authentication info with another mobile app issued by the same vendor (but not necessarily by the company hosting the authorization server).
+In the case of OAuth 2.0 clients, federation could be implemented with policies defined in the [OpenID Connect](https://openid.net/connect/) (OIDC) standard, which extends the OAuth 2.0 framework. The OIDC layer allows communication of user's identity via an [ID Token](https://openid.net/specs/openid-connect-core-1_0.html#IDToken), which contains information about the user's authentication. Sharing this information with another app by itself does not let the other app authenticate the user to the authorization server via a back channel. An additional protocol needs to be adopted by the client and by the authorization server to enable such authentication with the means of an ID Token. Currently, there is only a draft for [OpenID Connect Native SSO for Mobile Apps](https://openid.net/specs/openid-connect-native-sso-1_0.html), which describes additional specifications and their use for allowing a mobile app to share the identity/authentication info with another mobile app issued by the same vendor (but not necessarily by the company hosting the authorization server).
 
 > It is also possible that there is no need for federating identity, and all the client software needs is authorization from the user to access protected resources on their behalf. In that case, authenticating the user _to the client_ against their identity manged by the OIDC Provider may be omitted. The need for SSO, however, may remain.
 
@@ -215,7 +215,7 @@ All of this changes when the client software is created and controlled by the fi
 
 > One may even argue that providing user's credentials to a first-party app may expose a lesser attack surface than by sharing the credentials with the default system browser. The latter option, however, could contribute to overall security by integrating with system tools; for example, access to the system password manager could make entering user's credentials an easy and secure process.
 
-The notion of a first-party app introduces a double-standard. The end user is not to enter their credentials directly in a third-party software, but it is OK to do so with first-party applications. Ideally, in order to provide a secure environment, the operating system needs to make a distinction between trusted and non-trusted apps. In that regard, the app review process and a [mobile device management](https://en.wikipedia.org/wiki/Mobile_device_management) implementation may help to prevent a third party from accessing user's credentials.
+The notion of a first-party app introduces a double standard. The end user is not to enter their credentials directly in a third-party software, but it is OK to do so with first-party applications. Ideally, in order to provide a secure environment, the operating system needs to make a distinction between trusted and non-trusted apps. In that regard, the app review process and a [mobile device management](https://en.wikipedia.org/wiki/Mobile_device_management) implementation may help to prevent a third party from accessing user's credentials.
 
 > While a good acting third-party app would probably adopt the standards, a malicious app is under no obligation to follow this admirable practice. There have been opinions raised and requests made ([example](https://openradar.appspot.com/radar?id=4963695432040448)) to limit use of embedded user-agents in iOS apps. At the same time, as noted in the [Fake External User-Agents section of RFC 8252](https://tools.ietf.org/html/rfc8252#section-8.7), the very presence of embedded user-agents, even in the first-party apps, makes it more difficult to detect bad actors that could use the native controls to steal user information.
 
@@ -227,9 +227,9 @@ In practice, however, decisions on whether to trust their credentials to an app 
 
 In the end, the first-party apps do exist, and user authentication with native code does take place, opening the door for developers to provide an uninterrupted user experience, and for users to share their credentials with the apps. It is expected that the end user can recognize the first party software and will enter appropriate credentials when prompted for signing in.
 
-With access to user's credentials and to their session information, SSO can be implemented in a proprietary way with other apps belonging to the same organization. iOS provides means of exchanging data between apps in a group defined by a development team; thus, the authentication state can be shared and SSO can be effected outside of the default browser environment.
+With access to user's credentials and to their session information, SSO can be implemented in a proprietary way with other apps belonging to the same organization. iOS lets apps in a group defined by a development team exchange data; thus, the authentication state can be shared and SSO can be effected outside of the default browser environment.
 
-The in-app authentication could be built with elementary native controls, allowing for almost infinite flexibility in its realization, including the presentation part and integrating the authentication UI into the rest of the app. This is a probable approach for an SDK developed by the first party. Particularities of a given SDK is beyond the scope of this general discussion.
+The in-app authentication can be built with elementary native controls, allowing for almost infinite flexibility in its realization, including the presentation part and integrating the authentication UI into the rest of the app. This is a probable approach for an SDK developed by the first party. Particularities of a given SDK is beyond the scope of this general discussion.
 
 The more generic option for building an embedded user-agent could be utilizing a prebuilt web view component provided by the operating system. A web view allows for automatic rendering of web pages that are already prepared for the browsers. In recent versions of iOS, the [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) class represents such components. We will demonstrate how it could be used for furnishing SSO experience between first-party apps. We will also show how the AppAuth SDK for iOS could still be employed for completing the OAuth 2.0 authorization flow after the user authenticates to the authorization server with the native control.
 
@@ -261,7 +261,7 @@ The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-We
 
 0. In Xcode, create a new Swift file for iOS: File > New > File...; for example: `WebViewController.swift`.
 
-    This file will define a class, which creates a [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) instance and, optionally, handles its navigation events. During authentication, it will capture authentication cookies and store them in a [UserDefaults](https://developer.apple.com/documentation/foundation/userdefaults) database associated with the App Group this app belongs to. Other apps in the same group will be able to read the cookies. The class instance will check the database for the authentication cookies presence and, if found, inject them in the WKWebView instance, thus, authenticating the user automatically when it is possible.
+    This file defines a class that creates a [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) instance.  It can also handle its navigation events. During authentication, the class instance will capture authentication cookies and store them in a [UserDefaults](https://developer.apple.com/documentation/foundation/userdefaults) database associated with the App Group this app belongs too. Other apps in the same group will be able to read the cookies. The class instance will check the database for the authentication cookies presence and, if found, inject them in the WKWebView instance, thus, authenticating the user automatically when it is possible.
 
     > [Keychain Sharing](https://developer.apple.com/documentation/security/keychain_services/keychain_items/sharing_access_to_keychain_items_among_a_collection_of_apps) provides a more secure option for persistent types of sensitive data and is recommended for production use. This technique deserves its own deliberation and is not covered here. For these demo apps, storing _temporary_, _user specific_ credentials (like cookies and other short-lived tokens) in unencrypted form may be sufficient. Foreign apps will not be able to access the group data at the run time.
 
@@ -269,7 +269,7 @@ The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-We
 
     > In iOS, a multi-user environment is not supported out of the box.
 
-    The entire content of the class could be found at [WebView/SSO-WebView-1/SSO-WebView-1/WebViewController.swift](WebView/SSO-WebView-1/SSO-WebView-1/WebViewController.swift)
+    The entire content of the class can be found at [WebView/SSO-WebView-1/SSO-WebView-1/WebViewController.swift](WebView/SSO-WebView-1/SSO-WebView-1/WebViewController.swift)
 
     The key elements of this class are these:
 
@@ -371,7 +371,7 @@ The full code example can be found at [WebView/iOS-AppAuth-Basic/](WebView/iOS-A
 
     ![Screenshot: xcode.target.capabilities.app-groups.basic.png](README_files/xcode.target.capabilities.app-groups.basic.png)
 
-0. In ViewController.swift, add following properties to the main class:
+0. In ViewController.swift, add the following properties to the main class:
 
     ```swift
     // ViewController.swift
@@ -423,7 +423,7 @@ The full code example can be found at [WebView/iOS-AppAuth-Basic/](WebView/iOS-A
     // . . .
     ```
 
-    These properties will allow for instantiating a web view and using it for interacting with the user in the authorization process.
+    These properties will let you instantiate a web view and use it for interacting with the user in the authorization process.
 
 0. In the main view controller, add a new `authorizeWithWebView(configuration:clientId:redirectionUri:scopes:completion:)` method, which will instantiate the web view with the URL for authorization endpoint. For example:
 
@@ -704,7 +704,7 @@ If you build and run the app now, the web view will appear in the provided frame
 
 [Back to Employing Embedded User-Agent](#embedded-user-agent)
 
-The signing in process may require additional information exchange between the native environment and the authentication system; for example, communicating device information or leveraging multi-factor authentication. While a prebuilt solution like WKWebView imposes certain constraints in this regard, it is still possible to establish such communication. For that purpose, I am afraid, we will have to use JavaScript!
+The sign in process may require additional information exchange between the native environment and the authentication system; for example, communicating device information or leveraging multi-factor authentication. While a prebuilt solution like WKWebView imposes certain constraints in this regard, it is still possible to establish such communication. For that purpose, I am afraid, we will have to use JavaScript!
 
 Imagine, that on an authentication page there is some dynamic content calling for an action to be performed by the native client, the results of which need to be reported back to the web application.
 
