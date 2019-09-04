@@ -39,7 +39,7 @@ Here, we will discuss three options for enabling SSO with session cookies when i
     - Authentication in Safari forces the user to leave the app
     - Safari tabs cannot be controlled from the app
 
-* If calling the default browser for front-channel communications is not acceptable, enabling persistent cookies for session management could be an option in the authorization server configuration. This will allow sharing the authentication state in the iOS in-app browser tabs. An example of this approach is described in the [Enabling Persistent Cookies in ForgeRock Access Management](#implementing-persistent-cookie-authentication-in-am) section:
+* If calling the default browser for front-channel communications is not acceptable, enabling persistent cookies for session management could be an option in the authorization server configuration. This will allow sharing the authentication state in the iOS in-app browser tabs. An example of this approach is described in the [Enabling Persistent Cookies in ForgeRock Access Management](#implementing-persistent-cookie-authentication-in-am) section.
 
     PROS:
     - Supported with "out of the box" configuration of AppAuth for iOS
@@ -225,7 +225,7 @@ In practice, however, decisions on whether to trust their credentials to an app 
 >
 > It is worthwhile to note that all these concerns we discuss here are not specific to OAuth 2.0 implementations. While identity providers ([example 1](https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html) and [example 2](https://dev.fitbit.com/build/reference/web-api/oauth2/#obtaining-consent)) may try to prevent the use of embedded browsers for authorization flows, the user's credentials by themselves present a security threat when in possession of a malicious party.
 
-In the end, the first-party apps do exist, and user authentication with native code does take place, opening the door for developers to provide an uninterrupted user experience, and for users to share their credentials with the apps. It is expected that the end user can recognize the first party software, and will enter appropriate credentials when prompted for signing in.
+In the end, the first-party apps do exist, and user authentication with native code does take place, opening the door for developers to provide an uninterrupted user experience, and for users to share their credentials with the apps. It is expected that the end user can recognize the first party software and will enter appropriate credentials when prompted for signing in.
 
 With access to user's credentials and to their session information, SSO can be implemented in a proprietary way with other apps belonging to the same organization. iOS provides means of exchanging data between apps in a group defined by a development team; thus, the authentication state can be shared and SSO can be effected outside of the default browser environment.
 
@@ -894,4 +894,4 @@ Utilizing a web view allows for reusing functionality already built for the brow
 
 [Back to top](#top)
 
-There seems to be no ideal solution for implementing SSO-based on browser cookies in iOS in a way that is compliant with the best current practices and recommendations for OAuth 2.0 clients. In this overview, we extended our experience with the AppAuth SDK for iOS by describing a few additional options for enabling SSO when it is not available with the SDK "out of the box".
+There seems to be no ideal solution for implementing SSO based on browser cookies in iOS in a way that is compliant with the best current practices and recommendations for OAuth 2.0 clients. In this overview, we extended our experience with the AppAuth SDK for iOS by describing a few additional options for enabling SSO when it is not available with the SDK "out of the box".
