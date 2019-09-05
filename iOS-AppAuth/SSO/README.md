@@ -178,9 +178,9 @@ let request = OIDAuthorizationRequest(
 
 > The example above is based on the code from [iOS-AppAuth-Basic](/iOS-AppAuth/iOS-AppAuth-Basic) app.
 
-If your user has already been authenticated to AM in a non-private session using the persistent cookie set in this authentication tree, the cookie will be shared with other non-private sessions utilizing the same tree and will allow for SSO until the cookie expires. For example, you could initiate an authorization flow in another AppAuth app with the same additional parameters, or you could sign in by navigating to the AM web site in Safari and specify the authentication tree with the `service` parameter:
+If your user has already been authenticated to AM in a non-private session using the persistent cookie set in this authentication tree, the cookie will be shared with other non-private sessions utilizing the same tree, and it will allow for SSO until the cookie expires. You could initiate an authorization flow in another AppAuth app with the same additional parameters, or you could sign in by navigating to your AM web site in Safari and specify the authentication tree with the `service` parameter, for example:
 
-https://default.iam.example.com/am/?service=persistent-cookie
+`https://default.iam.example.com/am/?service=persistent-cookie`
 
 > According to a [report](http://www.openradar.me/radar?id=5036182937272320), cookie sharing between `SFAuthenticationSession` and Safari used to be delayed/unreliable in iOS 11. We don't have a confirmation of this issue in later versions of iOS.
 
@@ -243,7 +243,7 @@ For this, we will need two apps belonging to the same [App Group](https://develo
 
 The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-WebView-1/). You can build your own version by following the general steps outlined below:
 
-0. Create a new iOS Single View App project in Xcode. Select Swift as the language.
+1. Create a new iOS Single View App project in Xcode. Select Swift as the language.
 
 0. Under the target properties, in Capabilities, enable App Groups.
 
@@ -273,7 +273,7 @@ The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-We
 
     The key elements of this class are these:
 
-    0. We need to create a WKWebView instance; hence the [WebKit](https://developer.apple.com/documentation/webkit) framework is imported.
+    1. We need to create a WKWebView instance; hence the [WebKit](https://developer.apple.com/documentation/webkit) framework is imported.
 
     0. We initialize the class with parameters describing which URL to initiate the web view with, which cookies to track, and which App Group to make those cookies available for. The frame to render the web view instance in and the web view configuration parameters could also be provided.
 
@@ -345,7 +345,7 @@ To highlight the essence of this implementation, we will modify an existing app 
 
 The full code example can be found at [WebView/iOS-AppAuth-Basic/](WebView/iOS-AppAuth-Basic/). It was built by following a procedure outlined below:
 
-0. Make a copy of the app located at [/iOS-AppAuth/iOS-AppAuth-Basic/](/iOS-AppAuth/iOS-AppAuth-Basic/).
+1. Make a copy of the app located at [/iOS-AppAuth/iOS-AppAuth-Basic/](/iOS-AppAuth/iOS-AppAuth-Basic/).
 
 0. In the root of that folder, run:
 
