@@ -1,4 +1,4 @@
-# <a id="top"></a> Implementing SSO with the AppAuth SDK for iOS
+# <a id="top"></a> Enabling SSO for the AppAuth SDK in iOS
 
 ## Contents
 
@@ -9,6 +9,8 @@
 * [Conclusion](#conclusion)
 
 ## <a id="introduction"></a> Introduction
+
+[Back to top](#top)
 
 This article assumes familiarity with the content covered in [Implementing OAuth 2.0 Authorization Code Grant protected by PKCE with the AppAuth SDK for iOS](/iOS-AppAuth/README.md). In that article, we went over the best current practices for building OAuth 2.0 clients in native apps, and described in detail how to create a simple app serving in the role of an OpenID Connect Relying Party with the help of the AppAuth SDK. Some of the examples here are based on the code from that simple app.
 
@@ -135,7 +137,7 @@ There are problems with this approach though. Leaving an app for authentication 
 
 Another issue is that the Safari tab used for authentication will not be closed after the user is redirected back to the original app (contrary to an in-app browser tab that can be dismissed by the app):
 
-![Screenshot: ios.authentication.safari.png](README_files/ios.authentication.safari.png)
+![Screenshot: AppAuth Basic and Safari shown running in the Fast App Switcher view](README_files/ios.authentication.safari.png)
 
 > In addition, when a [private-use (custom) URI scheme](https://tools.ietf.org/html/rfc8252#section-7.1) is used for redirection, Safari will prompt the user whether or not they want to open the app they are being redirected to. This does NOT happen when the user is redirected to the app via [Universal Links](https://developer.apple.com/ios/universal-links/), which is Apple's implementation of [claimed "https" scheme URIs](https://tools.ietf.org/html/rfc8252#section-7.2).
 
@@ -155,11 +157,11 @@ In conclusion, selecting a user-agent is easy to implement in AppAuth for iOS wi
 
 Authentication based on persistent cookies can be implemented in AM by utilizing [Authentication Trees](https://backstage.forgerock.com/docs/am/6.5/authentication-guide/#sec-configure-authentication-trees). A simplified example of such a tree might look like this:
 
-![screenshot am.authentication-tree.persistent-cookie.png](README_files/am.authentication-tree.persistent-cookie.png)
+![Screenshot: ForgeRock Access Management console: authentication tree based on persistent cookie decision](README_files/am.authentication-tree.persistent-cookie.png)
 
 The tree identifier needs to be mapped in OAuth2 Provider service settings in AM to an [OIDC Authentication Context Class Reference](https://openid.net/specs/openid-connect-core-1_0.html#IDToken) (ACR) value. For example:
 
-![Screenshot: ](README_files/am.oauth2-provider.acr_values.png)
+![Screenshot: ForgeRock Access Management console: OAuth 2 Provider service: mapping OpenID Connect ACR values to authentication trees and chains](README_files/am.oauth2-provider.acr_values.png)
 
 Then, the mapped ACR value could be provided as an additional parameter in the authorization request built by AppAuth. For example:
 
@@ -243,7 +245,7 @@ For this, we will need two apps belonging to the same [App Group](https://develo
 
 The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-WebView-1/). You can build your own version by following the general steps outlined below:
 
-1. Create a new iOS Single View App project in Xcode. Select Swift as the language.
+0. Create a new iOS Single View App project in Xcode. Select Swift as the language.
 
 0. Under the target properties, in Capabilities, enable App Groups.
 
@@ -255,7 +257,7 @@ The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-We
 
     For example:
 
-    ![Screenshot: xcode.target.capabilities.app-groups.1.png](README_files/xcode.target.capabilities.app-groups.1.png)
+    ![Screenshot: Xcode project Capabilities: enabling App Groups](README_files/xcode.target.capabilities.app-groups.1.png)
 
     > In this example, we assume that cookies for only one App Group need to be manged, but the implementation could be easily extended to handle multiple groups associated with the app, by creating group specific storage locations.
 
@@ -273,7 +275,7 @@ The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-We
 
     The key elements of this class are these:
 
-    1. We need to create a WKWebView instance; hence the [WebKit](https://developer.apple.com/documentation/webkit) framework is imported.
+    0. We need to create a WKWebView instance; hence the [WebKit](https://developer.apple.com/documentation/webkit) framework is imported.
 
     0. We initialize the class with parameters describing which URL to initiate the web view with, which cookies to track, and which App Group to make those cookies available for. The frame to render the web view instance in and the web view configuration parameters could also be provided.
 
@@ -345,7 +347,7 @@ To highlight the essence of this implementation, we will modify an existing app 
 
 The full code example can be found at [WebView/iOS-AppAuth-Basic/](WebView/iOS-AppAuth-Basic/). It was built by following a procedure outlined below:
 
-1. Make a copy of the app located at [/iOS-AppAuth/iOS-AppAuth-Basic/](/iOS-AppAuth/iOS-AppAuth-Basic/).
+0. Make a copy of the app located at [/iOS-AppAuth/iOS-AppAuth-Basic/](/iOS-AppAuth/iOS-AppAuth-Basic/).
 
 0. In the root of that folder, run:
 
@@ -369,7 +371,7 @@ The full code example can be found at [WebView/iOS-AppAuth-Basic/](WebView/iOS-A
 
     For example:
 
-    ![Screenshot: xcode.target.capabilities.app-groups.basic.png](README_files/xcode.target.capabilities.app-groups.basic.png)
+    ![Screenshot: Xcode project Capabilities: adding an App Group to a target](README_files/xcode.target.capabilities.app-groups.basic.png)
 
 0. In ViewController.swift, add the following properties to the main class:
 
@@ -753,7 +755,7 @@ struct AuthenticationResponse: Codable {
 
 In order for the source file to be available at the run time, it will need to be added to the app bundle in Target > Build Phases > Copy Bundle Resources. For example:
 
-![Screenshot: Target > Build Phases > Copy Bundle Resources](README_files/xcode.target.build-phases.copy-bundle-resources.png)
+![Screenshot: Xcode project: Copy Bundle Resources settings under Build Phases for a Target](README_files/xcode.target.build-phases.copy-bundle-resources.png)
 
 > For an imitation of a JavaScript code running on a web page, we could use [evaluateJavaScript(_:completionHandler:)](https://developer.apple.com/documentation/webkit/wkwebview/1415017-evaluatejavascript) for executing the statement included in WebViewController.js. However, storing JavaScript content in a file seems to be a solution that is easier to read and maintain.
 
