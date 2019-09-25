@@ -26,7 +26,7 @@ In iOS 11-12, designated authentication classes are used for interacting with th
 
 > [According to Apple](https://developer.apple.com/support/app-store/), more than 90% of all devices are using iOS 11+.
 
-In both cases, [session cookies](https://en.wikipedia.org/wiki/HTTP_cookie#Session_cookie) are not shared with Safari or other classes' instances, making SSO an option only with persistent cookies. Session cookies are never written to disk and, conceivably, present the more secure way of maintaining user sessions. It is possible that your authorization server is using session cookies and, therefore, the SSO experience will not be automatically available with the AppAuth SDK for iOS.
+The authentication classes do not share [session cookies](https://en.wikipedia.org/wiki/HTTP_cookie#Session_cookie) with Safari or other classes' instances, making SSO an option only with persistent cookies. Session cookies are never written to disk and, conceivably, present the more secure way of maintaining user sessions. It is possible that your authorization server is using session cookies and, therefore, the SSO experience will not be automatically available with the AppAuth SDK for iOS.
 
 > The authentication classes will ask the user for their consent to share the website data with the browser tab opened by the app. This means that the SSO experience in this case comes at the cost of an extra action required from the user.
 
