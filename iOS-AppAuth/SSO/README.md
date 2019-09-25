@@ -197,6 +197,8 @@ If your user has already been authenticated to AM in a non-private session using
 
 ### <a id="embedded-user-agent-introduction"></a> Introduction
 
+[Back to Employing Embedded User-Agent](#embedded-user-agent)
+
 AppAuth for iOS follows the best current practices (BCPs) outlined in RFC 8252, and calls for an external user-agent to initiate the authorization request. Doing so provides both usability and security benefits: the browser existing authentication state can be shared, system-wide tools (like password managers) can be utilized to provide a consistent user experience, and the user's credentials are not exposed to the app.
 
 There are some limitations and negative aspects associated with this strategy. Sharing session information with the in-app browser tabs is not always readily available in iOS. In addition, in iOS 11+, the user is informed about starting a non-private browser session in the app via a dialog box that necessitates an extra input from the user. In addition to that, the external user-agents provide limited options for blending the authentication web page into the app's general design.
@@ -231,9 +233,9 @@ In the end, the first-party apps do exist, and user authentication with native c
 
 With access to user's credentials and to their session information, SSO can be implemented in a proprietary way with other apps belonging to the same organization. iOS lets apps in a group defined by a development team exchange data; thus, the authentication state can be shared and SSO can be effected outside of the default browser environment.
 
-The in-app authentication can be built with elementary native controls, allowing for almost infinite flexibility in its realization, including the presentation part and integrating the authentication UI into the rest of the app. This is a probable approach for an SDK developed by the first party. Particularities of a given SDK is beyond the scope of this general discussion.
+The in-app authentication can be built with elementary native controls, allowing for almost infinite flexibility in its realization, including the presentation part and integrating the authentication UI into the rest of the app. This is a probable approach for an SDK developed by the first party. Particularities of a given SDK are beyond the scope of this general discussion.
 
-The more generic option for building an embedded user-agent could be utilizing a prebuilt web view component provided by the operating system. A web view allows for automatic rendering of web pages that are already prepared for the browsers. In recent versions of iOS, the [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) class represents such components. We will demonstrate how it could be used for furnishing SSO experience between first-party apps. We will also show how the AppAuth SDK for iOS could still be employed for completing the OAuth 2.0 authorization flow after the user authenticates to the authorization server with the native control.
+The more generic option for building an embedded user-agent could be utilizing a prebuilt web view component provided by the operating system. A web view allows for automatic rendering of web pages that are already prepared for the browsers. In recent versions of iOS, the [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) class represents such a component. We will demonstrate how it could be used for furnishing SSO experience between first-party apps. We will also show how the AppAuth SDK for iOS could still be employed for completing the OAuth 2.0 authorization flow after the user authenticates to the authorization server with the native control.
 
 > While no federated authentication may be required in this case, OAuth 2.0 flows may still need to be performed according to the standards and existing authorization policies.
 
@@ -896,4 +898,4 @@ Utilizing a web view allows for reusing functionality already built for the brow
 
 [Back to top](#top)
 
-There seems to be no ideal solution for implementing SSO based on browser cookies in iOS in a way that is compliant with the best current practices and recommendations for OAuth 2.0 clients. In this overview, we extended our experience with the AppAuth SDK for iOS by describing a few additional options for enabling SSO when it is not available with the SDK "out of the box".
+There seems to be no standard solution for implementing SSO based on browser cookies in iOS in a way that is compliant with the best current practices and recommendations for OAuth 2.0 clients. In this overview, we extended our experience with the AppAuth SDK for iOS by describing a few additional options for enabling SSO when it is not available with the SDK "out of the box".
