@@ -34,7 +34,7 @@ Recommendations for OAuth 2.0 implementation in Native Apps are summarized in [R
 
     > The authentication classes, `ASWebAuthenticationSession` and `SFAuthenticationSession`, utilized by AppAuth in iOS 11 and 12, do not share session (that is, transient) cookies with their other instances or with mobile Safari. The authentication cookies need to be persistent in order to implement SSO with the classes in a way that is compliant with RFC 8252.
     >
-    > There is more elaborate discussion on this subject in [Implementing SSO with the AppAuth SDK for iOS](SSO/README.md).
+    > We continue discussion on this subject in [Enabling SSO for the AppAuth SDK in iOS](SSO/README.md).
 
     A web view allows access to its data, including cookies, user credentials, and so on, from the hosting app. Due to its unsafe nature, use of a web view for authorization and authentication purposes could be prohibited by identity providers ([example 1](https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html) and [example 2](https://dev.fitbit.com/build/reference/web-api/oauth2/#obtaining-consent)). A web view is NOT a recommended way to implement authorization flows, especially in the context of a third-party application that cannot be trusted by the end-user.
 
