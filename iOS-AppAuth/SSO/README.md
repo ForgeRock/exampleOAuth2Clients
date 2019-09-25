@@ -3,7 +3,7 @@
 ## Contents
 
 * [Introduction](#introduction)
-* [Selecting User-Agent](#selecting-user-agent)
+* [Selecting a User-Agent](#selecting-user-agent)
 * [Enabling Persistent Cookies in ForgeRock Access Management](#implementing-persistent-cookie-authentication-in-am)
 * [Employing Embedded User-Agent](#embedded-user-agent)
 * [Conclusion](#conclusion)
