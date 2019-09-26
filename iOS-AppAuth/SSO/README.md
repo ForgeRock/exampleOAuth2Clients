@@ -349,7 +349,7 @@ To highlight the essence of this implementation, we will modify an existing app 
 
 The full code example can be found at [WebView/iOS-AppAuth-Basic/](WebView/iOS-AppAuth-Basic/). It was built by following a procedure outlined below:
 
-0. Make a copy of the app located at [/iOS-AppAuth/iOS-AppAuth-Basic/](/iOS-AppAuth/iOS-AppAuth-Basic/).
+0. Make a copy of the [iOS-AppAuth-Basic](/iOS-AppAuth/iOS-AppAuth-Basic/) app.
 
 0. In the root of that folder, run:
 
