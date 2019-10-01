@@ -12,7 +12,25 @@
 
 [Back to top](#top)
 
-In this document, we will leverage terminology defined in [OAuth 2.0](https://tools.ietf.org/html/rfc6749) and one of its extensions—[OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the best current practices for building native OAuth 2.0 clients—that is, applications running on the end-user's (mobile) device.
+_"The analysis found a positive and significant contribution of standards to productivity – supporting 37.4% of annual labour productivity growth in the UK economy over the period 1921 to 2013, which translates into approximately 28.4% of annual GDP growth – a similar finding to that of other recent national level studies in France and Germany."_
+
+_"One of the first [standards] to be introduced in the UK [was] the standardization of the number of tram gauge specifications . . . "_
+
+British Standards Institution, 2015
+
+It is easy to see how adopting standards makes a railroad an efficient way of transporting goods (and their consumers), because all interested parties are in agreement on direction, schedule, and the wheel gauge. At the same time, creativity is somewhat limited in that area, making it the technology of choice in the infamous _trolley problem_. A railroad standard works well because there are no fundamental ongoing changes in the use case of transporting a heavy weight from point A to point B.
+
+It is also easy to see how standards may help in software development. The task of delivering instructions to a machine should not always start with inventing a computer, defining a language, building an operating system, and so on. Each level of such abstraction becomes a standard when it is accepted by the community as the starting point for further development, instead of “reinventing the wheel” every time. The wider a standard is accepted, the more support it will receive, and the more efficiently it could be employed. Efficiency drives productivity when business solutions are found more readily and with less effort, which is important, because the gains in effort are multiplied by the number of participants increasing with each step up this "food chain".
+
+Thus, it seems, a software solution provider needs to support widely accepted standards that can be engaged in its service/product. Any proprietary, non-standard solution should be sought-after only if there is no standard approach to address a particular use case.
+
+Software development operates in a constantly changing landscape. This means that a single standard, however flexible it is, may not stay sufficient indefinitely, and that applies to its competitors as well:
+
+![how standards proliferate](https://imgs.xkcd.com/comics/standards.png)
+
+In the context of REST API protection, however, there seems to be a clear leader at the moment: the [OAuth 2.0](https://tools.ietf.org/html/rfc6749) authorization framework with extensions galore*. In this document, we will leverage terminology defined in OAuth 2.0 and one of its extensions: [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html). We will also take into consideration the best current practices for building native OAuth 2.0 clients—that is, applications running on the end-user's (mobile) device.
+
+> \* The ever-present OAuth 2.0 implementations resemble a branch in the evolutionary tree, with the protocol extensions forming homologous structures on top of the common, open for interpretation ancestor—RFC 6749. The extensions, introduced over a period of time, allowed for constant adaptation to the dramatic environmental changes taken place since 2012, when the framework was originally introduced. The open, evolving nature of OAuth 2.0 may be the very reason for its continuous acceptance and success.
 
 ## <a id="intro"></a> Introduction
 
