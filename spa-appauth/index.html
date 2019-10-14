@@ -23,8 +23,8 @@
     <a href='#' onclick='AppAuthHelper.logout().then(() => location.reload())'>Logout</a>
 </body>
 
-<script src="node_modules/oidcsessioncheck/sessionCheckGlobal.js"></script>
-<script src="node_modules/appauthhelper/appAuthHelperBundle.js"></script>
+<script src="sessionCheckGlobal.js"></script>
+<script src="appAuthHelperBundle.js"></script>
 
 <script>
 (function () {
@@ -77,9 +77,11 @@
                 document.getElementsByTagName("body")[0].appendChild(mainScript);
             }
         }
+    })
+    .then(function () {
+        // In this application, we want tokens immediately, before any user interaction is attempted
+        AppAuthHelper.getTokens();
     });
-    // In this application, we want tokens immediately, before any user interaction is attempted
-    AppAuthHelper.getTokens();
 }());
 </script>
 </html>

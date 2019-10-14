@@ -15,8 +15,8 @@ These two libraries have legitimate independent uses. When operating together, h
 Within [index.html](./index.html) you'll see the main code uses the two libraries (appauthhelper and oidcsessioncheck). This code handles all work related to fetching tokens and making them available for the SPA to use. Here it is:
 
 ```html
-<script src="node_modules/oidcsessioncheck/sessionCheckGlobal.js"></script>
-<script src="node_modules/appauthhelper/appAuthHelperBundle.js"></script>
+<script src="sessionCheckGlobal.js"></script>
+<script src="appAuthHelperBundle.js"></script>
 
 <script>
 (function () {
@@ -30,7 +30,6 @@ Within [index.html](./index.html) you'll see the main code uses the two librarie
     AppAuthHelper.init({
         clientId: commonSettings.clientId,
         authorizationEndpoint: commonSettings.authorizationEndpoint,
-        scopes: "openid fr:idm:profile fr:idm:profile_update fr:idm:consent_read fr:idm:notifications",
         tokenEndpoint: "https://default.iam.example.com/am/oauth2/access_token",
         revocationEndpoint: "https://default.iam.example.com/am/oauth2/token/revoke",
         endSessionEndpoint: "https://default.iam.example.com/am/oauth2/connect/endSession",
@@ -56,10 +55,6 @@ Within [index.html](./index.html) you'll see the main code uses the two librarie
                 // check the validity of the session immediately
                 sessionCheck.triggerSessionCheck();
 
-                // check every minute
-                setInterval(function () {
-                    sessionCheck.triggerSessionCheck();
-                }, 60000);
                 // check with every captured event
                 document.addEventListener("click", function () {
                     sessionCheck.triggerSessionCheck();
@@ -74,16 +69,17 @@ Within [index.html](./index.html) you'll see the main code uses the two librarie
                 document.getElementsByTagName("body")[0].appendChild(mainScript);
             }
         }
+    })
+    .then(function () {
+        AppAuthHelper.getTokens();
     });
-    // In this application, we want tokens immediately, before any user interaction is attempted
-    AppAuthHelper.getTokens();
 }());
 </script>
 ```
 
 Notice how the `SessionCheck` module is initialized within the `tokensAvailableHandler`. This is required because `SessionCheck` can only operate once the user has logged in; it needs to know the name of that logged-in user. The name is available thanks to the `claims` details provided by `AppAuthHelper`.
 
-Once the tokens are available, the main SPA code can be loaded. This is what is what "app.js" is meant to represent. In this case, app.js is a trivial bit of jQuery code which makes a single request to the resource server and displays the result in the browser. It is more remarkable for what it does not do - it doesn't need to have any code to handle access tokens. This is because appAuthHelper intercepts the request and handles all logic related to the access token.
+Once the tokens are available, the main SPA code can be loaded. This is what "app.js" is meant to represent. In this case, app.js is a trivial bit of JavaScript code which makes two requests to the resource servers and displays the result in the browser. It is more remarkable for what it does not do - it doesn't need to have any code to handle access tokens. This is because appAuthHelper intercepts the request and handles all logic related to the access token needed for that resource server.
 
 ## Running the Example Application
 
@@ -150,7 +146,7 @@ Note that this client is registered with implied consent enabled ("isConsentImpl
 ### Installing the Dependencies
 
 ```bash
-npm i oidcsessioncheck appauthhelper
+npm install && npm run copy-dependencies
 ```
 
 ### Serving the Static Files Used for This Sample
@@ -166,7 +162,7 @@ By using this, you can access this example application at <http://localhost:8888
 
 ### Using the Example Application
 
-When you open the example application at <http://localhost:8888/> it should initialize the authorization code flow and take you to AM to login. You can login with any valid user credentials; for example, *user.0/password*. When you finish logging in and approve the scopes required for this application, you will see the basic client interface.
+When you open the example application at <http://localhost:8888/> it should initialize the authorization code flow and take you to AM to login. You can login with any valid user credentials; for example, *amadmin/password*. When you finish logging in and approve the scopes required for this application, you will see the basic client interface.
 
 If you look closely at the network traffic produced by your browser, you will see that each request to the resource server REST endpoints includes a header that looks like so:
 
