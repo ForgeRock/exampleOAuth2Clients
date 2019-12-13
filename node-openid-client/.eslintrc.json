@@ -1,0 +1,24 @@
+{
+    "env": {
+        "commonjs": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "standard"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "script"
+    },
+    "rules": {
+      "indent": ["error", 2, {"MemberExpression": 0}],
+      "no-param-reassign": ["error", {"props": false}],
+      "semi": ["off"],
+      "strict": "error"
+    }
+}

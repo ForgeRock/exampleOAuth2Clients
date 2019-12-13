@@ -1,0 +1,38 @@
+<% /* example-start */ %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+
+    <p><a href="/">Home</a></p>
+
+    <p>Issuer</p>
+    <p><a href="/forgerock/protected">/forgerock/protected</a></p>
+
+    <p>Resources</p>
+    <p>
+      <!-- Local routes and resources being called in the routes' handlers (defined in '/forgerock/routes.js') -->
+      <p><a href="/forgerock/protected/userinfo">/forgerock/protected/userinfo</a> (https://default.iam.example.com/am/)</p>
+      <p><a href="/forgerock/protected/login">/forgerock/protected/login</a> (https://default.iam.example.com/openidm/)</p>
+      <p><a href="/forgerock/protected/sub-authorized-instance">/forgerock/protected/sub-authorized-instance</a> (https://default.iam.example.com/openidm/)</p>
+    </p>
+
+    <p>Sign Out</p>
+    <p><a href="/forgerock/deauthorize">Deauthorize & Sign Out</a></p>
+
+    <p><%= subTitle %></p>
+    <pre><%= JSON.stringify(subContent, null, 2) %></pre>
+
+    <p>Token Set</p>
+    <pre><%= JSON.stringify(tokenSet, null, 2) %></pre>
+
+    <p>Introspection Results</p>
+    <pre><%= JSON.stringify((function () {return Object.keys(introspectionResults).sort().reduce((sorted, key) => {sorted[key] = introspectionResults[key]; return sorted}, {})}()), null, 2) %></pre>
+  </body>
+</html>
+<% /* example-end */ %>
