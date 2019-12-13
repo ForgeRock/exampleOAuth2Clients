@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <% /* example-start */ %>
+    <% if (locals.messages) { %>
+      <% messages.forEach((message) => { %>
+        <p><%= message %></p>
+      <% }) %>
+    <% } %>
+    <% /* example-end */ %>
+
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+
+    <% /* example-start */ %>
+    <p><a href="/forgerock/protected">Authorize with ForgeRock Access Management</a></p>
+    <% /* example-end */ %>
+  </body>
+</html>
