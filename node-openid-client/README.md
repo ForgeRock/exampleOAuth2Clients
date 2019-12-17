@@ -16,7 +16,7 @@ This example of an OAuth 2.0 [client](https://tools.ietf.org/html/rfc6749) exten
 
 To aid with the authorization process and consumption of the resources protected by OAuth 2.0, another library is used in the code—[openid-client-helper](https://www.npmjs.com/package/openid-client-helper). The openid-client-helper package is built on top of openid-client and provides public interface that allows for easy implementation of some common tasks related to OAuth 2.0 authorization by a [resource owner](https://tools.ietf.org/html/rfc6749#section-1.1) and for transparent use of automatically obtained and refreshed access tokens in requests made to protected APIs.
 
-In addition, openid-client-helper accepts as a parameter a set of resources—that is, a collection of API references identified by their URIs. For each resource, an openid-client-helper instance requests and renews, as necessary, specific to the resource access token. Maintaining access tokens for different resources separately will enable the OAuth 2.0 client to comply with the [Audience Restricted Access Tokens](https://tools.ietf.org/html/draft-ietf-oauth-security-topics-13#section-4.8.1.3) recommendation from the OAuth 2.0 Security Best Current Practice (BCP) draft for deployments with multiple [resource servers](https://tools.ietf.org/html/rfc6749#section-1.1). A resource-specific access token can be requested with a [resource parameter](https://tools.ietf.org/html/draft-ietf-oauth-resource-indicators-08#section-2) or a unique to the resource [scope](https://tools.ietf.org/html/rfc6749#section-3.3). Associating an access token with the intended audience and restricting the use of an access token to a specific scope is also suggested in [Threat Mitigation](https://tools.ietf.org/html/rfc6750#section-5.2) section of the OAuth 2.0 Bearer Token Usage standard (RFC 6750) and in the OIDC [core specifications](https://openid.net/specs/openid-connect-core-1_0.html#AccessTokenRedirect). And, as the OAuth 2.0 Security BCP states:
+In addition, openid-client-helper accepts as a parameter a set of resources—that is, a collection of API references identified by their URIs. For each resource, an openid-client-helper instance requests and renews, as necessary, specific to the resource access token. Maintaining access tokens for different resources separately will enable the OAuth 2.0 client to comply with the [Audience Restricted Access Tokens](https://tools.ietf.org/html/draft-ietf-oauth-security-topics-13#section-4.8.1.3) recommendation from the OAuth 2.0 Security Best Current Practice (BCP) draft for deployments with multiple [resource servers](https://tools.ietf.org/html/rfc6749#section-1.1). A resource-specific access token can be requested with a [resource parameter](https://tools.ietf.org/html/draft-ietf-oauth-resource-indicators-08#section-2) or a unique to the resource [scope](https://tools.ietf.org/html/rfc6749#section-3.3). Associating an access token with the intended audience and restricting the use of an access token to a specific scope is also suggested in the [Threat Mitigation](https://tools.ietf.org/html/rfc6750#section-5.2) section of the OAuth 2.0 Bearer Token Usage standard (RFC 6750), and in the OIDC [core specifications](https://openid.net/specs/openid-connect-core-1_0.html#AccessTokenRedirect). And, as the OAuth 2.0 Security BCP states:
 
 > "It allows the authorization server to create different access token whose format and content is specifically minted for the respective server. This has huge functional and privacy advantages in deployments using structured access tokens."
 
@@ -135,7 +135,7 @@ You will need to register the sample application as an OAuth 2.0 client with the
 
 Note the [refresh token grant](https://tools.ietf.org/html/rfc6749#section-6) is explicitly added to the client registration. This is because openid-client-helper relies on presence of a [refresh token](https://tools.ietf.org/html/rfc6749#section-1.5), which it will use for the back-channel token requests.
 
-> Other providers may have their own ways of enabling refresh tokens; for example, Google expects that the "access_type" authorization parameter is populated with the "offline" value.
+> Other providers may have their own ways of enabling refresh tokens; for example, Google expects that the `access_type` authorization parameter is populated with the `offline` value.
 
 In addition, the access token life span is intentionally set to a very small value, so that the token renewal in the running example is evident.
 
@@ -348,7 +348,7 @@ router.get('/redirect', redirect(), (req, res) => {
 })
 ```
 
-After the tokens are obtained the next middleware takes the user to the protected area of the application, where the authorization information, the ID token claims, and navigation links are displayed:
+After the tokens are obtained, the next middleware takes the user to the protected area of the application, where the authorization information, the ID token claims, and navigation links are displayed:
 
 ```javascript
 router.get('/protected', unauthorized({
