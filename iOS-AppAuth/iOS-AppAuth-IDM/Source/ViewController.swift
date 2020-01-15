@@ -191,18 +191,10 @@ extension ViewController {
 
         customPrint("Initiating authorization request with scopes: \(request.scope ?? "DEFAULT_SCOPE")")
 
-        if #available(iOS 11, *) {
-            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request) {
-                authState, error in
+        appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+            authState, error in
 
-                completion(authState, error)
-            }
-        } else {
-            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
-                authState, error in
-
-                completion(authState, error)
-            }
+            completion(authState, error)
         }
     }
 
@@ -647,6 +639,13 @@ extension ViewController {
             self.customPrint("authenticationId: \(authenticationId)")
 
             let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "TabBarController") as! UITabBarController
+
+            /**
+             Presents the view in full screen explicitly.
+
+             In iOS 13, the default value for this property, `.automatic`, will not fill the screen, will show the parent view controller in the background, and will allow for the "pull-to-dismiss" gesture; which is not necessary in this example.
+             */
+            tabBarController.modalPresentationStyle = .fullScreen
 
             // MARK: Injecting dependencies
 

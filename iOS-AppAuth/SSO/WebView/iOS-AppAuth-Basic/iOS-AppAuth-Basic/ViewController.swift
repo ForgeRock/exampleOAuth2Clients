@@ -266,18 +266,10 @@ extension ViewController {
 
         print("Initiating authorization request with scopes: \(request.scope ?? "no scope requested")")
 
-        if #available(iOS 11, *) {
-            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request) {
-                authState, error in
+        appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+            authState, error in
 
-                completion(authState, error)
-            }
-        } else {
-            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
-                authState, error in
-
-                completion(authState, error)
-            }
+            completion(authState, error)
         }
     }
 
@@ -442,9 +434,8 @@ extension ViewController {
         let configuration = WKWebViewConfiguration()
         configuration.userContentController = userContentController
 
-        // Providing the web view class with initial parameters, including the URL to the authorization endpoint obtained from the AppAuth authorization request object.
+        // Providing the web view class with initial parameters.
         webViewController = WebViewController.init(
-            initialUrl: request.authorizationRequestURL().absoluteString,
             appGroup: appGroup,
             appGroupCookies: appGroupCookies,
             webViewFrame: view.bounds,
@@ -462,6 +453,9 @@ extension ViewController {
             webView.tag = self.webViewTag
 
             self.view.addSubview(webView)
+
+            // Loading the authorization endpoint URL obtained from the AppAuth authorization request object.
+            webView.load(URLRequest(url: URL(string: request.authorizationRequestURL().absoluteString)!))
         }
     }
 

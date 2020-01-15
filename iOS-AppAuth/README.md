@@ -136,6 +136,36 @@ We will build the app in a few implementation steps:
     Means to obtain the RP registration details are specific to the OP and not covered here. For example, you can consult the [Registering OAuth 2.0 Clients With the Authorization Service](https://backstage.forgerock.com/docs/am/6/oauth2-guide/#register-oauth2-client) guide on creating and obtaining client credentials and scopes for an RP registered with ForgeRock Access Management.
 
     > You could also refer to the [ForgeRock example](#full) section, where the process of registering a client is described in the context of a running ForgeRock platform instance.
+    >
+    > For example, if your OP is [ForgeRock Access Management](https://www.forgerock.com/platform/access-management) (AM), the cURL command for client registration may look like this:
+    >
+    > ```bash
+    > curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents/OAuth2Client/ios-appauth-basic' \
+    > -X PUT \
+    > --data '{
+    >     "clientType": "Public",
+    >     "redirectionUris": ["com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect", "https://lapinek.github.io/oauth2redirect/ios-appauth-basic"],
+    >     "scopes": [
+    >         "openid",
+    >         "profile"
+    >     ],
+    >     "tokenEndpointAuthMethod": "client_secret_post",
+    >     "isConsentImplied": true,
+    >     "postLogoutRedirectUri": ["com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect", "https://lapinek.github.io/oauth2redirect/ios-appauth-basic"],
+    >     "grantTypes": [
+    >         "authorization_code"
+    >     ]
+    > }' \
+    > -H 'Content-Type: application/json' \
+    > -H 'Accept: application/json' \
+    > -H 'Cookie: iPlanetDirectoryPro='$( \
+    >     curl -k -s https://default.iam.example.com/am/json/realms/root/authenticate \
+    >     -X POST \
+    >     -H 'X-OpenAm-Username:amadmin' \
+    >     -H 'X-OpenAm-Password:password' \
+    >     | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/' \
+    > )
+    > ```
 
     To start with, we will use a private-use URI scheme for the redirection URI: `com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect`.
 
@@ -188,6 +218,12 @@ We will build the app in a few implementation steps:
         ```bash
         carthage bootstrap --platform ios
         ```
+
+        > After the initial bootstrap, if you expect updates in the library, you can also try to update its content with the latest:
+        >
+        > ```bash
+        > carthage update --platform iOS
+        > ```
 
         This will build the AppAuth framework for iOS in your project under the Carthage directory, according to the dependency specified in `Cartfile` and the provided `--platform` option. Providing no platform option will result in building frameworks for all supported platforms, which won't hurt but may prove unnecessary.
 
@@ -498,18 +534,10 @@ We will build the app in a few implementation steps:
 
                 print("Initiating authorization request with scopes: \(request.scope ?? "no scope requested")")
 
-                if #available(iOS 11, *) {
-                    appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request) {
-                        authState, error in
+                appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+                    authState, error in
 
-                        completion(authState, error)
-                    }
-                } else {
-                    appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
-                        authState, error in
-
-                        completion(authState, error)
-                    }
+                    completion(authState, error)
                 }
             }
         }
@@ -1680,7 +1708,11 @@ This example assumes an instance of the ForgeRock platform running locally, with
 
     The platform instance provides access to the authorization and the resource servers only over HTTPS. Running within Minikube, it uses a self-signed certificate, which by default will not be accepted by iOS. The easiest way to make it working on an iOS device (including a simulator) is installing the development Certificate Authority (CA) root certificate on the device.
 
-    The CA root certificate can be found at https://github.com/ForgeRock/forgeops/blob/master/helm/frconfig/secrets/ca.crt (or locally at `your-forgeops-clone/helm/frconfig/secrets/ca.crt`). In order to install it, follow the [Enabling TLS in development environment](#simple-https) instructions for the simple app.
+    The CA root certificate file, `ca.crt`, can be found under your ForgeRock Platform sample installation in the subdirectory corresponding to the version of the platform you are using. For example: `/forgeops/kustomize/overlay/7.0/all/secret/ca.crt`.
+
+    In order to install it, follow the [Enabling TLS in development environment](#simple-https) instructions for the simple app.
+
+    > Note that for use in iOS 13, the TLS certificate issued by the CA will have to comply with the [Requirements for trusted certificates in iOS 13 and macOS 10.15](https://support.apple.com/en-us/HT210176).
 
 0. Register the application as an OAuth 2.0 Client in AM
 
@@ -1696,6 +1728,7 @@ This example assumes an instance of the ForgeRock platform running locally, with
             "redirectionUris": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"],
             "scopes": [
                 "openid",
+                "profile",
                 "fr:idm:profile",
                 "fr:idm:profile_update",
                 "fr:idm:consent_read",
@@ -1749,6 +1782,12 @@ This example assumes an instance of the ForgeRock platform running locally, with
     ```
 
     This will add the AppAuth-iOS SDK content to the project.
+
+    > Later on, you can also try to update the SDK content with the latest:
+    >
+    > ```bash
+    > carthage update --platform iOS
+    > ```
 
 0. Open `iOS-AppAuth.xcodeproj` in Xcode, then build and run the product for selected device simulator. The GitHub project does not have a development team and cannot be run on an actual device by default.
 
