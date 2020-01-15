@@ -1,4 +1,4 @@
-# <a id="top"></a> Secure Implementation of OAuth 2.0 Clients in Node.js
+# <a id="top"></a> Improving Security for OAuth 2.0 Clients in Node.js
 
 An important security consideration in building a server-side [OAuth 2.0](https://oauth.net/2/) client is leakage of access tokens at the [resource server](https://tools.ietf.org/html/rfc6749#section-1.1). In this writing, we will discuss a mitigation technique related to this threat based on the use of resource-specific [access tokens](https://tools.ietf.org/html/rfc6749#section-1.4), and introduce a JavaScript library for implementing this approach in the [Node.js](https://nodejs.org) environment. Basic knowledge of the OAuth 2.0 framework will be helpful to and is expected of the reader.
 
