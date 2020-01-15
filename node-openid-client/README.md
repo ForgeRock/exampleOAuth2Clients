@@ -1,6 +1,6 @@
-# <a id="top"></a> Building an OAuth 2.0 Client with the openid-client and openid-client-helper Libraries in Node.js
+# <a id="top"></a> OAuth 2.0 Authorization Code Grant with openid-client and openid-client-helper
 
-[OAuth 2.0](https://tools.ietf.org/html/rfc6749) and [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) (OIDC) will be the context for this document and for the project it describes.
+[OAuth 2.0](https://tools.ietf.org/html/rfc6749) and [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) (OIDC) will be the environment for this document and for the project it describes.
 
 ## Contents
 
@@ -14,7 +14,7 @@
 
 This example of an OAuth 2.0 [client](https://tools.ietf.org/html/rfc6749) extended to OIDC [relying party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) relies on [openid-client](https://www.npmjs.com/package/openid-client), a certified OIDC library. The library provides a comprehensive set of methods that a [Node.js](https://nodejs.org/en/) application can use for performing OAuth 2.0 authorization and OIDC authentication flows.
 
-To aid with the authorization process and consumption of the resources protected by OAuth 2.0, another library is used in the code—[openid-client-helper](https://www.npmjs.com/package/openid-client-helper). The openid-client-helper package is built on top of openid-client and its public interface allows for easy implementation of common steps involved in OAuth 2.0 authorization by a [resource owner](https://tools.ietf.org/html/rfc6749#section-1.1). After the authorization, the helper library transparently applies automatically obtained and refreshed access tokens in requests made to protected APIs.
+To aid with the authorization process and consumption of the resources protected by OAuth 2.0, another library is used in the code—[openid-client-helper](https://www.npmjs.com/package/openid-client-helper). The openid-client-helper package is built on top of openid-client and provides public interface that allows for easy implementation of some common tasks related to OAuth 2.0 authorization by a [resource owner](https://tools.ietf.org/html/rfc6749#section-1.1) and for transparent use of automatically obtained and refreshed access tokens in requests made to protected APIs.
 
 In addition, openid-client-helper accepts as a parameter a set of resources—that is, a collection of API references identified by their URIs. For each resource, an openid-client-helper instance requests and renews, as necessary, specific to the resource access token. Maintaining access tokens for different resources separately will enable the OAuth 2.0 client to comply with the [Audience Restricted Access Tokens](https://tools.ietf.org/html/draft-ietf-oauth-security-topics-13#section-4.8.1.3) recommendation from the OAuth 2.0 Security Best Current Practice (BCP) draft for deployments with multiple [resource servers](https://tools.ietf.org/html/rfc6749#section-1.1). A resource-specific access token can be requested with a [resource parameter](https://tools.ietf.org/html/draft-ietf-oauth-resource-indicators-08#section-2) or a unique to the resource [scope](https://tools.ietf.org/html/rfc6749#section-3.3). Associating an access token with the intended audience and restricting the use of an access token to a specific scope is also suggested in the [Threat Mitigation](https://tools.ietf.org/html/rfc6750#section-5.2) section of the OAuth 2.0 Bearer Token Usage standard (RFC 6750), and in the OIDC [core specifications](https://openid.net/specs/openid-connect-core-1_0.html#AccessTokenRedirect). And, as the OAuth 2.0 Security BCP states:
 
@@ -334,10 +334,10 @@ router.get(authorizePath, authorize())
 
 You can initiate the authorization flow by visiting [http://localhost:3000](http://localhost:3000) and following the [Authorize with ForgeRock Access Management](http://localhost:3000/forgerock) link.
 
-<details open="">
+<details style="width: 512px">
   <summary>Snapshot of the sample's Home page: </summary>
 
-  <img width="512px" alt="node-openid-client example home page" src="README_files/sample-home.png">
+  ![node-openid-client example home page](README_files/sample-home.png)
 </details>
 
 To complete the authorization code flow with a token request, the application needs to handle redirection (with the authorization code included) from the authorization server. As with the authorization route handler, the `redirect` middleware can accept alternative or additional parameters to the ones already specified in the configuration. Similarly to the authorization route, we rely on the defaults in this example:
@@ -360,10 +360,10 @@ router.get('/protected', unauthorized({
 
 Note the use of the [unauthorized](https://github.com/ForgeRock/openid-client-helper/blob/master/docs/README.md#module_openid-client-helper--module.exports+unauthorized) middleware (provided by openid-client-helper). The middleware simply checks for the presence of the "master" token set (the one that was obtained during the original resource-owner-approved authorization) and takes unauthorized users to the provided `redirectTo` route. If you require more sophisticated logic for the authorization check, this middleware needs to be replaced/redefined with the desired functionality.
 
-<details open="">
+<details style="width: 768px">
   <summary>Snapshot of the sample's protected area screen: </summary>
 
-  <img width="768px" alt="node-openid-client example protected area" src="README_files/sample-protected.png">
+  ![node-openid-client example protected area](README_files/sample-protected.png)
 </details>
 
 ### <a id="sample-api-call"></a>API Call
@@ -431,10 +431,10 @@ It is up to the client how to proceed if the access token cannot be renewed auto
 
 The data from the API call, the resource-specific token set, and the results of its introspection will be displayed in the browser.
 
-<details open="">
+<details style="width: 768px">
   <summary>Snapshot of a protected resource screen: </summary>
 
-  <img width="768px" alt="node-openid-client example protected resource" src="README_files/sample-protected-resource.png">
+  ![node-openid-client example protected area](README_files/sample-protected-resource.png)
 </details>
 
 You may notice that the scope associated with the resource-specific access token is one of the scopes that you can see in the introspection results of the "master" token set. Also, given a short life span of the access token, you can observe that it is being refreshed when you revisit the page after certain period of time (four seconds, in this example).
@@ -485,10 +485,10 @@ router.get(deauthorizePath, unauthorized({
 }))
 ```
 
-<details open="">
+<details>
   <summary>Snapshot of the Deauthorized screen: </summary>
 
-  <img width="628px" alt="node-openid-client example deauthorized" src="README_files/sample-deauthorized.png">
+  ![node-openid-client example protected area](README_files/sample-deauthorized.png)
 </details>
 
 Deauthorization and signing out from the OpenID provider's session closes the cycle. The authorization state held in the openid-client-helper instance may have some information associated with it, but in order to access protected resources, the client will need to be authorized again.
