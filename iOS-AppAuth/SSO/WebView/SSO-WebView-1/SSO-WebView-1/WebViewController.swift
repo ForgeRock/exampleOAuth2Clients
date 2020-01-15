@@ -14,20 +14,17 @@ class WebViewController: NSObject {
      Accepts initial properties for the class.
 
      - Parameters:
-     - initialUrl: Initial URL to load in the web view.
      - appGroup: Placeholder for App Group reference. App groups allow multiple apps produced by a single development team to access shared containers and communicate using interprocess communication (IPC).
      - appGroupCookies: Cookies to be shared with apps in the App Group.
      - webViewFrame: Frame to place the web view in.
      - webViewConfiguration: Configuration properties to initialize the web view with.
      */
     init(
-        initialUrl url: String,
         appGroup group: String? = nil,
         appGroupCookies cookies: [String] = [],
         webViewFrame frame: CGRect = .zero,
         webViewConfiguration configuration: WKWebViewConfiguration? = WKWebViewConfiguration()
         ) {
-        initialUrl = url
         appGroup = group
         appGroupCookies = cookies
         webViewFrame = frame
@@ -42,7 +39,6 @@ class WebViewController: NSObject {
     }
 
     // Properties populated in init from parameters passed in by the consumer of this class.
-    var initialUrl: String!
     var appGroup: String?
     var appGroupCookies: [String]!
     var webViewFrame: CGRect!
@@ -70,8 +66,6 @@ class WebViewController: NSObject {
          Loads the pre-configured web view.
          */
         func load() {
-            webView.load(URLRequest(url: URL(string: self.initialUrl)!))
-
             completion(webView)
         }
 

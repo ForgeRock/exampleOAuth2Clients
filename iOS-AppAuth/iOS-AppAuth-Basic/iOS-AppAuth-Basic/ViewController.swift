@@ -227,18 +227,10 @@ extension ViewController {
 
         print("Initiating authorization request with scopes: \(request.scope ?? "no scope requested")")
 
-        if #available(iOS 11, *) {
-            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request) {
-                authState, error in
+        appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
+            authState, error in
 
-                completion(authState, error)
-            }
-        } else {
-            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: self) {
-                authState, error in
-
-                completion(authState, error)
-            }
+            completion(authState, error)
         }
     }
 

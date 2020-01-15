@@ -58,7 +58,6 @@ extension ViewController {
          ForgeRock 7 example.
          */
         webViewController = WebViewController.init(
-            initialUrl: "https://default.iam.example.com/enduser/",
             appGroup: "group.com.forgerock.sso-webview",
             appGroupCookies: ["iPlanetDirectoryPro"],
             webViewFrame: self.view.bounds
@@ -71,6 +70,8 @@ extension ViewController {
             webView.tag = self.webViewTag
 
             self.view.addSubview(webView)
+
+            webView.load(URLRequest(url: URL(string: "https://default.iam.example.com/am/")!))
         }
 
         return

@@ -301,7 +301,7 @@ The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-We
 
 0. In the main view controller—ViewController.swift, by default, we will instantiate the previously defined class, call its `loadWebView(completion:)` method, and add the resulting web view as a subview to the root view of the controller.
 
-    When creating a web view instance, you will need to provide a URL to load, the name of the App Group to share cookies with, the authentication cookie name(s) to track, and, optionally, a [CGRect](https://developer.apple.com/documentation/coregraphics/cgrect) location to place the web view at. For example:
+    When creating a web view instance, you will need to provide the name of the App Group to share cookies with, the authentication cookie name(s) to track, and, optionally, a [CGRect](https://developer.apple.com/documentation/coregraphics/cgrect) location to place the web view at. For example:
 
     ```swift
     //  ViewController.swift
@@ -318,7 +318,6 @@ The full code example can be found under [WebView/SSO-WebView-1/](WebView/SSO-We
         */
 
         webViewController = WebViewController.init(
-            initialUrl: "https://default.iam.example.com/enduser/",
             appGroup: "group.com.forgerock.sso-webview",
             appGroupCookies: ["iPlanetDirectoryPro"],
             webViewFrame: self.view.bounds
@@ -497,9 +496,8 @@ The full code example can be found at [WebView/iOS-AppAuth-Basic/](WebView/iOS-A
                 // Dismissing any existing web view controller.
                 webViewController = nil
 
-                // Providing the web view class with initial parameters, including the URL to the authorization endpoint obtained from the AppAuth authorization request object.
+                // Providing the web view class with initial parameters.
                 webViewController = WebViewController.init(
-                    initialUrl: request.authorizationRequestURL().absoluteString,
                     appGroup: appGroup,
                     appGroupCookies: appGroupCookies,
                     webViewFrame: view.bounds
@@ -516,6 +514,9 @@ The full code example can be found at [WebView/iOS-AppAuth-Basic/](WebView/iOS-A
                     webView.tag = self.webViewTag
 
                     self.view.addSubview(webView)
+
+                    // Loading the authorization endpoint URL obtained from the AppAuth authorization request object.
+                    webView.load(URLRequest(url: URL(string: request.authorizationRequestURL().absoluteString)!))
                 }
 
                 // . . .
@@ -870,9 +871,8 @@ extension ViewController {
         let configuration = WKWebViewConfiguration()
         configuration.userContentController = userContentController
 
-        // Providing the web view class with initial parameters, including the URL to the authorization endpoint obtained from the AppAuth authorization request object.
+        // Providing the web view class with initial parameters.
         webViewController = WebViewController.init(
-            initialUrl: request.authorizationRequestURL().absoluteString,
             appGroup: appGroup,
             appGroupCookies: appGroupCookies,
             webViewFrame: view.bounds,
