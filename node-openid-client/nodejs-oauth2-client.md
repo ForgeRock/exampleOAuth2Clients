@@ -49,7 +49,7 @@ The resource server considerations come from the fact that the access tokens it 
 
 > Note that an authorization server acting as an [OpenID provider](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) may expose the resource owner profile information over the [UserInfo Endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) and in this way, introduce an additional instance of a resource server.
 
-The extent of the authorization associated with an access token is defined in its scope, which is normally expressed via a set of space-delimited string values. These values are interpreted by the resource server, and may be presented in an understandable way to the resource owner—for authorization. In the most common OAuth 2.0 use, the resource owner is a user, and the client is an application developed by a _third party_, the entity which does not initially have access to the user's data. An action is typically required from the user to give their consent for authorizing the third-party client with the scopes it needs. Authorizing all the scopes that the client currently needs in a single request will likely constitute for a better user experience, because trips to authorization server and back in the front channel may interrupt the user's activities and should probably be minimized.
+The extent of the authorization associated with an access token is defined in its scope, which is normally expressed via a set of space-delimited string values. These values are interpreted by the resource server, and may be presented in an understandable way to the resource owner—for authorization. In the most common OAuth 2.0 use, the resource owner is a user, and the client is an application developed by a _third party_, the entity which does not initially have access to the user's data. An action is typically required from the user to give their consent for authorizing the third-party client with the scopes it needs. Authorizing all the scopes that the client currently needs in a single request will likely constitute for a better user experience, because trips to the authorization server and back in the front channel may interrupt the user's activities and should probably be minimized.
 
 > A _first-party_ application, managed by the same business entity as the one that controls the authorization system and maintains access to the user data, may not need to ask its users for explicit authorization consent; such an application may rely solely on the user's authentication. However, one can argue that OAuth 2.0 mostly aims to help with the business expansion by allowing third-party clients to access the first-party APIs.
 
@@ -116,9 +116,9 @@ The resource specificity, therefore, seems to be the most generic solution that 
 
 [Back to Contents](#contents)
 
-Maintaining resource specificity for the purposes of audience restriction, utilizing diverse access tokens, and preserving privacy does not necessarily require any cryptography in the client. It does, however, add complexity to its implementation because of the need to track, renew, and apply different access tokens to multiple resources.
+Maintaining resource specificity for the purposes of audience restriction, utilizing diverse access tokens, and preserving privacy does not necessarily require any cryptography in the client. It does, however, add complexity to its implementation because of the need to track, renew, and apply different access tokens for multiple resources.
 
-> OAuth 2.0 token binding features separate access tokens for multiple resource servers as well.
+> The OAuth 2.0 token binding technique features separate access tokens for multiple resource servers as well.
 
 To help with adopting resource-specific access tokens in a Node.js application, ForgeRock published an open source library, the [openid-client-helper](https://www.npmjs.com/package/openid-client-helper) NPM package. The library has an easy to use interface for building an OAuth 2.0 client extended to an OIDC [relying party](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) that will be able to:
 
