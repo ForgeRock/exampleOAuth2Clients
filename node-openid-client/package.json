@@ -12,17 +12,17 @@
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
-    "express": "~4.16.1",
+    "express": "^4.17.1",
     "express-session": "^1.17.0",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
-    "openid-client": "^3.7.4",
-    "openid-client-helper": "^0.1.0"
+    "openid-client": "^3.14.0",
+    "openid-client-helper": "^0.1.1"
   },
   "devDependencies": {
-    "eslint": "^6.6.0",
+    "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
