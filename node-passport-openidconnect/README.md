@@ -482,7 +482,14 @@ This web application was started with the [Express application generator](https:
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops).
+1. Follow the DevOps Guide for the [ForgeRock Cloud Platform](
+   https://backstage.forgerock.com/docs/forgeops/6.5/devops-guide-minikube/)
+0. Run the "oauth2" profile with the 6.5 version of the platform:
+```bash
+    $ cd /path/to/forgeops
+    $ bin/config.sh init --profile oauth2 --version 6.5
+    $ skaffold dev -f skaffold-6.5.yaml -p oauth2
+```
 
 ### Installing and Running the Application
 
@@ -503,7 +510,7 @@ This web application was started with the [Express application generator](https:
           "userpassword": "password",
           "clientType": "Confidential",
           "redirectionUris": ["http://localhost:3000/forgerock/redirect"],
-          "scopes": ["openid", "profile", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"],
+          "scopes": ["openid", "profile"],
           "responseTypes": ["code"],
           "tokenEndpointAuthMethod": "client_secret_post",
           "isConsentImplied": false,
@@ -536,7 +543,7 @@ This web application was started with the [Express application generator](https:
           * "Client ID": "node-passport-openidconnect"
           * "Client secret": "password"
           * "Redirection URIs": ["http://localhost:3000/forgerock/redirect"]
-          * "Scope(s)": ["openid", "profile", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"]
+          * "Scope(s)": ["openid", "profile"]
       * Update the new client
           * _Core_ > "Client type": "Confidential"
           * _Advanced_ > "Response Types": ["code"]
@@ -557,7 +564,7 @@ This web application was started with the [Express application generator](https:
         client_id: 'node-passport-openidconnect',
         client_secret: 'password',
         callbackURL: '/forgerock/redirect',
-        scope: 'openid profile fr:idm:profile fr:idm:consent_read fr:idm:notifications'
+        scope: 'openid profile'
       }
     };
 

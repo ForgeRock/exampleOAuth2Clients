@@ -71,7 +71,12 @@ In this example, the authorization grant is performed against [ForgeRock Access 
 
 AM also acts as a resource server by exposing the [UserInfo Endpoint](https://openid.net/specs/openid-connect-core-1_0.html#Terminology) as a resource protected with OAuth 2.0 means. A separate, differently "scoped" protected resource is provided by [ForgeRock Identity Management](https://www.forgerock.com/platform/identity-management) (IDM).
 
-You can make use of your own authorization and resource servers and replace the URIs you find in the sample code with ones that will work in your environment. To continue with the ForgeRock server components, install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops). Further instructions will assume that the ForgeRock platform software is running in the "default" namespace and is used for OAuth 2.0 authorization and OIDC authentication flows.
+You can make use of your own authorization and resource servers and replace the URIs you find in the sample code with ones that will work in your environment. To continue with the ForgeRock server components, install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops). Further instructions will assume that the ForgeRock platform software is running in the "default" namespace and is used for OAuth 2.0 authorization and OIDC authentication flows. See the DevOps Guide for the [ForgeRock Cloud Platform](https://backstage.forgerock.com/docs/forgeops/6.5/devops-guide-minikube/) and run the "oauth2" profile with the 6.5 version of the platform:
+```bash
+    $ cd /path/to/forgeops
+    $ bin/config.sh init --profile oauth2 --version 6.5
+    $ skaffold dev -f skaffold-6.5.yaml -p oauth2
+```
 
 #### <a id="sample-prerequisites-setup"></a>Setup
 
@@ -88,7 +93,7 @@ You will need to register the sample application as an OAuth 2.0 client with the
       "userpassword": "password",
       "clientType": "Confidential",
       "redirectionUris": ["http://localhost:3000/forgerock/redirect"],
-      "scopes": ["openid", "profile", "fr:idm:profile"],
+      "scopes": ["openid", "profile"],
       "accessTokenLifetime": 4,
       "responseTypes": ["code"],
       "grantTypes": ["authorization_code", "refresh_token"],
@@ -122,7 +127,7 @@ You will need to register the sample application as an OAuth 2.0 client with the
       * "Client ID": "node-openid-client"
       * "Client secret": "password"
       * "Redirection URIs": ["http://localhost:3000/forgerock/redirect"]
-      * "Scope(s)": ["openid", "profile", "fr:idm:profile", "fr:idm:consent_read", "fr:idm:notifications"]
+      * "Scope(s)": ["openid", "profile"]
   * Update the new client
       * _Core_ > "Client type": "Confidential"
       * _Core_ > "Access Token Lifetime (seconds)": 4
@@ -261,7 +266,7 @@ const openIdClientHelperParams = {
       scope: 'profile'
     },
     'https://default.iam.example.com/openidm/': {
-      scope: 'fr:idm:profile'
+      scope: 'openid'
     }
   }, // 3.
   customize: ({
@@ -514,7 +519,7 @@ const subAuthorizedInstance = OpenIdClientHelper({
   },
   resources: {
     'https://default.iam.example.com/openidm/': {
-      scope: 'fr:idm:profile'
+      scope: 'openid'
     }
   }
 })

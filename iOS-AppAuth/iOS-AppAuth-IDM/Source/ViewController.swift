@@ -224,10 +224,7 @@ extension ViewController {
                 redirectionUri: self.redirectionUri,
                 scopes: [
                     OIDScopeOpenID,
-                    OIDScopeProfile,
-                    "fr:idm:profile_update",
-                    "fr:idm:consent_read",
-                    "fr:idm:notifications"
+                    OIDScopeProfile
                 ]
             ) {
                 authState, error in

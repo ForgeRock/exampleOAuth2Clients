@@ -27,7 +27,7 @@ def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:888
 oauth2Handler.setupCallback(router.get("/callback"))
 
 // scopes we want to request during login
-oauth2Handler.addAuthority("fr:idm:profile")
+oauth2Handler.addAuthority("profile")
 oauth2Handler.addAuthority("openid")
 ```
 
@@ -78,7 +78,13 @@ The [app.groovy](src/app.groovy) code has the full context of these two snippets
 
 ### Prerequisites
 
-1. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops).
+1. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops). Be sure to start it with the correct configuration and skaffold profile:
+
+```bash
+    $ cd /path/to/forgeops
+    $ bin/config.sh init --profile oauth2 --version 6.5
+    $ skaffold dev -f skaffold-6.5.yaml -p oauth2
+```
 
 2. Register *vertxClient* application with AM as a new OAuth2 Client:
 
@@ -88,7 +94,7 @@ curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents
 --data '{
     "userpassword": "vertxClientSecret",
     "redirectionUris": ["http://localhost:8888/callback"],
-    "scopes": ["openid","fr:idm:profile"],
+    "scopes": ["openid","profile"],
     "tokenEndpointAuthMethod": "client_secret_post"
 }' \
 -H 'Content-Type: application/json' \
