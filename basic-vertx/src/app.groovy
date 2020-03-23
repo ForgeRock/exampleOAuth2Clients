@@ -41,7 +41,7 @@ def oauth2Handler = OAuth2AuthHandler.create(authProvider, "http://localhost:888
 oauth2Handler.setupCallback(router.get("/callback"))
 
 // scopes we want to request during login
-oauth2Handler.addAuthority("fr:idm:profile")
+oauth2Handler.addAuthority("profile")
 oauth2Handler.addAuthority("openid")
 
 router.route("/protected")

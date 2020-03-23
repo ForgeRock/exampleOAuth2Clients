@@ -83,7 +83,7 @@ const openIdClientHelperParams = {
       scope: 'profile'
     },
     'https://default.iam.example.com/openidm/': {
-      scope: 'fr:idm:profile'
+      scope: 'openid'
     }
   },
   /** Use this function to modify the default behavior of the underlying `openid-client` functionality
@@ -471,7 +471,7 @@ const subAuthorizedInstance = OpenIdClientHelper({
   },
   resources: {
     'https://default.iam.example.com/openidm/': {
-      scope: 'fr:idm:profile'
+      scope: 'openid'
     }
   }
 })

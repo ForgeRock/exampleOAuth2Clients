@@ -85,9 +85,16 @@ Once the tokens are available, the main SPA code can be loaded. This is what "ap
 
 ### Prerequisites
 
-1. Install and run the [ForgeRock Cloud Platform](https://github.com/ForgeRock/forgeops).
+1. Follow the DevOps Guide for the [ForgeRock Cloud Platform](
+   https://backstage.forgerock.com/docs/forgeops/6.5/devops-guide-minikube/)
+2. Run the "oauth2" profile with the 6.5 version of the platform:
+```bash
+    $ cd /path/to/forgeops
+    $ bin/config.sh init --profile oauth2 --version 6.5
+    $ skaffold dev -f skaffold-6.5.yaml -p oauth2
+```
 
-2. Register the *appAuthClient* application with AM as a new OAuth2 Client.
+3. Register the *appAuthClient* application with AM as a new OAuth2 Client.
 
 ```bash
 curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents/OAuth2Client/appAuthClient' \

@@ -1700,7 +1700,14 @@ This example assumes an instance of the ForgeRock platform running locally, with
 
 ### Prerequisites
 
-0. Install and run the [ForgeRock Platform sample](https://github.com/ForgeRock/forgeops)
+0. Follow the DevOps Guide for the [ForgeRock Cloud Platform](
+   https://backstage.forgerock.com/docs/forgeops/6.5/devops-guide-minikube/)
+0. Run the "oauth2" profile with the 6.5 version of the platform:
+```bash
+    $ cd /path/to/forgeops
+    $ bin/config.sh init --profile oauth2 --version 6.5
+    $ skaffold dev -f skaffold-6.5.yaml -p oauth2
+```
 
 ### Installing and running the application
 
@@ -1728,11 +1735,7 @@ This example assumes an instance of the ForgeRock platform running locally, with
             "redirectionUris": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"],
             "scopes": [
                 "openid",
-                "profile",
-                "fr:idm:profile",
-                "fr:idm:profile_update",
-                "fr:idm:consent_read",
-                "fr:idm:notifications"
+                "profile"
             ],
             "tokenEndpointAuthMethod": "client_secret_post",
             "isConsentImplied": true,
@@ -1764,7 +1767,7 @@ This example assumes an instance of the ForgeRock platform running locally, with
         * Add new client
             * "Client ID": "ios-appauth-idm"
             * "Redirection URIs": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"]
-            * "Scope(s)": ["openid","fr:idm:profile","fr:idm:profile_update","fr:idm:consent_read","fr:idm:notifications"]
+            * "Scope(s)": ["openid","profile"]
         * Update the new client
             * *Core* > "Client type": "Public"
             * *Advanced* > "Implied consent": "enabled"
