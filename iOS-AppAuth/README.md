@@ -99,7 +99,7 @@ We will build the app in a few implementation steps:
 
     If your OAuth 2.0 development servers (the OP and the RS) require HTTPS and use self-signed certificates, you will need to accommodate that with an approach described in [Apple's Technical Q&A: HTTPS and Test Servers](https://developer.apple.com/library/archive/qa/qa1948/_index.html).
 
-    To install a CA root certificate on an iOS device simulator, for example, drag and drop the certificate file on a (preferably Settings) screen and follow the installation prompt. If there is no installation prompt, you may need to manually open Settings > General > Profile > _your-CA-certificate_ to install the certificate after it has been downloaded. On a more recent version of iOS, enable the certificate in General > About > Certificate Trust Settings. It may take more than one attempt to engage the installation process. In that case, don't get discouraged and keep trying; eventually, the simulator will cooperate.
+    To install a CA root certificate on an iOS device simulator, drag and drop the certificate file on a simulator screen and follow the download and installation prompts. If there is no download prompt from the Safari app, you may need to remove focus from its search field by selecting the Cancel button. If there is no installation prompt, you may need to manually open Settings > General > Profile > _your-CA-certificate_ to install the certificate after it has been downloaded. On more recent versions of iOS, you will need to enable the certificate in General > About > Certificate Trust Settings. It may take more than one attempt to engage the installation process. In that case, don't get discouraged and keep trying; eventually, the simulator will cooperate.
 
     A [short video](https://forgerock.wistia.com/medias/1wft6023jm) shows the installation flow on an iOS 12.1 simulator.
 
@@ -150,7 +150,7 @@ We will build the app in a few implementation steps:
     >         "profile"
     >     ],
     >     "tokenEndpointAuthMethod": "client_secret_post",
-    >     "isConsentImplied": true,
+    >     "isConsentImplied": false,
     >     "postLogoutRedirectUri": ["com.forgeops.ios-appauth-basic:/oauth2/forgeops/redirect", "https://lapinek.github.io/oauth2redirect/ios-appauth-basic"],
     >     "grantTypes": [
     >         "authorization_code"
@@ -1738,7 +1738,7 @@ This example assumes an instance of the ForgeRock platform running locally, with
                 "profile"
             ],
             "tokenEndpointAuthMethod": "client_secret_post",
-            "isConsentImplied": true,
+            "isConsentImplied": false,
             "postLogoutRedirectUri": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"],
             "grantTypes": [
                 "authorization_code"
@@ -1770,7 +1770,7 @@ This example assumes an instance of the ForgeRock platform running locally, with
             * "Scope(s)": ["openid","profile"]
         * Update the new client
             * *Core* > "Client type": "Public"
-            * *Advanced* > "Implied consent": "enabled"
+            * *Advanced* > "Implied consent": "disabled"
             * *Advanced* > "Grant Types": ["authorization_code"]
             * *Advanced* > "Token Endpoint Authentication Method": "client_secret_post"
             * *OpenID Connect* > "Post Logout Redirect URIs": ["com.forgeops.ios-appauth-idm:/oauth2/forgeops/redirect"]
