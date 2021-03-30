@@ -85,44 +85,51 @@ Once the tokens are available, the main SPA code can be loaded. This is what "ap
 
 ### Prerequisites
 
-1. Follow the DevOps Guide for the [ForgeRock Cloud Platform](
-   https://backstage.forgerock.com/docs/forgeops/6.5/devops-guide-minikube/)
-2. Run the "oauth2" profile with the 6.5 version of the platform:
+1. Follow the DevOps Guide for the [Cloud Developer's Kit](
+  https://backstage.forgerock.com/docs/forgeops/7/devops-implementation-deploy.html)
+2. Use [minikube](https://backstage.forgerock.com/docs/forgeops/7/devops-minikube-implementation-env.html) and leave the "default" namespace:
 ```bash
     $ cd /path/to/forgeops
-    $ bin/config.sh init --profile oauth2 --version 6.5
-    $ skaffold dev -f skaffold-6.5.yaml -p oauth2
+    $ bin/config.sh init
+    $ skaffold run
+```
+3. Get the amadmin password:
+```bash
+    $ bin/print-secrets.sh
 ```
 
-3. Register the *appAuthClient* application with AM as a new OAuth2 Client.
-
+4. Register the *appAuthClient* application with AM as a new OAuth2 Client. You'll need to replace YOUR_AMADMIN_PASSWORD with what was returned in step 3:
 ```bash
-curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents/OAuth2Client/appAuthClient' \
+curl -k -v 'https://default.iam.example.com/am/json/realms/root/realm-config/agents/OAuth2Client/appAuthClient' \
     -X PUT --data '{
         "coreOAuth2ClientConfig": {
+            "clientType": "Public",
             "redirectionUris": [
                 "http://localhost:8888/appAuthHelperRedirect.html",
                 "http://localhost:8888/sessionCheck.html"
             ],
             "scopes": [
                 "openid",
-                "profile"
-            ],
+                "profile",
+                "fr:idm:*"
+            ]
+        },
+        "advancedOAuth2ClientConfig" : {
             "grantTypes": [
                 "authorization_code",
                 "implicit"
             ],
             "isConsentImplied": true,
-            "clientType": "Public",
             "tokenEndpointAuthMethod": "none"
         }
     }' \
+    -H 'accept-api-version: protocol=2.0,resource=1.0' \
     -H 'Content-Type: application/json' -H 'Accept: application/json' \
     -H 'Cookie: iPlanetDirectoryPro='$( \
         curl -k 'https://default.iam.example.com/am/json/realms/root/authenticate' \
         -X POST \
         -H 'X-OpenAM-Username:amadmin' \
-        -H 'X-OpenAM-Password:password' \
+        -H 'X-OpenAM-Password:YOUR_AMADMIN_PASSWORD' \
         | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/' \
     )
 ```
@@ -134,15 +141,15 @@ The following extract shows some key fields:
 ```
 
 Alternatively you can add *appAuthClient* manually, using the platform UI.
-Browse to the [AM Console](https://default.iam.example.com/am/console) and use these hints:
+Browse to the [AM Console](https://default.iam.example.com/am/ui-admin) and use these hints:
 
-* Sign in with *amadmin/password*
+* Sign in with *amadmin/YOUR_AMADMIN_PASSWORD*
 * Navigate to *Top Level Realm* > *Applications* > *OAuth 2.0*
 * Add new client:
     * "Client ID": "appAuthClient"
     * "Client type": "Public"
     * "Redirection URIs": ["http://localhost:8888/appAuthHelperRedirect.html", "http://localhost:8888/sessionCheck.html"]
-    * "Scope(s)": ["openid", "profile"]
+    * "Scope(s)": [`openid`, `profile`, `fr:idm:*`]
 * Click Save, then go to "Advanced"
     * "Token Endpoint Authentication Method": "none"
     * "Grant Types": "Authorization Code", "Implicit"

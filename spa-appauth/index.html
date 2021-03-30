@@ -20,7 +20,8 @@
 
 <body>
     <div id="userDetails"></div>
-    <a href='#' onclick='AppAuthHelper.logout().then(() => location.reload())'>Logout</a>
+    <a href='#' onclick='AppAuthHelper.logout().then(() => location.reload())'>Logout</a><br>
+    <a href='#' onclick='loadData(); return false'>Reload</a>
 </body>
 
 <script src="sessionCheckGlobal.js"></script>
@@ -33,8 +34,6 @@
         authorizationEndpoint: "https://default.iam.example.com/am/oauth2/authorize"
     };
 
-    var sessionCheck = null;
-
     AppAuthHelper.init({
         clientId: commonSettings.clientId,
         authorizationEndpoint: commonSettings.authorizationEndpoint,
@@ -42,40 +41,37 @@
         revocationEndpoint: "https://default.iam.example.com/am/oauth2/token/revoke",
         endSessionEndpoint: "https://default.iam.example.com/am/oauth2/connect/endSession",
         resourceServers: {
-            "https://default.iam.example.com/am/oauth2/userinfo": "profile",
-            "https://default.iam.example.com/openidm": "openid"
+            "https://default.iam.example.com/am/oauth2/userinfo": "profile openid",
+            "https://default.iam.example.com/openidm": "fr:idm:*"
         },
         tokensAvailableHandler: function (claims) {
-            // this function is called every time the tokens are either
-            // originally obtained or renewed
-            if (!sessionCheck) {
-                sessionCheck = new SessionCheck({
-                    clientId: commonSettings.clientId,
-                    opUrl: commonSettings.authorizationEndpoint,
-                    subject: claims.sub,
-                    invalidSessionHandler: function () {
-                        AppAuthHelper.logout().then(function () {
-                            window.location.href = "";
-                        });
-                    },
-                    cooldownPeriod: 5
-                });
-                // check the validity of the session immediately
+
+            sessionCheck = new SessionCheck({
+                clientId: commonSettings.clientId,
+                opUrl: commonSettings.authorizationEndpoint,
+                subject: claims.sub,
+                invalidSessionHandler: function () {
+                    AppAuthHelper.logout().then(function () {
+                        window.location.href = "";
+                    });
+                },
+                cooldownPeriod: 5
+            });
+            // check the validity of the session immediately
+            sessionCheck.triggerSessionCheck();
+
+            // check with every captured event
+            document.addEventListener("click", function () {
                 sessionCheck.triggerSessionCheck();
+            });
+            document.addEventListener("keypress", function () {
+                sessionCheck.triggerSessionCheck();
+            });
 
-                // check with every captured event
-                document.addEventListener("click", function () {
-                    sessionCheck.triggerSessionCheck();
-                });
-                document.addEventListener("keypress", function () {
-                    sessionCheck.triggerSessionCheck();
-                });
-
-                // load the main SPA app
-                var mainScript = document.createElement("script");
-                mainScript.setAttribute("src", "app.js");
-                document.getElementsByTagName("body")[0].appendChild(mainScript);
-            }
+            // load the main SPA app
+            var mainScript = document.createElement("script");
+            mainScript.setAttribute("src", "app.js");
+            document.getElementsByTagName("body")[0].appendChild(mainScript);
         }
     })
     .then(function () {
