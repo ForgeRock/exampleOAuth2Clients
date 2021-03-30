@@ -1,4 +1,4 @@
-(function () {
+var loadData = function () {
 
     Promise.all([
         // Appropriate access tokens will be automatically included in these requests
@@ -11,4 +11,6 @@
         }, null, 4);
     });
 
-}());
+};
+
+loadData();

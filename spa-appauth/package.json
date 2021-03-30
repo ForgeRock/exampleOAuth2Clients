@@ -2,12 +2,12 @@
   "name": "spa-appauth",
   "version": "1.0.0",
   "dependencies": {
-    "appauthhelper": "^0.3.2",
-    "oidcsessioncheck": "^0.0.4"
+    "appauthhelper": "0.3.19",
+    "oidcsessioncheck": "1.0.3"
   },
   "repository": "https://github.com/ForgeRock/exampleOAuth2Clients",
   "scripts": {
-    "copy-dependencies": "(cd node_modules/appauthhelper/ && cp appAuthHelperRedirect.html appAuthServiceWorker.js appAuthHelperFetchTokensBundle.js appAuthHelperBundle.js ../..) && (cd node_modules/oidcsessioncheck/ && cp sessionCheck.html sessionCheckFrame.js  sessionCheckGlobal.js ../..)"
+    "copy-dependencies": "TARGET=$PWD && (cd node_modules/appauthhelper/ && cp appAuthHelperRedirect.html appAuthServiceWorker.js appAuthHelperFetchTokensBundle.js appAuthHelperBundle.js $TARGET) && (cd node_modules/oidcsessioncheck/ && cp sessionCheck.html sessionCheckFrame.js  sessionCheckGlobal.js $TARGET)"
   },
   "license": "MIT"
 }
