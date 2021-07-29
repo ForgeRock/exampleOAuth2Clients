@@ -93,7 +93,7 @@ You will need to register the sample application as an OAuth 2.0 client with the
       "userpassword": "password",
       "clientType": "Confidential",
       "redirectionUris": ["http://localhost:3000/forgerock/redirect"],
-      "scopes": ["openid", "profile"],
+      "scopes": ["openid", "profile", "fr:idm:*"],
       "accessTokenLifetime": 4,
       "responseTypes": ["code"],
       "grantTypes": ["authorization_code", "refresh_token"],
