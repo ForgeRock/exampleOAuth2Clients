@@ -83,7 +83,7 @@ const openIdClientHelperParams = {
       scope: 'profile'
     },
     'https://default.iam.example.com/openidm/': {
-      scope: 'openid'
+      scope: 'openid fr:idm:*'
     }
   },
   /** Use this function to modify the default behavior of the underlying `openid-client` functionality
