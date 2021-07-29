@@ -103,12 +103,16 @@ You will need to register the sample application as an OAuth 2.0 client with the
   }' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Cookie: iPlanetDirectoryPro='$( \
-    curl -k 'https://default.iam.example.com/am/json/realms/root/authenticate' \
-    -X POST \
-    -H 'X-OpenAM-Username:amadmin' \
-    -H 'X-OpenAM-Password:password' \
-    | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/'
+  -H 'Accept-API-Version: protocol=2.0, resource=1.0' \
+  -H 'X-Requested-With: cURL' \
+  -H 'iPlanetDirectoryPro: '$( \
+      curl -k 'https://default.iam.example.com/am/json/realms/root/authenticate' \
+      -X POST \
+      -H 'Accept-API-Version: protocol=1.0, resource=2.1' \
+      -H 'X-Requested-With: cURL' \
+      -H 'X-OpenAM-Username: amadmin' \
+      -H 'X-OpenAM-Password: YOUR_AMADMIN_PASSWORD' \
+      | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/' \
   )
   ```
 
