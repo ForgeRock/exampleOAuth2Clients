@@ -99,12 +99,16 @@ curl -k 'https://default.iam.example.com/am/json/realms/root/realm-config/agents
 }' \
 -H 'Content-Type: application/json' \
 -H 'Accept: application/json' \
--H 'Cookie: iPlanetDirectoryPro='$( \
+-H 'Accept-API-Version: protocol=2.0, resource=1.0' \
+-H 'X-Requested-With: cURL' \
+-H 'iPlanetDirectoryPro: '$( \
     curl -k 'https://default.iam.example.com/am/json/realms/root/authenticate' \
     -X POST \
-    -H 'X-OpenAM-Username:amadmin' \
-    -H 'X-OpenAM-Password:password' \
-    | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/'
+    -H 'Accept-API-Version: protocol=1.0, resource=2.1' \
+    -H 'X-Requested-With: cURL' \
+    -H 'X-OpenAM-Username: amadmin' \
+    -H 'X-OpenAM-Password: YOUR_AMADMIN_PASSWORD' \
+    | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/' \
 )
 ```
 The response is a JSON resource indicating successful registration.

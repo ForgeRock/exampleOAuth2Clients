@@ -123,13 +123,17 @@ curl -k -v 'https://default.iam.example.com/am/json/realms/root/realm-config/age
             "tokenEndpointAuthMethod": "none"
         }
     }' \
-    -H 'accept-api-version: protocol=2.0,resource=1.0' \
-    -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    -H 'Cookie: iPlanetDirectoryPro='$( \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -H 'Accept-API-Version: protocol=2.0, resource=1.0' \
+    -H 'X-Requested-With: cURL' \
+    -H 'iPlanetDirectoryPro: '$( \
         curl -k 'https://default.iam.example.com/am/json/realms/root/authenticate' \
         -X POST \
-        -H 'X-OpenAM-Username:amadmin' \
-        -H 'X-OpenAM-Password:YOUR_AMADMIN_PASSWORD' \
+        -H 'Accept-API-Version: protocol=1.0, resource=2.1' \
+        -H 'X-Requested-With: cURL' \
+        -H 'X-OpenAM-Username: amadmin' \
+        -H 'X-OpenAM-Password: YOUR_AMADMIN_PASSWORD' \
         | sed -e 's/^.*"tokenId":"\([^"]*\)".*$/\1/' \
     )
 ```
