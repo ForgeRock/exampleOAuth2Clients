@@ -471,7 +471,7 @@ const subAuthorizedInstance = OpenIdClientHelper({
   },
   resources: {
     'https://default.iam.example.com/openidm/': {
-      scope: 'openid'
+      scope: 'openid fr:idm:*'
     }
   }
 })
