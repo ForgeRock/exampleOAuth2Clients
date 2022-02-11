@@ -10,7 +10,7 @@
  <name>Basic Vert.x Example</name>
 
  <properties>
-  <vert.x.version>3.5.4</vert.x.version>
+  <vert.x.version>3.9.4</vert.x.version>
   <slf4j.version>1.7.25</slf4j.version>
  </properties>
 
