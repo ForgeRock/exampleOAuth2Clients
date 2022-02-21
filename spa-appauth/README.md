@@ -155,7 +155,7 @@ Browse to the [AM Console](https://default.iam.example.com/am/ui-admin) and use 
     * "Redirection URIs": ["http://localhost:8888/appAuthHelperRedirect.html", "http://localhost:8888/sessionCheck.html"]
     * "Scope(s)": [`openid`, `profile`, `fr:idm:*`]
 * Click Save, then go to "Advanced"
-    * "Token Endpoint Authentication Method": "none"
+    * "Token Endpoint Authentication Method": "none" (for pre-AM 7 select "client_secret_post" instead)
     * "Grant Types": "Authorization Code", "Implicit"
     * "Implied consent": true
 
