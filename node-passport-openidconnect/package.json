@@ -31,6 +31,6 @@
     "http-errors": "~1.6.2",
     "morgan": "^1.9.1",
     "passport": "^0.4.0",
-    "passport-openidconnect": "0.0.2"
+    "passport-openidconnect": "0.1.1"
   }
 }
